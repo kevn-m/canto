@@ -1,0 +1,27 @@
+# Canto curated supplement
+#
+# Format: same as data/cccanto-webdist.txt, one entry per line:
+#   traditional simplified [pinyin] {jyutping} /gloss/gloss/.../
+#
+# Lines starting with # are comments/ignored. build_dict.py parses this file
+# with the same LINE_RE as the main dictionary and inserts every live entry
+# with source=0 (genuine CC-Canto rank — wins ties over source=1 CEDICT
+# adaptations), indexed into english_index the same way as main entries.
+#
+# Why this file exists: scripts/spike.py's Slice 0 run showed three miss
+# clusters that cccanto-webdist.txt does not cover well:
+#   1. Baby equipment — pram, cot, dummy, nappy (real objects, no CC-Canto entry)
+#   2. Phrasal verbs — "pick him up", "put him down", "settle down" (CEDICT-style
+#      single-token glosses don't parse multi-word English phrases)
+#   3. Hyper-common junk-topped words — where a rare/literary character (e.g. a
+#      CEDICT adaptation) currently outranks the everyday colloquial Cantonese term
+#
+# LOUD WARNING: every jyutping value written into this file MUST be verified
+# by Kevin (a Cantonese speaker) before it ships. Do NOT let an LLM invent or
+# guess jyutping here. ADR 0002 exists because fabricated jyutping poisons a
+# language-learning tool — this file is the one place in the pipeline where
+# that could happen, so it is deliberately left empty for human curation.
+# Do not add live entries in an automated pass.
+#
+# Example (commented out — shows the format only, does not load):
+# 手推車 手推车 [shou3 tui1 che1] {sau2 teoi1 ce1} /pram/stroller/
