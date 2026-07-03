@@ -1,0 +1,98 @@
+import XCTest
+@testable import Canto
+
+final class LogStoreTests: XCTestCase {
+    var tempDir: URL!
+
+    override func setUp() {
+        super.setUp()
+        tempDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("LogStoreTests-\(UUID().uuidString)")
+    }
+
+    override func tearDown() {
+        try? FileManager.default.removeItem(at: tempDir)
+        tempDir = nil
+        super.tearDown()
+    }
+
+    func test_record_insertsRowWithExpectedFields() {
+        let store = LogStore(directory: tempDir)
+        let id = store.record(heard: "dog", matched: true, viaVoice: true)
+        XCTAssertNotNil(id)
+
+        let rows = store.recentLookups()
+        XCTAssertEqual(rows.count, 1)
+        let row = rows[0]
+        XCTAssertEqual(row.heardText, "dog")
+        XCTAssertTrue(row.matched)
+        XCTAssertTrue(row.viaVoice)
+        XCTAssertFalse(row.createdAt.isEmpty)
+    }
+
+    func test_recordMiss_hasMatchedFalse() {
+        let store = LogStore(directory: tempDir)
+        store.record(heard: "nappy", matched: false, viaVoice: false)
+
+        let rows = store.recentLookups()
+        XCTAssertEqual(rows.count, 1)
+        XCTAssertFalse(rows[0].matched)
+    }
+
+    // The chosen sense's text is stored alongside its id: senses.id is just
+    // build order in build_dict.py, so a dictionary rebuild remaps ids and
+    // the characters/jyutping are what the future flashcard seed reads.
+    func test_setChosenSense_updatesOnlyTargetRowAndStoresText() {
+        let store = LogStore(directory: tempDir)
+        let firstId = store.record(heard: "eat", matched: true, viaVoice: false)
+        let secondId = store.record(heard: "dog", matched: true, viaVoice: false)
+        XCTAssertNotNil(firstId)
+        XCTAssertNotNil(secondId)
+
+        let sense = Sense(row: [
+            "id": 42, "traditional": "狗", "simplified": nil, "jyutping": "gau2",
+            "pinyin": nil, "gloss": "dog", "source": 0, "popularity": 5,
+        ])
+        store.setChosenSense(lookupId: secondId!, sense: sense)
+
+        let rows = store.recentLookups()
+        let first = rows.first { $0.id == firstId }
+        let second = rows.first { $0.id == secondId }
+        XCTAssertNil(first?.chosenSenseId)
+        XCTAssertEqual(second?.chosenSenseId, 42)
+        XCTAssertEqual(second?.chosenTraditional, "狗")
+        XCTAssertEqual(second?.chosenJyutping, "gau2")
+    }
+
+    func test_recentLookups_returnsReverseChronologicalOrder() {
+        let store = LogStore(directory: tempDir)
+        let firstId = store.record(heard: "one", matched: true, viaVoice: false)
+        let secondId = store.record(heard: "two", matched: true, viaVoice: false)
+        let thirdId = store.record(heard: "three", matched: true, viaVoice: false)
+
+        let rows = store.recentLookups()
+        XCTAssertEqual(rows.map(\.id), [thirdId, secondId, firstId].compactMap { $0 })
+    }
+
+    func test_rowsPersistAcrossStoreInstances_atSamePath() {
+        let firstStore = LogStore(directory: tempDir)
+        firstStore.record(heard: "reopen me", matched: true, viaVoice: true)
+
+        let secondStore = LogStore(directory: tempDir)
+        let rows = secondStore.recentLookups()
+        XCTAssertEqual(rows.count, 1)
+        XCTAssertEqual(rows[0].heardText, "reopen me")
+    }
+
+    func test_recordOnUnwritablePath_returnsNilWithoutCrashing() throws {
+        // Point "directory" at a path that is actually a plain file, so
+        // FileManager can't create a directory there and LogStore's open
+        // fails. record() must degrade to nil, not crash the app.
+        try "not a directory".write(to: tempDir, atomically: true, encoding: .utf8)
+
+        let store = LogStore(directory: tempDir)
+        let id = store.record(heard: "whatever", matched: true, viaVoice: false)
+        XCTAssertNil(id)
+        XCTAssertTrue(store.recentLookups().isEmpty)
+    }
+}

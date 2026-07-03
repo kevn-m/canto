@@ -5,10 +5,13 @@ struct LookupView: View {
     @State private var result: LookupResult?
     @State private var selectedSenseId: Int64?
     @State private var showVoiceUnavailableAlert = false
+    @State private var lastLookupId: Int64?
+    @State private var lastLoggedQuery: String?
 
     @Environment(\.scenePhase) private var scenePhase
 
     private let store = DictionaryStore.shared
+    private let logStore = LogStore.shared
     @State private var speaker = CantoneseSpeaker()
     @State private var speechListener = SpeechListener()
 
@@ -18,7 +21,7 @@ struct LookupView: View {
                 TextField("Type an English word", text: $query)
                     .textFieldStyle(.roundedBorder)
                     .padding()
-                    .onSubmit(runLookup)
+                    .onSubmit { runLookup(viaVoice: false) }
                     .onChange(of: speechListener.heardText) { _, newValue in
                         if speechListener.isListening {
                             query = newValue
@@ -31,6 +34,11 @@ struct LookupView: View {
             }
             .navigationTitle("Canto")
             .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    NavigationLink("History") {
+                        HistoryView()
+                    }
+                }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     NavigationLink("About") {
                         AboutView()
@@ -50,7 +58,7 @@ struct LookupView: View {
             .onAppear {
                 speechListener.onFinish = { text in
                     query = text
-                    runLookup()
+                    runLookup(viaVoice: true)
                 }
                 startListeningIfRequested()
             }
@@ -124,13 +132,26 @@ struct LookupView: View {
         }
     }
 
-    private func runLookup() {
-        guard !query.trimmingCharacters(in: .whitespaces).isEmpty else {
+    private func runLookup(viaVoice: Bool) {
+        let trimmed = query.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else {
             result = nil
+            lastLookupId = nil
+            lastLoggedQuery = nil
             return
         }
-        result = store.lookup(query)
+        // A double-fired onSubmit would log the same intent twice, leaving a
+        // phantom "abandoned" row in the miss log — skip exact repeats while
+        // their results are still on screen.
+        if trimmed == lastLoggedQuery, result != nil { return }
+        result = store.lookup(trimmed)
         selectedSenseId = nil
+        lastLookupId = logStore.record(
+            heard: trimmed,
+            matched: !(result?.senses.isEmpty ?? true),
+            viaVoice: viaVoice
+        )
+        lastLoggedQuery = trimmed
     }
 
     private func selectAndSpeak(_ sense: Sense) {
@@ -138,6 +159,9 @@ struct LookupView: View {
             speechListener.cancel()
         }
         selectedSenseId = sense.id
+        if let lastLookupId {
+            logStore.setChosenSense(lookupId: lastLookupId, sense: sense)
+        }
         if speaker.voiceAvailable {
             speaker.speak(sense.traditional)
         } else {
