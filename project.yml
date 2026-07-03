@@ -1,0 +1,61 @@
+name: Canto
+options:
+  bundleIdPrefix: io.captur3d.canto
+  deploymentTarget:
+    iOS: "17.0"
+
+packages:
+  GRDB:
+    url: https://github.com/groue/GRDB.swift
+    from: 7.0.0
+
+targets:
+  Canto:
+    type: application
+    platform: iOS
+    sources:
+      - path: Canto
+    resources:
+      - path: Canto/Resources/dict.sqlite
+    dependencies:
+      - package: GRDB
+        product: GRDB
+    info:
+      path: Canto/Info.plist
+      properties:
+        UILaunchScreen: {}
+        CFBundleShortVersionString: "1.0"
+        CFBundleVersion: "1"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.captur3d.canto
+        SWIFT_VERSION: 5.0
+        TARGETED_DEVICE_FAMILY: "1"
+
+  CantoTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: CantoTests
+    dependencies:
+      - target: Canto
+    settings:
+      base:
+        SWIFT_VERSION: 5.0
+        PRODUCT_BUNDLE_IDENTIFIER: io.captur3d.canto.tests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Canto.app/Canto"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+
+schemes:
+  Canto:
+    build:
+      targets:
+        Canto: all
+        CantoTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - CantoTests

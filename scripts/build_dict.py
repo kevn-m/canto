@@ -113,9 +113,9 @@ def build_db():
     db = sqlite3.connect(str(BUILD_PATH))
     db.executescript("""
         CREATE TABLE senses (
-            id INTEGER PRIMARY KEY, traditional TEXT, simplified TEXT,
-            jyutping TEXT, pinyin TEXT, gloss TEXT, source INTEGER,
-            popularity INTEGER DEFAULT 0);
+            id INTEGER PRIMARY KEY, traditional TEXT NOT NULL, simplified TEXT,
+            jyutping TEXT NOT NULL, pinyin TEXT, gloss TEXT NOT NULL,
+            source INTEGER NOT NULL, popularity INTEGER NOT NULL DEFAULT 0);
         CREATE TABLE english_index (
             token TEXT, sense_id INTEGER, weight INTEGER);
     """)

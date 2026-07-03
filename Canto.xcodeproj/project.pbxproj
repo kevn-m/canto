@@ -1,0 +1,496 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		00FE3F2B90773BF66A0B0EB4 /* Sense.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885E49C7534FAF85E093A3DA /* Sense.swift */; };
+		27996708F75D18F86A38682B /* LookupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB8B1F9023E90A043E6E50FA /* LookupView.swift */; };
+		836022555801767C3681139E /* CantoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A6AE1480BF27184AF07F68 /* CantoApp.swift */; };
+		86D9F666337B1F6A6D08BC4E /* SenseRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4DE484F3782F6AEA31A4C4A /* SenseRowView.swift */; };
+		959048042509E6F3A74C2DC6 /* DictionaryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42903DD53615021D2A5ECC64 /* DictionaryStore.swift */; };
+		9610802F9DE95FF7EC1F25AE /* DictionaryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E623D52C1824CDAA4B63E0 /* DictionaryStoreTests.swift */; };
+		AFC32945D7F99821774BC0E8 /* CantoneseSpeakerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61C02CB19B0DA0520FFD65C /* CantoneseSpeakerTests.swift */; };
+		B6F3E5DE852976155190EFDD /* CantoneseSpeaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9216ABBD12327BE31E769C42 /* CantoneseSpeaker.swift */; };
+		C6DDDF02FCCC833DE83F8A6F /* dict.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = E8B88DC913690CFF62C689DD /* dict.sqlite */; };
+		D2AE91B5437A243FCCE83121 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = 2945D2F46B209D75542E262F /* GRDB */; };
+		F90DB64C2DA050BAFDE18C7D /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93E1C1C90BF81BF9E887C151 /* AboutView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		3816C20D917521C9BDDE1887 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2CB5F1C67D125A8E8D7C0F0D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5F4B68B139B3C527915844D5;
+			remoteInfo = Canto;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		2D77F72AF034F0315D37A797 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		32A6AE1480BF27184AF07F68 /* CantoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CantoApp.swift; sourceTree = "<group>"; };
+		4051A0699C7A7C83A5DEA783 /* CantoTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = CantoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		42903DD53615021D2A5ECC64 /* DictionaryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryStore.swift; sourceTree = "<group>"; };
+		5089DDD4BF31B9AE8A30B132 /* Canto.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Canto.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		885E49C7534FAF85E093A3DA /* Sense.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sense.swift; sourceTree = "<group>"; };
+		9216ABBD12327BE31E769C42 /* CantoneseSpeaker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CantoneseSpeaker.swift; sourceTree = "<group>"; };
+		93E1C1C90BF81BF9E887C151 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
+		A9E623D52C1824CDAA4B63E0 /* DictionaryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryStoreTests.swift; sourceTree = "<group>"; };
+		AB8B1F9023E90A043E6E50FA /* LookupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LookupView.swift; sourceTree = "<group>"; };
+		C61C02CB19B0DA0520FFD65C /* CantoneseSpeakerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CantoneseSpeakerTests.swift; sourceTree = "<group>"; };
+		D4DE484F3782F6AEA31A4C4A /* SenseRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SenseRowView.swift; sourceTree = "<group>"; };
+		E8B88DC913690CFF62C689DD /* dict.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = dict.sqlite; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BFD4887240D5C74E9DB76CB1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D2AE91B5437A243FCCE83121 /* GRDB in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		002942387C8C51519B95A909 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5089DDD4BF31B9AE8A30B132 /* Canto.app */,
+				4051A0699C7A7C83A5DEA783 /* CantoTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1E87F3D37CBEF3AB3F8C3C48 = {
+			isa = PBXGroup;
+			children = (
+				E5CA436B6FFDCD8074BCFB89 /* Canto */,
+				64FCF21D364C5939F6F1CAB4 /* CantoTests */,
+				002942387C8C51519B95A909 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		2A206BE175F12AE7E56E98A7 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				93E1C1C90BF81BF9E887C151 /* AboutView.swift */,
+				AB8B1F9023E90A043E6E50FA /* LookupView.swift */,
+				D4DE484F3782F6AEA31A4C4A /* SenseRowView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		5B007D05320BCEF73AC86645 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				42903DD53615021D2A5ECC64 /* DictionaryStore.swift */,
+				885E49C7534FAF85E093A3DA /* Sense.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		64FCF21D364C5939F6F1CAB4 /* CantoTests */ = {
+			isa = PBXGroup;
+			children = (
+				C61C02CB19B0DA0520FFD65C /* CantoneseSpeakerTests.swift */,
+				A9E623D52C1824CDAA4B63E0 /* DictionaryStoreTests.swift */,
+			);
+			path = CantoTests;
+			sourceTree = "<group>";
+		};
+		6F45F54363D23179F11F1059 /* Speech */ = {
+			isa = PBXGroup;
+			children = (
+				9216ABBD12327BE31E769C42 /* CantoneseSpeaker.swift */,
+			);
+			path = Speech;
+			sourceTree = "<group>";
+		};
+		82580224A50319E9C01BFEC0 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				E8B88DC913690CFF62C689DD /* dict.sqlite */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		E5CA436B6FFDCD8074BCFB89 /* Canto */ = {
+			isa = PBXGroup;
+			children = (
+				32A6AE1480BF27184AF07F68 /* CantoApp.swift */,
+				2D77F72AF034F0315D37A797 /* Info.plist */,
+				5B007D05320BCEF73AC86645 /* Models */,
+				82580224A50319E9C01BFEC0 /* Resources */,
+				6F45F54363D23179F11F1059 /* Speech */,
+				2A206BE175F12AE7E56E98A7 /* Views */,
+			);
+			path = Canto;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5F4B68B139B3C527915844D5 /* Canto */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3E087C7CE24BEF50B4C60B9D /* Build configuration list for PBXNativeTarget "Canto" */;
+			buildPhases = (
+				CF014EB874496F7AAFE52391 /* Sources */,
+				C6AC43198B4B0CC10E26D62E /* Resources */,
+				BFD4887240D5C74E9DB76CB1 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Canto;
+			packageProductDependencies = (
+				2945D2F46B209D75542E262F /* GRDB */,
+			);
+			productName = Canto;
+			productReference = 5089DDD4BF31B9AE8A30B132 /* Canto.app */;
+			productType = "com.apple.product-type.application";
+		};
+		D7F35048F843186746126779 /* CantoTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 828F44875409A61B3BFC7EA3 /* Build configuration list for PBXNativeTarget "CantoTests" */;
+			buildPhases = (
+				DED2B942FBE9396FE3BDCACF /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				15BCFB32103D70D7A33EB88D /* PBXTargetDependency */,
+			);
+			name = CantoTests;
+			packageProductDependencies = (
+			);
+			productName = CantoTests;
+			productReference = 4051A0699C7A7C83A5DEA783 /* CantoTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2CB5F1C67D125A8E8D7C0F0D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+			};
+			buildConfigurationList = F0A364787D24532FA087464B /* Build configuration list for PBXProject "Canto" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 1E87F3D37CBEF3AB3F8C3C48;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B53CF0FEF4514256B0E9AEC6 /* XCRemoteSwiftPackageReference "GRDB.swift" */,
+			);
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				5F4B68B139B3C527915844D5 /* Canto */,
+				D7F35048F843186746126779 /* CantoTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C6AC43198B4B0CC10E26D62E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C6DDDF02FCCC833DE83F8A6F /* dict.sqlite in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CF014EB874496F7AAFE52391 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F90DB64C2DA050BAFDE18C7D /* AboutView.swift in Sources */,
+				836022555801767C3681139E /* CantoApp.swift in Sources */,
+				B6F3E5DE852976155190EFDD /* CantoneseSpeaker.swift in Sources */,
+				959048042509E6F3A74C2DC6 /* DictionaryStore.swift in Sources */,
+				27996708F75D18F86A38682B /* LookupView.swift in Sources */,
+				00FE3F2B90773BF66A0B0EB4 /* Sense.swift in Sources */,
+				86D9F666337B1F6A6D08BC4E /* SenseRowView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DED2B942FBE9396FE3BDCACF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AFC32945D7F99821774BC0E8 /* CantoneseSpeakerTests.swift in Sources */,
+				9610802F9DE95FF7EC1F25AE /* DictionaryStoreTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		15BCFB32103D70D7A33EB88D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5F4B68B139B3C527915844D5 /* Canto */;
+			targetProxy = 3816C20D917521C9BDDE1887 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1703C341D9986C40E8150254 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		29D83FD1CF374EF794F53482 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = Canto/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = io.captur3d.canto;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		5951BB8701D056490DDF06D1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		641A8F23B58C47A44944941C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = io.captur3d.canto.tests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Canto.app/Canto";
+			};
+			name = Debug;
+		};
+		698B67217E61B328205778B3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = Canto/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = io.captur3d.canto;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		FF00964B42DA470A32CF9606 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = io.captur3d.canto.tests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Canto.app/Canto";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3E087C7CE24BEF50B4C60B9D /* Build configuration list for PBXNativeTarget "Canto" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				698B67217E61B328205778B3 /* Debug */,
+				29D83FD1CF374EF794F53482 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		828F44875409A61B3BFC7EA3 /* Build configuration list for PBXNativeTarget "CantoTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				641A8F23B58C47A44944941C /* Debug */,
+				FF00964B42DA470A32CF9606 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F0A364787D24532FA087464B /* Build configuration list for PBXProject "Canto" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1703C341D9986C40E8150254 /* Debug */,
+				5951BB8701D056490DDF06D1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B53CF0FEF4514256B0E9AEC6 /* XCRemoteSwiftPackageReference "GRDB.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/groue/GRDB.swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2945D2F46B209D75542E262F /* GRDB */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B53CF0FEF4514256B0E9AEC6 /* XCRemoteSwiftPackageReference "GRDB.swift" */;
+			productName = GRDB;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 2CB5F1C67D125A8E8D7C0F0D /* Project object */;
+}
