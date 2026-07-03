@@ -1,0 +1,59 @@
+# Kevin's real stuck-words. One per line, # for comments.
+# DRAFT written by Claude — replace/add the words YOU actually get stuck on.
+# Probes with known answers (data-quality canaries):
+eat
+dog
+drink
+sleep
+
+# Baby / home life
+nappy
+dummy
+pram
+cot
+bib
+burp
+cuddle
+crawl
+sleepy
+naughty
+gentle
+careful
+settle down
+pick him up
+put him down
+fall over
+cry
+teething
+
+# Everyday household
+washing machine
+vacuum cleaner
+rubbish bin
+leftover
+chopsticks
+microwave
+air conditioner
+umbrella
+laundry
+
+# Feelings / descriptions
+tired
+hungry
+full
+stubborn
+lazy
+spicy
+delicious
+dangerous
+slippery
+noisy
+
+# Out and about
+supermarket
+queue
+traffic jam
+holiday
+doctor
+fever
+medicine

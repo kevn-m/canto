@@ -1,0 +1,6 @@
+data/
+*.sqlite
+.DS_Store
+xcuserdata/
+build/
+DerivedData/
