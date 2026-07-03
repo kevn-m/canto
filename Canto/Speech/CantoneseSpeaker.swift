@@ -11,6 +11,9 @@ final class CantoneseSpeaker {
 
     func speak(_ traditional: String) {
         guard let voice else { return }
+        // SpeechListener puts the shared session in .record, which mutes
+        // playback; claim a playback category or TTS is silent after mic use.
+        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
         synthesizer.stopSpeaking(at: .immediate)
         let utterance = AVSpeechUtterance(string: traditional)
         utterance.voice = voice

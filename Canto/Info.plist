@@ -18,6 +18,10 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Canto listens so you can say the English word you want in Cantonese.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Speech recognition turns what you say into the word to look up. Recognition runs on this iPhone only.</string>
 	<key>UILaunchScreen</key>
 	<dict/>
 </dict>

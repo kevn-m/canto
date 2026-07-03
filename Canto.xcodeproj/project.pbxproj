@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		00FE3F2B90773BF66A0B0EB4 /* Sense.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885E49C7534FAF85E093A3DA /* Sense.swift */; };
+		1B610B54A9140FC493F10EB0 /* SpeechListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2D6BE2D453F5C84287472CC /* SpeechListener.swift */; };
 		27996708F75D18F86A38682B /* LookupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB8B1F9023E90A043E6E50FA /* LookupView.swift */; };
 		836022555801767C3681139E /* CantoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A6AE1480BF27184AF07F68 /* CantoApp.swift */; };
 		86D9F666337B1F6A6D08BC4E /* SenseRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4DE484F3782F6AEA31A4C4A /* SenseRowView.swift */; };
@@ -18,6 +19,7 @@
 		C6DDDF02FCCC833DE83F8A6F /* dict.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = E8B88DC913690CFF62C689DD /* dict.sqlite */; };
 		D2AE91B5437A243FCCE83121 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = 2945D2F46B209D75542E262F /* GRDB */; };
 		F90DB64C2DA050BAFDE18C7D /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93E1C1C90BF81BF9E887C151 /* AboutView.swift */; };
+		FE71B76FEA8D4CADEEDC481B /* SpeechListenerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442141962FAB4547CBBEF28E /* SpeechListenerTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,6 +37,7 @@
 		32A6AE1480BF27184AF07F68 /* CantoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CantoApp.swift; sourceTree = "<group>"; };
 		4051A0699C7A7C83A5DEA783 /* CantoTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = CantoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		42903DD53615021D2A5ECC64 /* DictionaryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryStore.swift; sourceTree = "<group>"; };
+		442141962FAB4547CBBEF28E /* SpeechListenerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechListenerTests.swift; sourceTree = "<group>"; };
 		5089DDD4BF31B9AE8A30B132 /* Canto.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Canto.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		885E49C7534FAF85E093A3DA /* Sense.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sense.swift; sourceTree = "<group>"; };
 		9216ABBD12327BE31E769C42 /* CantoneseSpeaker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CantoneseSpeaker.swift; sourceTree = "<group>"; };
@@ -42,6 +45,7 @@
 		A9E623D52C1824CDAA4B63E0 /* DictionaryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryStoreTests.swift; sourceTree = "<group>"; };
 		AB8B1F9023E90A043E6E50FA /* LookupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LookupView.swift; sourceTree = "<group>"; };
 		C61C02CB19B0DA0520FFD65C /* CantoneseSpeakerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CantoneseSpeakerTests.swift; sourceTree = "<group>"; };
+		D2D6BE2D453F5C84287472CC /* SpeechListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechListener.swift; sourceTree = "<group>"; };
 		D4DE484F3782F6AEA31A4C4A /* SenseRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SenseRowView.swift; sourceTree = "<group>"; };
 		E8B88DC913690CFF62C689DD /* dict.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = dict.sqlite; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -100,6 +104,7 @@
 			children = (
 				C61C02CB19B0DA0520FFD65C /* CantoneseSpeakerTests.swift */,
 				A9E623D52C1824CDAA4B63E0 /* DictionaryStoreTests.swift */,
+				442141962FAB4547CBBEF28E /* SpeechListenerTests.swift */,
 			);
 			path = CantoTests;
 			sourceTree = "<group>";
@@ -108,6 +113,7 @@
 			isa = PBXGroup;
 			children = (
 				9216ABBD12327BE31E769C42 /* CantoneseSpeaker.swift */,
+				D2D6BE2D453F5C84287472CC /* SpeechListener.swift */,
 			);
 			path = Speech;
 			sourceTree = "<group>";
@@ -229,6 +235,7 @@
 				27996708F75D18F86A38682B /* LookupView.swift in Sources */,
 				00FE3F2B90773BF66A0B0EB4 /* Sense.swift in Sources */,
 				86D9F666337B1F6A6D08BC4E /* SenseRowView.swift in Sources */,
+				1B610B54A9140FC493F10EB0 /* SpeechListener.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -238,6 +245,7 @@
 			files = (
 				AFC32945D7F99821774BC0E8 /* CantoneseSpeakerTests.swift in Sources */,
 				9610802F9DE95FF7EC1F25AE /* DictionaryStoreTests.swift in Sources */,
+				FE71B76FEA8D4CADEEDC481B /* SpeechListenerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

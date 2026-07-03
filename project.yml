@@ -26,6 +26,8 @@ targets:
         UILaunchScreen: {}
         CFBundleShortVersionString: "1.0"
         CFBundleVersion: "1"
+        NSMicrophoneUsageDescription: "Canto listens so you can say the English word you want in Cantonese."
+        NSSpeechRecognitionUsageDescription: "Speech recognition turns what you say into the word to look up. Recognition runs on this iPhone only."
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.captur3d.canto
