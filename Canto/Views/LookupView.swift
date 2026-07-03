@@ -6,6 +6,8 @@ struct LookupView: View {
     @State private var selectedSenseId: Int64?
     @State private var showVoiceUnavailableAlert = false
 
+    @Environment(\.scenePhase) private var scenePhase
+
     private let store = DictionaryStore.shared
     @State private var speaker = CantoneseSpeaker()
     @State private var speechListener = SpeechListener()
@@ -50,8 +52,31 @@ struct LookupView: View {
                     query = text
                     runLookup()
                 }
+                startListeningIfRequested()
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase == .active {
+                    startListeningIfRequested()
+                }
+            }
+            // With openAppWhenRun, iOS foregrounds the app BEFORE running
+            // perform(), so the flag can be set after scenePhase already went
+            // .active — watching the flag itself covers that ordering.
+            .onChange(of: LaunchIntent.shared.shouldStartListening) { _, requested in
+                if requested {
+                    startListeningIfRequested()
+                }
             }
         }
+    }
+
+    // The Action Button intent can cold-launch the app (onAppear runs) or
+    // foreground an already-running one (only scenePhase changes), so both
+    // paths call this. consume() guards against an ordinary foreground
+    // re-triggering the mic.
+    private func startListeningIfRequested() {
+        guard LaunchIntent.shared.consume() else { return }
+        speechListener.start()
     }
 
     private var micButton: some View {
