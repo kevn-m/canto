@@ -133,6 +133,10 @@ struct TowerView: View {
     private func loadTodaysRun() {
         today = ReviewEngine.todayString()
         guard let run = gameStore.todaysRun(on: today) else {
+            // Finished runs have no row to resume, and backgrounding fires
+            // this reload - don't stomp the summary the kid just earned.
+            // Climb Again still works from here (startRun uses `today`).
+            if case .finished = phase { return }
             phase = .notStarted
             return
         }

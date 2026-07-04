@@ -181,8 +181,13 @@ struct BattleView: View {
             guard new < old else { return }
             damagePop = old - new
             withAnimation(.linear(duration: 0.3)) { enemyShakes += 1 }
+            // enemyShakes doubles as the pop's generation token: a second
+            // hit inside the 0.7s must not have its pop cleared early by
+            // the first hit's sleeper.
+            let generation = enemyShakes
             Task {
                 try? await Task.sleep(for: .seconds(0.7))
+                guard enemyShakes == generation else { return }
                 withAnimation(.easeOut(duration: 0.4)) { damagePop = nil }
             }
         }
