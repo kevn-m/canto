@@ -398,23 +398,25 @@ final class GameStore: ObservableObject {
             ) else { return nil }
 
             let stateJSON: String = row["state_json"]
+            let finished: Bool = row["finished"]
             guard let data = stateJSON.data(using: .utf8),
-                  let state = try? JSONDecoder().decode(RunState.self, from: data) else {
-                // An undecodable snapshot would otherwise dead-end the tower
-                // for the whole day (run_date is UNIQUE and startRun sees the
-                // row). Losing one run's progress beats that, so clear it.
-                try db.execute(sql: "DELETE FROM runs WHERE run_date = ?", arguments: [date])
-                self.reportError("Corrupt run state for \(date) - cleared it so a fresh Run can start.")
+                  let state = try? JSONDecoder().decode(RunState.self, from: data),
+                  state.isStructurallyValid else {
+                // A corrupt UNFINISHED snapshot would dead-end the tower for
+                // the day (run_date is UNIQUE, startRun sees the row), so it
+                // gets cleared - losing one run's progress beats that. A
+                // corrupt FINISHED row is different: it's the proof today was
+                // already played and PAID. Deleting it would reopen the day
+                // for a second payout, so it stays.
+                if finished {
+                    self.reportError("Today's run record is damaged, but it was already played - the tower reopens tomorrow.")
+                } else {
+                    try db.execute(sql: "DELETE FROM runs WHERE run_date = ?", arguments: [date])
+                    self.reportError("Corrupt run state for \(date) - cleared it so a fresh Run can start.")
+                }
                 return nil
             }
-            // Same recovery for JSON that decodes but would trap the tower
-            // (empty floors / floorIndex out of range).
-            guard state.isStructurallyValid else {
-                try db.execute(sql: "DELETE FROM runs WHERE run_date = ?", arguments: [date])
-                self.reportError("Corrupt run state for \(date) - cleared it so a fresh Run can start.")
-                return nil
-            }
-            return (id: row["id"], state: state, finished: row["finished"])
+            return (id: row["id"], state: state, finished: finished)
         }
     }
 
@@ -431,23 +433,39 @@ final class GameStore: ObservableObject {
         }
     }
 
+    // finished = 0 guard: a finished run's snapshot backs what the ledger
+    // already paid (RunSummaryView recomputes from it), so it's immutable.
     func saveRun(id: Int64, state: RunState) {
         write { db in
             let json = try self.encodeStateJSON(state)
-            try db.execute(sql: "UPDATE runs SET state_json = ? WHERE id = ?", arguments: [json, id])
+            try db.execute(sql: "UPDATE runs SET state_json = ? WHERE id = ? AND finished = 0", arguments: [json, id])
         }
     }
 
     // False means the run is still marked unfinished on disk - TowerView's
     // load path re-finishes an ended-but-unfinished run, so this self-heals.
+    // The WHERE finished = 0 guard makes that self-heal safe to call twice:
+    // a run that's already finished is left untouched and pays nothing.
     @discardableResult
     func finishRun(id: Int64, state: RunState) -> Bool {
         writeValue(default: false) { db in
             let json = try self.encodeStateJSON(state)
             try db.execute(
-                sql: "UPDATE runs SET state_json = ?, finished = 1 WHERE id = ?",
+                sql: "UPDATE runs SET state_json = ?, finished = 1 WHERE id = ? AND finished = 0",
                 arguments: [json, id]
             )
+            if db.changesCount > 0 {
+                let payout = state.payoutBreakdown()
+                let createdAt = ISO8601DateFormatter().string(from: Date())
+                for (amount, reason) in [
+                    (payout.finish, "run_finish"), (payout.bossBonus, "boss_bonus"), (payout.extensions, "extension"),
+                ] where amount != 0 {
+                    try db.execute(
+                        sql: "INSERT INTO bux_ledger (amount, reason, created_at) VALUES (?, ?, ?)",
+                        arguments: [amount, reason, createdAt]
+                    )
+                }
+            }
             return true
         }
     }
@@ -503,6 +521,9 @@ final class GameStore: ObservableObject {
     // between them can't spend bux without recording it (or vice versa).
     // The item is re-read by id so a stale ShopItem from an open screen
     // can't charge an old price or redeem something dad already archived.
+    // @discardableResult: ShopView relies on lastError to surface a refusal,
+    // same as recordReview/finishRun below.
+    @discardableResult
     func redeem(item: ShopItem) -> Bool {
         writeValue(default: false) { db in
             guard let row = try Row.fetchOne(
@@ -512,7 +533,13 @@ final class GameStore: ObservableObject {
 
             let name: String = row["name"]
             let price: Int = row["price"]
-            guard try self.fetchBalance(db) >= price else { return false }
+            guard try self.fetchBalance(db) >= price else {
+                // The UI disables unaffordable buttons, so landing here means
+                // the screen's balance went stale - say so rather than letting
+                // the confirm dialog dismiss into silence.
+                self.reportError("Not enough CantoBux for \(name).")
+                return false
+            }
             try db.execute(
                 sql: "INSERT INTO bux_ledger (amount, reason, created_at) VALUES (?, ?, ?)",
                 arguments: [-price, "redeem:\(name)", ISO8601DateFormatter().string(from: Date())]

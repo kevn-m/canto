@@ -27,4 +27,28 @@ struct RunState: Codable, Equatable {
             case fight, boss, extensionFight
         }
     }
+
+    struct PayoutBreakdown: Equatable {
+        let finish: Int
+        let bossBonus: Int
+        let extensions: Int
+        var total: Int { finish + bossBonus + extensions }
+    }
+
+    // Flat payout, deliberately not damage-based: pays for finishing the Run,
+    // not for how well it went. Victory always follows a boss kill (the door
+    // only appears after the boss dies), so bossBonus keys off partyHP alone.
+    // An extension floor at index < floorIndex was already cleared to get
+    // this far; the current floor only counts if it was won too.
+    func payoutBreakdown() -> PayoutBreakdown {
+        let victory = partyHP > 0
+        let clearedExtensions = floors.enumerated().filter { index, floor in
+            floor.kind == .extensionFight && (index < floorIndex || (victory && index == floorIndex))
+        }.count
+        return PayoutBreakdown(
+            finish: Balance.runFinishPay,
+            bossBonus: victory ? Balance.bossBonusPay : 0,
+            extensions: clearedExtensions * Balance.extensionPay
+        )
+    }
 }

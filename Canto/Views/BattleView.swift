@@ -78,6 +78,15 @@ struct TowerEntryView: View {
             }
         }
         .navigationTitle("Tower")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                NavigationLink {
+                    ShopView()
+                } label: {
+                    Image(systemName: "cart.fill")
+                }
+            }
+        }
         .onAppear {
             // Sync before measuring, so the word just looked up counts
             // towards the unlock the moment this screen opens.

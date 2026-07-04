@@ -296,6 +296,38 @@ final class GameStoreTests: XCTestCase {
         XCTAssertEqual(store.todaysRun(on: "2026-07-04")?.finished, true)
     }
 
+    // MARK: - finishRun payout
+
+    func test_finishRun_paysFinishAndBossBonusExactlyOnce() throws {
+        let store = GameStore(directory: tempDir)
+        let runId = store.startRun(on: "2026-07-04", state: makeRunState())!
+        let victoryState = makeRunState(enemyHP: 0) // partyHP: 5, from makeRunState default
+
+        store.finishRun(id: runId, state: victoryState)
+        XCTAssertEqual(store.balance(), Balance.runFinishPay + Balance.bossBonusPay)
+
+        // Same id, mirroring TowerView's self-healing load path re-calling
+        // finishRun on an already-finished run - must not double-pay.
+        store.finishRun(id: runId, state: victoryState)
+        XCTAssertEqual(store.balance(), Balance.runFinishPay + Balance.bossBonusPay)
+
+        let reasons = try rawGameQueue(in: tempDir).read { db in
+            try String.fetchAll(db, sql: "SELECT reason FROM bux_ledger ORDER BY id")
+        }
+        XCTAssertEqual(reasons, ["run_finish", "boss_bonus"])
+    }
+
+    func test_finishRun_defeatStillPaysRunFinishPay() {
+        let store = GameStore(directory: tempDir)
+        let runId = store.startRun(on: "2026-07-04", state: makeRunState())!
+        var defeatState = makeRunState(enemyHP: 3)
+        defeatState.partyHP = 0
+
+        store.finishRun(id: runId, state: defeatState)
+
+        XCTAssertEqual(store.balance(), Balance.runFinishPay)
+    }
+
     func test_nextCards_ordersBySoonestDueAndRespectsLimit() {
         let log = LogStore(directory: tempDir)
         makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
@@ -353,6 +385,56 @@ final class GameStoreTests: XCTestCase {
         drainMainQueue()
         XCTAssertNotNil(store.lastError)
         XCTAssertNotNil(store.startRun(on: "2026-07-04", state: makeRunState()))
+    }
+
+    func test_finishRun_paysExtensionRowForClearedExtensionFloor() throws {
+        let store = GameStore(directory: tempDir)
+        var state = makeRunState(enemyHP: 0)
+        state.floors.append(RunState.Floor(kind: .extensionFight, enemyName: "slime", maxHP: 7))
+        state.floorIndex = 1
+        state.extensionsTaken = 1
+        let runId = store.startRun(on: "2026-07-04", state: makeRunState())!
+
+        store.finishRun(id: runId, state: state)
+
+        XCTAssertEqual(store.balance(), Balance.runFinishPay + Balance.bossBonusPay + Balance.extensionPay)
+        let extensionAmount = try rawGameQueue(in: tempDir).read { db in
+            try Int.fetchOne(db, sql: "SELECT amount FROM bux_ledger WHERE reason = 'extension'")
+        }
+        XCTAssertEqual(extensionAmount, Balance.extensionPay)
+    }
+
+    // A finished row is the proof today was already played and PAID -
+    // clearing it like unfinished corruption would reopen the day for a
+    // second payout.
+    func test_todaysRun_keepsCorruptFinishedRowSoTheDayCannotPayTwice() throws {
+        let store = GameStore(directory: tempDir)
+        let runId = store.startRun(on: "2026-07-04", state: makeRunState())!
+        store.finishRun(id: runId, state: makeRunState(enemyHP: 0))
+        let paidBalance = store.balance()
+        XCTAssertGreaterThan(paidBalance, 0)
+
+        try rawGameQueue(in: tempDir).write { db in
+            try db.execute(sql: "UPDATE runs SET state_json = 'not json'")
+        }
+
+        XCTAssertNil(store.todaysRun(on: "2026-07-04"))
+        drainMainQueue()
+        XCTAssertNotNil(store.lastError)
+        XCTAssertNil(store.startRun(on: "2026-07-04", state: makeRunState()), "the day must stay closed")
+        XCTAssertEqual(store.balance(), paidBalance, "no second payout")
+    }
+
+    func test_saveRun_cannotRewriteAFinishedRunsSnapshot() {
+        let store = GameStore(directory: tempDir)
+        let runId = store.startRun(on: "2026-07-04", state: makeRunState())!
+        let finalState = makeRunState(enemyHP: 0)
+        store.finishRun(id: runId, state: finalState)
+
+        store.saveRun(id: runId, state: makeRunState(enemyHP: 99))
+
+        XCTAssertEqual(store.todaysRun(on: "2026-07-04")?.state, finalState,
+                       "the snapshot backs what the ledger already paid")
     }
 
     // Decodes fine but would trap floors[floorIndex] - same recovery as
