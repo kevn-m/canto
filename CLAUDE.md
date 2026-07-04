@@ -62,6 +62,9 @@ install. Needs one-time setup — an App Store Connect API key, an app record, a
 - `Canto/Intents/` — `StartListeningIntent`, the Action Button entry point
 - `Canto/Views/` — SwiftUI screens
 - `Canto/Resources/dict.sqlite` — the bundled read-only dictionary (built, committed)
+- `Canto/Resources/Sprites/` — bundled 64px chibi sprites, generated in
+  `art/reference-sheet/` (see its CLAUDE.md). New batches: copy the PNGs here,
+  run `xcodegen generate`. `SpriteArtTests` fails if a bundled sprite goes missing.
 - `scripts/build_dict.py` — builds `dict.sqlite` from `data/`
 - `data/` — the four dictionary sources:
   - `cccanto-webdist.txt` — CC-Canto (cantonese.org/download.html)
