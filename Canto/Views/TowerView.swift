@@ -310,9 +310,8 @@ struct TowerView: View {
             if let lastError = gameStore.lastError {
                 ErrorBanner(message: lastError) { gameStore.clearError() }
             }
-            Text("The Tower")
-                .font(GameTheme.title(34))
-                .foregroundStyle(GameTheme.cream)
+            // No heading: the hallway background and the map say "tower";
+            // the nav bar already carries the word.
             TowerMapView(floors: TowerEngine.baseFloors, currentIndex: 0)
             Button("Start") { startRun() }
                 .buttonStyle(GameButtonStyle())

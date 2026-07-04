@@ -84,9 +84,6 @@ final class DesignSnapshotTests: XCTestCase {
     func test_towerMapRenders() {
         snapshot("tower-map") {
             VStack(spacing: 28) {
-                Text("The Tower")
-                    .font(GameTheme.title(34))
-                    .foregroundStyle(GameTheme.cream)
                 TowerMapView(floors: TowerEngine.baseFloors, currentIndex: 0)
                 Button("Start") {}
                     .buttonStyle(GameButtonStyle())

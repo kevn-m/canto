@@ -29,18 +29,98 @@ struct DungeonBackground: View {
                 colors: [GameTheme.navy, GameTheme.deepNavy],
                 startPoint: .top, endPoint: .bottom
             )
-            Circle()
-                .fill(GameTheme.gold.opacity(0.14))
-                .frame(width: 300, height: 300)
-                .blur(radius: 70)
-                .offset(x: -130, y: -230)
-            Circle()
-                .fill(GameTheme.lavender.opacity(0.18))
-                .frame(width: 260, height: 260)
-                .blur(radius: 60)
-                .offset(x: 150, y: 120)
+            BrickWall()
+            GeometryReader { geo in
+                WallTorch()
+                    .position(x: geo.size.width * 0.12, y: geo.size.height * 0.22)
+                WallTorch()
+                    .position(x: geo.size.width * 0.88, y: geo.size.height * 0.22)
+                // The floor: a darker band the fight stands on.
+                LinearGradient(
+                    colors: [.clear, .black.opacity(0.45)],
+                    startPoint: .top, endPoint: .bottom
+                )
+                .frame(height: geo.size.height * 0.22)
+                .position(x: geo.size.width / 2, y: geo.size.height * 0.89)
+            }
         }
         .ignoresSafeArea()
+    }
+}
+
+// Staggered stone courses, mortar-lines only, fading out down the wall so
+// the play area stays dark and the sprites stay the brightest thing.
+private struct BrickWall: View {
+    var body: some View {
+        Canvas { context, size in
+            let brickW: CGFloat = 72, brickH: CGFloat = 30
+            var row = 0
+            var y: CGFloat = 0
+            while y < size.height {
+                let offset = row.isMultiple(of: 2) ? 0 : brickW / 2
+                var x = -offset
+                var col = 0
+                while x < size.width {
+                    let rect = CGRect(x: x + 2, y: y + 2, width: brickW - 4, height: brickH - 4)
+                    let fade = 1 - (y / size.height) * 0.7
+                    // A few catch the torchlight; the (row, col) hash keeps
+                    // the pattern stable frame to frame.
+                    if (row * 31 + col * 7) % 17 == 0 {
+                        context.fill(
+                            Path(roundedRect: rect, cornerRadius: 3),
+                            with: .color(GameTheme.lavender.opacity(0.06 * fade))
+                        )
+                    }
+                    context.stroke(
+                        Path(roundedRect: rect, cornerRadius: 3),
+                        with: .color(.black.opacity(0.30 * fade)),
+                        lineWidth: 2
+                    )
+                    x += brickW
+                    col += 1
+                }
+                y += brickH
+                row += 1
+            }
+        }
+        .allowsHitTesting(false)
+    }
+}
+
+// A sconce with a flickering flame and a warm pool of light on the wall.
+private struct WallTorch: View {
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(GameTheme.gold.opacity(0.22))
+                .frame(width: 190, height: 190)
+                .blur(radius: 45)
+                .phaseAnimator([1.0, 0.82]) { view, glow in
+                    view.opacity(glow)
+                } animation: { _ in .easeInOut(duration: 0.9) }
+            VStack(spacing: -3) {
+                flame
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(Color(red: 0.671, green: 0.322, blue: 0.212))  // P.brn
+                    .frame(width: 7, height: 26)
+            }
+        }
+        .allowsHitTesting(false)
+    }
+
+    private var flame: some View {
+        ZStack {
+            Ellipse()
+                .fill(GameTheme.gold)
+                .frame(width: 16, height: 22)
+            Ellipse()
+                .fill(GameTheme.yellow)
+                .frame(width: 9, height: 13)
+                .offset(y: 3)
+        }
+        .phaseAnimator([1.0, 1.18, 0.92]) { view, s in
+            view.scaleEffect(x: 2 - s, y: s, anchor: .bottom)
+        } animation: { _ in .easeInOut(duration: 0.35) }
     }
 }
 
