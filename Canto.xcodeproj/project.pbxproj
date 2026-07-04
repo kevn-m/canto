@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 63;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -43,7 +43,7 @@
 		4051A0699C7A7C83A5DEA783 /* CantoTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = CantoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		42903DD53615021D2A5ECC64 /* DictionaryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryStore.swift; sourceTree = "<group>"; };
 		442141962FAB4547CBBEF28E /* SpeechListenerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechListenerTests.swift; sourceTree = "<group>"; };
-		5089DDD4BF31B9AE8A30B132 /* Canto.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Canto.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5089DDD4BF31B9AE8A30B132 /* Canto.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Canto.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		885E49C7534FAF85E093A3DA /* Sense.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sense.swift; sourceTree = "<group>"; };
 		9216ABBD12327BE31E769C42 /* CantoneseSpeaker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CantoneseSpeaker.swift; sourceTree = "<group>"; };
 		93E1C1C90BF81BF9E887C151 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
@@ -211,6 +211,12 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					5F4B68B139B3C527915844D5 = {
+						DevelopmentTeam = 56NFU58N9Q;
+						ProvisioningStyle = Automatic;
+					};
+				};
 			};
 			buildConfigurationList = F0A364787D24532FA087464B /* Build configuration list for PBXProject "Canto" */;
 			compatibilityVersion = "Xcode 14.0";
@@ -223,8 +229,9 @@
 			mainGroup = 1E87F3D37CBEF3AB3F8C3C48;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				B53CF0FEF4514256B0E9AEC6 /* XCRemoteSwiftPackageReference "GRDB" */,
+				B53CF0FEF4514256B0E9AEC6 /* XCRemoteSwiftPackageReference "GRDB.swift" */,
 			);
+			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -355,6 +362,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 56NFU58N9Q;
 				INFOPLIST_FILE = Canto/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -447,6 +455,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 56NFU58N9Q;
 				INFOPLIST_FILE = Canto/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -511,7 +520,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		B53CF0FEF4514256B0E9AEC6 /* XCRemoteSwiftPackageReference "GRDB" */ = {
+		B53CF0FEF4514256B0E9AEC6 /* XCRemoteSwiftPackageReference "GRDB.swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/groue/GRDB.swift";
 			requirement = {
@@ -524,7 +533,7 @@
 /* Begin XCSwiftPackageProductDependency section */
 		2945D2F46B209D75542E262F /* GRDB */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = B53CF0FEF4514256B0E9AEC6 /* XCRemoteSwiftPackageReference "GRDB" */;
+			package = B53CF0FEF4514256B0E9AEC6 /* XCRemoteSwiftPackageReference "GRDB.swift" */;
 			productName = GRDB;
 		};
 /* End XCSwiftPackageProductDependency section */
