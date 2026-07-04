@@ -22,24 +22,59 @@ generated batch — adjust here if batch 1 wants more range):
 #29ADFF sky         #83769C lavender   #FF77A8 pink       #FFCCAA peach
 ```
 
+## Proportions — chibi
+
+- Chibi mascot proportions: the head is about half the sprite's total
+  height. Small round body, short stubby limbs, no neck.
+- The head carries the identity. Exaggerate the subject's two signature
+  features until it's unmistakable — elephant: huge ears + trunk;
+  lion: big round mane; dolphin: pointed snout + dorsal fin.
+- Silhouette test: filled solid navy, a stranger should still name the
+  subject. If not, the signature features aren't big enough.
+- Simplify everything EXCEPT the signature features. Detail goes, wings
+  and trunks and manes stay.
+
+## Face
+
+- Face points at the viewer even when the body angles three-quarter.
+- Eyes: large oval navy eyes, each with a white sparkle pixel. Set low
+  on the head and wide apart. Not 1px dots.
+- Mouth: a small clearly upturned smile, or a tiny open happy mouth.
+- Optional: one small pink blush mark on each cheek.
+
 ## Line and shading
 
 - 1px outline around the whole subject in navy #1D2B53, not pure black
-- Flat three-quarter view
 - Single soft light from top-left: base colour + one shadow tone + at
   most one highlight tone per surface
 - No dithering, no gradients, no anti-aliasing — hard pixel edges only
 
 ## Mood
 
-- Bright, rounded, friendly. Big simple shapes that read at thumbnail
-  size. When in doubt, remove detail.
-- Subjects with faces get dot eyes and a simple smile. Everything in
-  this game is pleased to see you.
+- Bright, rounded, friendly. Cute enough to hug.
+- Everything in this game is pleased to see you.
 - The player is a child under 6.
+
+## Batch 1 subjects and their signature features
+
+| Word | Signature features (exaggerate these two) |
+|---|---|
+| Dolphin | pointed snout, curved dorsal fin |
+| Elephant | huge fan ears, trunk |
+| Lion | big round mane, tail tuft |
+| Tiger | bold black stripes, round ears |
+| Crocodile | long toothy snout (friendly teeth), back ridges |
+| Bear | round ears, big muzzle |
+| Giraffe | long neck, brown patches + ossicones |
+| Monkey | round face patch, long curled tail |
+| Coffee | steaming mug — the mug gets the chibi face, two wavy steam wisps |
+| Eating | one chibi animal happily biting a big food item (e.g. bear + sandwich); the open-mouth bite IS the smile |
 
 ## Hard rules (repeat in every Brief)
 
 - NO text, letters, numbers or writing anywhere in the art
 - Nothing scary, violent or sad
+- The mouth turns UP. A frown, flat mouth, or worried face is an
+  automatic reject
+- The subject must be identifiable from its silhouette alone
 - One subject only, no background clutter

@@ -18,18 +18,33 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data" / "cccanto-webdist.txt"
 SUPPLEMENT = ROOT / "scripts" / "supplement.txt"
+CEDICT = ROOT / "data" / "cedict_ts.u8"
+READINGS = ROOT / "data" / "cccedict-canto-readings.txt"
 DB_PATH = ROOT / "Canto" / "Resources" / "dict.sqlite"
 # Built here, then os.replace'd into DB_PATH only after assert_quality passes.
 # dict.tmp.sqlite is gitignored so a transient build file never gets committed.
 BUILD_PATH = DB_PATH.parent / "dict.tmp.sqlite"
 
-MAX_DB_SIZE_MB = 50
+MAX_DB_SIZE_MB = 80  # bumped from 50 for the CEDICT join (Slice 1): coverage over size, never filter entries
 MIN_MAIN_ENTRIES = 30000  # last good build ~34.3k; a floor catches a truncated/drifted source
 MAX_SKIP_RATIO = 0.01     # a spike in unparsed lines is the earliest sign of format drift
 
 LINE_RE = re.compile(
     r"^(\S+)\s+(\S+)\s+\[([^\]]*)\]\s+\{([^}]*)\}\s+/(.+)/\s*(?:#\s*(.*))?$"
 )
+CEDICT_RE = re.compile(r"^(\S+)\s+(\S+)\s+\[([^\]]+)\]\s+/(.+)/\s*$")
+READINGS_RE = re.compile(r"^(\S+)\s+(\S+)\s+\[([^\]]*)\]\s+\{([^}]*)\}\s*$")
+
+MIN_CEDICT_PARSED = 100000
+MIN_READINGS_PARSED = 100000  # observed 105,862; a truncated readings file must fail loud
+MIN_CEDICT_JOINED = 80000  # parse and rate floors can both scrape by while joined output still shrinks; pin the output too
+MIN_JOIN_RATE = 0.75
+
+# senses.source: rank tiebreak after match weight, most-Cantonese first (ADR 0003).
+# words.hk lands at 1 in Slice 2.
+SOURCE_CCCANTO = 0
+SOURCE_ADAPTED_CEDICT = 2  # "adapted from cc-cedict" lines inside cccanto-webdist.txt
+SOURCE_CEDICT = 3
 
 STOPWORDS = {
     "the", "a", "an", "to", "of", "in", "on", "for", "with", "and", "or",
@@ -90,6 +105,45 @@ def parse_file(path, source_for_comment):
     return entries, parsed, skipped
 
 
+def parse_cedict(cedict_path, readings_path):
+    """CEDICT has glosses but no jyutping; the readings file has jyutping but
+    no glosses. Join on (traditional, despaced pinyin) - the readings file
+    lists both spaced and unspaced pinyin variants for the same entry."""
+    readings = {}
+    r_parsed = r_skipped = collisions = 0
+    for raw in readings_path.read_text(encoding="utf-8").splitlines():
+        if not raw or raw.startswith("#"):
+            continue
+        m = READINGS_RE.match(raw)
+        if not m:
+            r_skipped += 1
+            continue
+        r_parsed += 1
+        trad, _simp, pinyin, jyutping = m.groups()
+        key = (trad, pinyin.lower().replace(" ", ""))
+        if readings.setdefault(key, jyutping) != jyutping:
+            collisions += 1
+
+    entries, parsed, skipped, unjoined = [], 0, 0, 0
+    for raw in cedict_path.read_text(encoding="utf-8").splitlines():
+        if not raw or raw.startswith("#"):
+            continue
+        m = CEDICT_RE.match(raw)
+        if not m:
+            skipped += 1
+            continue
+        parsed += 1
+        trad, simp, pinyin, gloss = m.groups()
+        jyutping = readings.get((trad, pinyin.lower().replace(" ", "")))
+        if not jyutping:  # unmatched key, or an empty {} reading — never join it
+            unjoined += 1
+            continue
+        entries.append((trad, simp, jyutping, pinyin, gloss, SOURCE_CEDICT))
+    return entries, {"parsed": parsed, "skipped": skipped, "unjoined": unjoined,
+                     "readings_parsed": r_parsed, "readings_skipped": r_skipped,
+                     "collisions": collisions}
+
+
 def insert_all(db, entries):
     for trad, simp, jyutping, pinyin, gloss, source in entries:
         cur = db.execute(
@@ -107,6 +161,13 @@ def build_db():
             f"Download cccanto-webdist.txt from cantonese.org/download.html into {DATA.parent}/")
     if not SUPPLEMENT.exists():
         sys.exit(f"supplement file not found: {SUPPLEMENT}")
+    if not CEDICT.exists():
+        sys.exit(
+            f"source data not found: {CEDICT}\n"
+            "Download with: curl -sL https://www.mdbg.net/chinese/export/cedict/"
+            f"cedict_1_0_ts_utf-8_mdbg.txt.gz | gunzip > {CEDICT}")
+    if not READINGS.exists():
+        sys.exit(f"source data not found: {READINGS}")
     if BUILD_PATH.exists():
         BUILD_PATH.unlink()
     BUILD_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -121,12 +182,15 @@ def build_db():
     """)
 
     main_entries, parsed, skipped = parse_file(
-        DATA, lambda comment: 1 if comment and "cc-cedict" in comment else 0)
+        DATA, lambda comment: SOURCE_ADAPTED_CEDICT if comment and "cc-cedict" in comment
+        else SOURCE_CCCANTO)
     supplement_entries, supp_parsed, supp_skipped = parse_file(
-        SUPPLEMENT, lambda _c: 0)
+        SUPPLEMENT, lambda _c: SOURCE_CCCANTO)
+    cedict_entries, cedict_stats = parse_cedict(CEDICT, READINGS)
 
     insert_all(db, main_entries)
     insert_all(db, supplement_entries)
+    insert_all(db, cedict_entries)
     db.execute("CREATE INDEX idx_english_token ON english_index(token)")
 
     # Popularity tiebreak: literary junk chars (啜, 觱) live in few compounds,
@@ -143,12 +207,24 @@ def build_db():
 
     total_senses = db.execute("SELECT COUNT(*) FROM senses").fetchone()[0]
     total_index = db.execute("SELECT COUNT(*) FROM english_index").fetchone()[0]
+    cedict_joined = len(cedict_entries)
+    join_rate = cedict_joined / cedict_stats["parsed"] if cedict_stats["parsed"] else 0
     print(f"main entries parsed: {parsed} ({skipped} lines skipped)")
     print(f"supplement entries merged: {supp_parsed} ({supp_skipped} lines skipped)")
+    print(f"readings parsed: {cedict_stats['readings_parsed']} "
+          f"({cedict_stats['readings_skipped']} lines skipped, "
+          f"{cedict_stats['collisions']} key collisions)")
+    print(f"cedict parsed: {cedict_stats['parsed']} ({cedict_stats['skipped']} lines skipped), "
+          f"joined: {cedict_joined} ({join_rate:.0%}), unjoined: {cedict_stats['unjoined']}")
     print(f"total senses: {total_senses}")
     print(f"total index rows: {total_index}\n")
     return db, {"parsed": parsed, "skipped": skipped, "supp_skipped": supp_skipped,
-                "supp_entries": supplement_entries}
+                "supp_entries": supplement_entries,
+                "cedict_parsed": cedict_stats["parsed"],
+                "cedict_skipped": cedict_stats["skipped"],
+                "cedict_joined": cedict_joined,
+                "readings_parsed": cedict_stats["readings_parsed"],
+                "readings_collisions": cedict_stats["collisions"]}
 
 
 def senses_for(db, query):
@@ -202,6 +278,26 @@ def assert_quality(db, db_file, counts):
     check(f"supplement has no malformed lines ({counts['supp_skipped']} skipped)",
           counts["supp_skipped"] == 0)
 
+    check(f"cedict parsed above floor ({counts['cedict_parsed']} >= {MIN_CEDICT_PARSED})",
+          counts["cedict_parsed"] >= MIN_CEDICT_PARSED)
+    c_total = counts["cedict_parsed"] + counts["cedict_skipped"]
+    c_skip_ratio = counts["cedict_skipped"] / c_total if c_total else 0
+    check(f"cedict skip ratio under {MAX_SKIP_RATIO:.0%} ({counts['cedict_skipped']} skipped)",
+          c_skip_ratio < MAX_SKIP_RATIO)
+    check(f"readings parsed above floor ({counts['readings_parsed']} >= {MIN_READINGS_PARSED})",
+          counts["readings_parsed"] >= MIN_READINGS_PARSED)
+    # Zero today (verified); a colliding key means the join could pick a wrong
+    # jyutping silently, so any real drift upstream deserves a human look.
+    collision_ratio = (counts["readings_collisions"] / counts["readings_parsed"]
+                       if counts["readings_parsed"] else 0)
+    check(f"readings key collisions under 1% ({counts['readings_collisions']})",
+          collision_ratio < 0.01)
+    join_rate = counts["cedict_joined"] / counts["cedict_parsed"] if counts["cedict_parsed"] else 0
+    check(f"cedict join rate {join_rate:.0%} >= {MIN_JOIN_RATE:.0%}",
+          join_rate >= MIN_JOIN_RATE)
+    check(f"cedict joined above floor ({counts['cedict_joined']} >= {MIN_CEDICT_JOINED})",
+          counts["cedict_joined"] >= MIN_CEDICT_JOINED)
+
     # 1. Data-quality canary: "eat" must surface genuine Cantonese 食 (sik) — and
     # if a Mandarin 吃/喫 confusable is present, 食 must beat it. Removing the
     # confusable from the source is an improvement, not a failure, so its presence
@@ -229,7 +325,14 @@ def assert_quality(db, db_file, counts):
         "sleep: colloquial 瞓覺/訓覺 (fan3 gaau3) ranks first",
         bool(sleep_rows) and sleep_rows[0][1] == "fan3 gaau3")
 
-    # 4. Supplement mechanism: any live supplement entry must land at source=0 and
+    # 4. Coverage canary: the everyday word CC-Canto lacks entirely. Guards the
+    # join end-to-end - if 海豚 stops resolving, the join silently broke.
+    dolphin_rows, _ = senses_for(db, "dolphin")
+    check("dolphin: 海豚 (hoi2 tyun4) ranks first",
+          bool(dolphin_rows) and dolphin_rows[0][0] == "海豚"
+          and dolphin_rows[0][1] == "hoi2 tyun4")
+
+    # 5. Supplement mechanism: any live supplement entry must land at source=0 and
     # be reachable via english_index. Matching on source=0 is required — a common
     # word "fix" (supplement.txt use case 3) deliberately shares traditional+jyutping
     # with a main-dict entry, so an unfiltered lookup would validate the wrong row.
@@ -258,7 +361,7 @@ def assert_quality(db, db_file, counts):
             "supplement mechanism: 0 live entries, merge path trivially clean",
             True, "case: empty supplement (honest starter state)")
 
-    # 5. Size sanity — the db is a bundled iOS asset, keep it well under app limits.
+    # 6. Size sanity — the db is a bundled iOS asset, keep it well under app limits.
     size_mb = db_file.stat().st_size / (1024 * 1024)
     check(f"dict size under {MAX_DB_SIZE_MB}MB (actual: {size_mb:.2f}MB)", size_mb < MAX_DB_SIZE_MB)
 

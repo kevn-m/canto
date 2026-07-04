@@ -35,6 +35,15 @@ final class DictionaryStoreTests: XCTestCase {
         XCTAssertEqual(results.first?.jyutping, "fan3 gaau3")
     }
 
+    // Coverage canary (context.md): 海豚 comes from the CEDICT join, not
+    // CC-Canto, and must rank first for "dolphin".
+    func test_dolphin_returnsHoiTyunFirst() {
+        let results = store.senses(for: "dolphin")
+        XCTAssertFalse(results.isEmpty)
+        XCTAssertEqual(results.first?.traditional, "海豚")
+        XCTAssertEqual(results.first?.jyutping, "hoi2 tyun4")
+    }
+
     func test_fullPhraseMatch_washingMachine() {
         let results = store.senses(for: "washing machine")
         XCTAssertFalse(results.isEmpty)

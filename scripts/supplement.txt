@@ -5,8 +5,9 @@
 #
 # Lines starting with # are comments/ignored. build_dict.py parses this file
 # with the same LINE_RE as the main dictionary and inserts every live entry
-# with source=0 (genuine CC-Canto rank — wins ties over source=1 CEDICT
-# adaptations), indexed into english_index the same way as main entries.
+# with source=0 (genuine CC-Canto rank — wins ties over every other source:
+# 1 words.hk, 2 CEDICT adaptations, 3 raw CEDICT join; see ADR 0003),
+# indexed into english_index the same way as main entries.
 #
 # Why this file exists: scripts/spike.py's Slice 0 run showed three miss
 # clusters that cccanto-webdist.txt does not cover well:
