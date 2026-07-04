@@ -73,8 +73,8 @@ enum TowerEngine {
 }
 
 // The map: today's Run, resumed or fresh, climbing 2 fights + a boss with an
-// optional extension door at the end. One Run per calendar day - GameStore's
-// `runs.run_date` UNIQUE is the enforcement, this view just reads/reacts to it.
+// optional extension door at the end. Runs repeat freely - an unfinished run
+// resumes, a finished one just means the next tap starts a new climb.
 struct TowerView: View {
     private enum Phase {
         case loading, notStarted, fighting, doorOffer, finished(BattleEngine.Outcome), corrupt
@@ -103,7 +103,12 @@ struct TowerView: View {
             case .doorOffer:
                 doorView
             case .finished(let outcome):
-                RunSummaryView(state: runState, outcome: outcome)
+                VStack(spacing: 24) {
+                    RunSummaryView(state: runState, outcome: outcome)
+                    Button("Climb again") { startRun() }
+                        .font(.title3.bold())
+                        .buttonStyle(.borderedProminent)
+                }
             case .corrupt:
                 corruptView
             }
@@ -133,11 +138,6 @@ struct TowerView: View {
         }
         runId = run.id
 
-        if run.finished {
-            runState = run.state
-            phase = .finished(run.state.partyHP <= 0 ? .defeat : .victory)
-            return
-        }
         // Defence-in-depth: GameStore.todaysRun already rejects and clears
         // structurally invalid rows, so this should be unreachable - but a
         // trap on floors[floorIndex] would break the never-crash contract,
@@ -183,9 +183,9 @@ struct TowerView: View {
     private func startRun() {
         let state = TowerEngine.makeFreshRun()
         guard let id = gameStore.startRun(on: today, state: state) else {
-            // nil is either the run_date UNIQUE (a run exists - load it) or
-            // a write failure (lastError set; reload lands on notStarted
-            // with the banner showing). Both resolve by reloading.
+            // nil is either an unfinished run already on disk (load and
+            // resume it) or a write failure (lastError set; reload lands on
+            // notStarted with the banner showing). Both resolve by reloading.
             loadTodaysRun()
             return
         }

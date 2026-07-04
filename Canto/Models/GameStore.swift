@@ -69,6 +69,7 @@ final class GameStore: ObservableObject {
     }
 
     private static func createSchema(_ db: Database) throws {
+        let version = try Int.fetchOne(db, sql: "PRAGMA user_version") ?? 0
         try db.execute(sql: """
             CREATE TABLE IF NOT EXISTS cards (
               id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -118,7 +119,7 @@ final class GameStore: ObservableObject {
         try db.execute(sql: """
             CREATE TABLE IF NOT EXISTS runs (
               id INTEGER PRIMARY KEY AUTOINCREMENT,
-              run_date TEXT NOT NULL UNIQUE,
+              run_date TEXT NOT NULL,
               state_json TEXT NOT NULL,
               finished INTEGER NOT NULL DEFAULT 0
             )
@@ -129,9 +130,26 @@ final class GameStore: ObservableObject {
               value TEXT NOT NULL
             )
             """)
+        // v1 had run_date UNIQUE (one Run per day). Kevin dropped that rule,
+        // and a populated device db still carries the constraint in its
+        // table definition - rebuild the table to shed it.
+        if version == 1 {
+            try db.execute(sql: """
+                ALTER TABLE runs RENAME TO runs_v1;
+                CREATE TABLE runs (
+                  id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  run_date TEXT NOT NULL,
+                  state_json TEXT NOT NULL,
+                  finished INTEGER NOT NULL DEFAULT 0
+                );
+                INSERT INTO runs (id, run_date, state_json, finished)
+                  SELECT id, run_date, state_json, finished FROM runs_v1;
+                DROP TABLE runs_v1
+                """)
+        }
         // Schema version stamp so a future release can migrate a
         // populated device db instead of no-op'ing on IF NOT EXISTS.
-        try db.execute(sql: "PRAGMA user_version = 1")
+        try db.execute(sql: "PRAGMA user_version = 2")
     }
 
     func clearError() {
@@ -391,38 +409,39 @@ final class GameStore: ObservableObject {
 
     // MARK: - Runs
 
-    func todaysRun(on date: String) -> (id: Int64, state: RunState, finished: Bool)? {
+    // Today's unfinished run, for resume. Finished rows are paid history -
+    // they never come back through here, and starting a fresh run beside
+    // them is allowed (runs repeat freely since schema v2).
+    func todaysRun(on date: String) -> (id: Int64, state: RunState)? {
         writeValue(default: nil) { db in
             guard let row = try Row.fetchOne(
-                db, sql: "SELECT id, state_json, finished FROM runs WHERE run_date = ?", arguments: [date]
+                db,
+                sql: "SELECT id, state_json FROM runs WHERE run_date = ? AND finished = 0 ORDER BY id DESC LIMIT 1",
+                arguments: [date]
             ) else { return nil }
 
+            let id: Int64 = row["id"]
             let stateJSON: String = row["state_json"]
-            let finished: Bool = row["finished"]
             guard let data = stateJSON.data(using: .utf8),
                   let state = try? JSONDecoder().decode(RunState.self, from: data),
                   state.isStructurallyValid else {
-                // A corrupt UNFINISHED snapshot would dead-end the tower for
-                // the day (run_date is UNIQUE, startRun sees the row), so it
-                // gets cleared - losing one run's progress beats that. A
-                // corrupt FINISHED row is different: it's the proof today was
-                // already played and PAID. Deleting it would reopen the day
-                // for a second payout, so it stays.
-                if finished {
-                    self.reportError("Today's run record is damaged, but it was already played - the tower reopens tomorrow.")
-                } else {
-                    try db.execute(sql: "DELETE FROM runs WHERE run_date = ?", arguments: [date])
-                    self.reportError("Corrupt run state for \(date) - cleared it so a fresh Run can start.")
-                }
+                // A corrupt unfinished snapshot would dead-end resume, so it
+                // gets cleared - losing one run's progress beats that.
+                try db.execute(sql: "DELETE FROM runs WHERE id = ?", arguments: [id])
+                self.reportError("Corrupt run state for \(date) - cleared it so a fresh Run can start.")
                 return nil
             }
-            return (id: row["id"], state: state, finished: finished)
+            return (id: id, state: state)
         }
     }
 
+    // One unfinished run at a time is a data invariant (resume must be
+    // unambiguous), not a gameplay limit - finished runs don't block.
     func startRun(on date: String, state: RunState) -> Int64? {
         writeValue(default: nil) { db in
-            let existing = try Int64.fetchOne(db, sql: "SELECT id FROM runs WHERE run_date = ?", arguments: [date])
+            let existing = try Int64.fetchOne(
+                db, sql: "SELECT id FROM runs WHERE run_date = ? AND finished = 0", arguments: [date]
+            )
             guard existing == nil else { return nil }
             let json = try self.encodeStateJSON(state)
             try db.execute(

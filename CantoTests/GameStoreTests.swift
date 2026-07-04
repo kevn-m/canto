@@ -291,22 +291,44 @@ final class GameStoreTests: XCTestCase {
         let fetched = store.todaysRun(on: "2026-07-04")
         XCTAssertEqual(fetched?.id, runId)
         XCTAssertEqual(fetched?.state.enemyHP, 4)
-        XCTAssertFalse(fetched?.finished ?? true)
     }
 
-    func test_startRun_returnsNilWhenOneAlreadyExistsForThatDate() {
+    // Resume must be unambiguous: one unfinished run at a time. Finished
+    // runs don't block - that's the next test.
+    func test_startRun_refusesWhileAnUnfinishedRunExists() {
         let store = GameStore(directory: tempDir)
         XCTAssertNotNil(store.startRun(on: "2026-07-04", state: makeRunState()))
         XCTAssertNil(store.startRun(on: "2026-07-04", state: makeRunState()))
     }
 
-    func test_finishRun_marksFinished() {
+    // Kevin removed the one-Run-per-day rule: play again immediately, and
+    // every finished run pays. Farming is accepted - the shop is dad-gated.
+    func test_startRun_allowedAgainAfterFinishing_andEachRunPays() {
+        let store = GameStore(directory: tempDir)
+        let first = store.startRun(on: "2026-07-04", state: makeRunState())!
+        store.finishRun(id: first, state: makeRunState(enemyHP: 0))
+        let paidOnce = store.balance()
+        XCTAssertGreaterThan(paidOnce, 0)
+
+        let second = store.startRun(on: "2026-07-04", state: makeRunState())
+        XCTAssertNotNil(second)
+        XCTAssertNotEqual(second, first)
+        store.finishRun(id: second!, state: makeRunState(enemyHP: 0))
+        XCTAssertEqual(store.balance(), paidOnce * 2)
+    }
+
+    func test_finishRun_marksFinished() throws {
         let store = GameStore(directory: tempDir)
         let runId = store.startRun(on: "2026-07-04", state: makeRunState())!
 
         store.finishRun(id: runId, state: makeRunState(enemyHP: 0))
 
-        XCTAssertEqual(store.todaysRun(on: "2026-07-04")?.finished, true)
+        // A finished run is history: todaysRun (resume) no longer sees it.
+        XCTAssertNil(store.todaysRun(on: "2026-07-04"))
+        let finished = try rawGameQueue(in: tempDir).read { db in
+            try Bool.fetchOne(db, sql: "SELECT finished FROM runs WHERE id = ?", arguments: [runId])
+        }
+        XCTAssertEqual(finished, true)
     }
 
     // MARK: - finishRun payout
@@ -417,28 +439,27 @@ final class GameStoreTests: XCTestCase {
         XCTAssertEqual(extensionAmount, Balance.extensionPay)
     }
 
-    // A finished row is the proof today was already played and PAID -
-    // clearing it like unfinished corruption would reopen the day for a
-    // second payout.
-    func test_todaysRun_keepsCorruptFinishedRowSoTheDayCannotPayTwice() throws {
+    // A finished row is paid history: todaysRun never reads it, so even a
+    // corrupt one is invisible - never deleted, never an error, and never
+    // in the way of the next run.
+    func test_todaysRun_ignoresFinishedRowsEvenCorruptOnes() throws {
         let store = GameStore(directory: tempDir)
         let runId = store.startRun(on: "2026-07-04", state: makeRunState())!
         store.finishRun(id: runId, state: makeRunState(enemyHP: 0))
-        let paidBalance = store.balance()
-        XCTAssertGreaterThan(paidBalance, 0)
 
         try rawGameQueue(in: tempDir).write { db in
             try db.execute(sql: "UPDATE runs SET state_json = 'not json'")
         }
 
         XCTAssertNil(store.todaysRun(on: "2026-07-04"))
-        drainMainQueue()
-        XCTAssertNotNil(store.lastError)
-        XCTAssertNil(store.startRun(on: "2026-07-04", state: makeRunState()), "the day must stay closed")
-        XCTAssertEqual(store.balance(), paidBalance, "no second payout")
+        XCTAssertNotNil(store.startRun(on: "2026-07-04", state: makeRunState()))
+        let survivingRows = try rawGameQueue(in: tempDir).read { db in
+            try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM runs WHERE id = ?", arguments: [runId])
+        }
+        XCTAssertEqual(survivingRows, 1, "paid history is never deleted")
     }
 
-    func test_saveRun_cannotRewriteAFinishedRunsSnapshot() {
+    func test_saveRun_cannotRewriteAFinishedRunsSnapshot() throws {
         let store = GameStore(directory: tempDir)
         let runId = store.startRun(on: "2026-07-04", state: makeRunState())!
         let finalState = makeRunState(enemyHP: 0)
@@ -446,8 +467,46 @@ final class GameStoreTests: XCTestCase {
 
         store.saveRun(id: runId, state: makeRunState(enemyHP: 99))
 
-        XCTAssertEqual(store.todaysRun(on: "2026-07-04")?.state, finalState,
-                       "the snapshot backs what the ledger already paid")
+        let storedJSON = try rawGameQueue(in: tempDir).read { db in
+            try String.fetchOne(db, sql: "SELECT state_json FROM runs WHERE id = ?", arguments: [runId])
+        }
+        let stored = try JSONDecoder().decode(RunState.self, from: storedJSON!.data(using: .utf8)!)
+        XCTAssertEqual(stored, finalState, "the snapshot backs what the ledger already paid")
+    }
+
+    // A device db created at schema v1 carries run_date UNIQUE inside the
+    // runs table definition - opening the store must shed it, or the first
+    // "climb again" INSERT explodes on a phone while passing in every test
+    // against a fresh db.
+    func test_schemaV1_migratesToAllowRepeatRunsOnOneDay() throws {
+        // The raw queue runs before any GameStore has created the directory.
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        try rawGameQueue(in: tempDir).write { db in
+            try db.execute(sql: """
+                CREATE TABLE runs (
+                  id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  run_date TEXT NOT NULL UNIQUE,
+                  state_json TEXT NOT NULL,
+                  finished INTEGER NOT NULL DEFAULT 0
+                )
+                """)
+            try db.execute(
+                sql: "INSERT INTO runs (run_date, state_json, finished) VALUES (?, ?, 1)",
+                arguments: ["2026-07-04", "{}"]
+            )
+            try db.execute(sql: "PRAGMA user_version = 1")
+        }
+
+        let store = GameStore(directory: tempDir)
+
+        XCTAssertNotNil(store.startRun(on: "2026-07-04", state: makeRunState()),
+                        "yesterday's schema must not block a second run today")
+        let (version, rows) = try rawGameQueue(in: tempDir).read { db in
+            (try Int.fetchOne(db, sql: "PRAGMA user_version") ?? 0,
+             try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM runs WHERE run_date = '2026-07-04'") ?? 0)
+        }
+        XCTAssertEqual(version, 2)
+        XCTAssertEqual(rows, 2, "the v1 row survived the rebuild alongside the new one")
     }
 
     // Decodes fine but would trap floors[floorIndex] - same recovery as
