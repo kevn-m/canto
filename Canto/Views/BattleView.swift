@@ -87,7 +87,11 @@ struct TowerEntryView: View {
                 TowerView()
             }
         }
-        .navigationTitle("Tower")
+        // No title: the hallway backdrop is the label (Kevin's show-don't-
+        // label rule). Inline mode keeps the bar from reserving large-title
+        // space above the fight.
+        .navigationTitle("")
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 NavigationLink {
