@@ -9,6 +9,8 @@ once every assertion passes, so a failed build never replaces the last
 good dictionary.
 """
 
+import csv
+import json
 import os
 import re
 import sqlite3
@@ -20,6 +22,7 @@ DATA = ROOT / "data" / "cccanto-webdist.txt"
 SUPPLEMENT = ROOT / "scripts" / "supplement.txt"
 CEDICT = ROOT / "data" / "cedict_ts.u8"
 READINGS = ROOT / "data" / "cccedict-canto-readings.txt"
+WORDSHK = ROOT / "data" / "englishindex.csv"
 DB_PATH = ROOT / "Canto" / "Resources" / "dict.sqlite"
 # Built here, then os.replace'd into DB_PATH only after assert_quality passes.
 # dict.tmp.sqlite is gitignored so a transient build file never gets committed.
@@ -39,10 +42,11 @@ MIN_CEDICT_PARSED = 100000
 MIN_READINGS_PARSED = 100000  # observed 105,862; a truncated readings file must fail loud
 MIN_CEDICT_JOINED = 80000  # parse and rate floors can both scrape by while joined output still shrinks; pin the output too
 MIN_JOIN_RATE = 0.75
+MIN_WORDSHK_SENSES = 15000  # observed 42,391; a generous floor still catches a gutted export
 
 # senses.source: rank tiebreak after match weight, most-Cantonese first (ADR 0003).
-# words.hk lands at 1 in Slice 2.
 SOURCE_CCCANTO = 0
+SOURCE_WORDSHK = 1
 SOURCE_ADAPTED_CEDICT = 2  # "adapted from cc-cedict" lines inside cccanto-webdist.txt
 SOURCE_CEDICT = 3
 
@@ -144,6 +148,47 @@ def parse_cedict(cedict_path, readings_path):
                      "collisions": collisions}
 
 
+def parse_wordshk(path):
+    """words.hk english index: token, then JSON cells ['word:jyutping', score].
+    Cells repeat within a row (usually as two identical halves) - dedup them.
+    Stemmed tokens ('!abil') are skipped: the query side has no stemmer.
+    A second colon-joined variant reading, if present, is dropped.
+    Each word becomes one sense whose gloss is its tokens, best score first."""
+    words = {}
+    cells = bad_cells = parts = bad_parts = 0
+    with open(path, newline="", encoding="utf-8") as f:
+        reader = csv.reader(f)
+        next(reader, None)  # Source,https://... header
+        for row in reader:
+            if not row:
+                continue
+            token = row[0]
+            if token.startswith("!"):
+                continue
+            for cell in dict.fromkeys(row[1:]):
+                cells += 1
+                try:
+                    text, score = json.loads(cell)
+                    score = int(score)
+                except (ValueError, TypeError):
+                    bad_cells += 1
+                    continue
+                for part in text.split(","):
+                    parts += 1
+                    bits = part.split(":")
+                    if len(bits) < 2 or not bits[0] or not bits[1]:
+                        bad_parts += 1
+                        continue
+                    words.setdefault((bits[0], bits[1]), []).append((score, token))
+    entries = []
+    for (word, jyutping), scored in sorted(words.items()):
+        scored.sort(key=lambda t: (-t[0], t[1]))
+        gloss = "/".join(list(dict.fromkeys(tok for _s, tok in scored))[:6])
+        entries.append((word, None, jyutping, None, gloss, SOURCE_WORDSHK))
+    return entries, {"cells": cells, "bad_cells": bad_cells,
+                     "parts": parts, "bad_parts": bad_parts}
+
+
 def insert_all(db, entries):
     for trad, simp, jyutping, pinyin, gloss, source in entries:
         cur = db.execute(
@@ -168,6 +213,11 @@ def build_db():
             f"cedict_1_0_ts_utf-8_mdbg.txt.gz | gunzip > {CEDICT}")
     if not READINGS.exists():
         sys.exit(f"source data not found: {READINGS}")
+    if not WORDSHK.exists():
+        sys.exit(
+            f"source data not found: {WORDSHK}\n"
+            "Download with: curl -sfL https://words.hk/faiman/analysis/englishindex.csv "
+            f"-o {WORDSHK}")
     if BUILD_PATH.exists():
         BUILD_PATH.unlink()
     BUILD_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -187,10 +237,12 @@ def build_db():
     supplement_entries, supp_parsed, supp_skipped = parse_file(
         SUPPLEMENT, lambda _c: SOURCE_CCCANTO)
     cedict_entries, cedict_stats = parse_cedict(CEDICT, READINGS)
+    wordshk_entries, wordshk_stats = parse_wordshk(WORDSHK)
 
     insert_all(db, main_entries)
     insert_all(db, supplement_entries)
     insert_all(db, cedict_entries)
+    insert_all(db, wordshk_entries)
     db.execute("CREATE INDEX idx_english_token ON english_index(token)")
 
     # Popularity tiebreak: literary junk chars (啜, 觱) live in few compounds,
@@ -216,6 +268,9 @@ def build_db():
           f"{cedict_stats['collisions']} key collisions)")
     print(f"cedict parsed: {cedict_stats['parsed']} ({cedict_stats['skipped']} lines skipped), "
           f"joined: {cedict_joined} ({join_rate:.0%}), unjoined: {cedict_stats['unjoined']}")
+    print(f"words.hk senses: {len(wordshk_entries)} "
+          f"({wordshk_stats['bad_cells']} of {wordshk_stats['cells']} cells unparsable, "
+          f"{wordshk_stats['bad_parts']} of {wordshk_stats['parts']} parts malformed)")
     print(f"total senses: {total_senses}")
     print(f"total index rows: {total_index}\n")
     return db, {"parsed": parsed, "skipped": skipped, "supp_skipped": supp_skipped,
@@ -224,7 +279,12 @@ def build_db():
                 "cedict_skipped": cedict_stats["skipped"],
                 "cedict_joined": cedict_joined,
                 "readings_parsed": cedict_stats["readings_parsed"],
-                "readings_collisions": cedict_stats["collisions"]}
+                "readings_collisions": cedict_stats["collisions"],
+                "wordshk_senses": len(wordshk_entries),
+                "wordshk_cells": wordshk_stats["cells"],
+                "wordshk_bad_cells": wordshk_stats["bad_cells"],
+                "wordshk_parts": wordshk_stats["parts"],
+                "wordshk_bad_parts": wordshk_stats["bad_parts"]}
 
 
 def senses_for(db, query):
@@ -331,6 +391,27 @@ def assert_quality(db, db_file, counts):
     check("dolphin: 海豚 (hoi2 tyun4) ranks first",
           bool(dolphin_rows) and dolphin_rows[0][0] == "海豚"
           and dolphin_rows[0][1] == "hoi2 tyun4")
+
+    # 4b. words.hk integrity: the source must arrive in bulk and parse cleanly
+    # (same fail-loud contract as the other sources), and the 海豚 row proves an
+    # english-index entry made it to source rank 1 with its token in the gloss.
+    check(f"words.hk senses above floor ({counts['wordshk_senses']} >= {MIN_WORDSHK_SENSES})",
+          counts["wordshk_senses"] >= MIN_WORDSHK_SENSES)
+    w_bad_ratio = (counts["wordshk_bad_cells"] / counts["wordshk_cells"]
+                   if counts["wordshk_cells"] else 0)
+    check(f"words.hk bad-cell ratio under {MAX_SKIP_RATIO:.0%} "
+          f"({counts['wordshk_bad_cells']} unparsable)",
+          w_bad_ratio < MAX_SKIP_RATIO)
+    w_part_ratio = (counts["wordshk_bad_parts"] / counts["wordshk_parts"]
+                    if counts["wordshk_parts"] else 0)
+    check(f"words.hk malformed-part ratio under {MAX_SKIP_RATIO:.0%} "
+          f"({counts['wordshk_bad_parts']} dropped)",
+          w_part_ratio < MAX_SKIP_RATIO)
+    row = db.execute(
+        "SELECT gloss FROM senses WHERE traditional='海豚' AND jyutping='hoi2 tyun4'"
+        f" AND source={SOURCE_WORDSHK}").fetchone()
+    check(f"words.hk: 海豚 stored at source={SOURCE_WORDSHK} with 'dolphin' in gloss",
+          row is not None and "dolphin" in row[0])
 
     # 5. Supplement mechanism: any live supplement entry must land at source=0 and
     # be reachable via english_index. Matching on source=0 is required — a common

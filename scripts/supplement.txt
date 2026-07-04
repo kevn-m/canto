@@ -26,3 +26,8 @@
 #
 # Example (commented out — shows the format only, does not load):
 # 手推車 手推车 [shou3 tui1 che1] {sau2 teoi1 ce1} /pram/stroller/
+
+# Use case 3: words.hk indexes "dog" to synonyms (犬, 狗仔, 汪星人) but not bare
+# 狗, and CC-Canto's 狗 gloss buries "dog" mid-sentence — so the everyday word
+# lost its top-5 slot. Verified by Kevin 2026-07-04.
+狗 狗 [gou3] {gau2} /dog/

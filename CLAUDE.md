@@ -63,7 +63,11 @@ install. Needs one-time setup — an App Store Connect API key, an app record, a
 - `Canto/Views/` — SwiftUI screens
 - `Canto/Resources/dict.sqlite` — the bundled read-only dictionary (built, committed)
 - `scripts/build_dict.py` — builds `dict.sqlite` from `data/`
-- `data/` — CC-Canto + CC-CEDICT source text the dictionary is built from
+- `data/` — the four dictionary sources:
+  - `cccanto-webdist.txt` — CC-Canto (cantonese.org/download.html)
+  - `cccedict-canto-readings.txt` — jyutping readings for CC-CEDICT entries, no glosses
+  - `cedict_ts.u8` — CC-CEDICT glosses, joined to the readings at build time (mdbg.net export)
+  - `englishindex.csv` — words.hk English index, public domain (words.hk/faiman/analysis/)
 - `CantoTests/` — unit tests
 
 ## The one invariant that matters
