@@ -74,7 +74,7 @@ struct TowerEntryView: View {
             if deckSize < Balance.deckUnlockSize {
                 lockedView(deckSize: deckSize)
             } else {
-                BattleContainerView()
+                TowerView()
             }
         }
         .navigationTitle("Tower")
@@ -105,56 +105,6 @@ struct TowerEntryView: View {
                 .foregroundStyle(.secondary)
         }
         .padding()
-    }
-}
-
-// Slice 3's stand-in for TowerView: builds a single-fight RunState in
-// memory and hosts BattleView. Slice 4 replaces this with a persisted,
-// multi-floor Run - all the fight logic below already lives on the
-// RunState binding so that swap doesn't touch BattleView.
-struct BattleContainerView: View {
-    @State private var runState = BattleContainerView.makeSingleFightState()
-    @State private var outcome: BattleEngine.Outcome?
-
-    var body: some View {
-        if let outcome {
-            outcomeView(outcome)
-        } else {
-            BattleView(
-                runState: $runState,
-                onVictory: { outcome = .victory },
-                onDefeat: { outcome = .defeat }
-            )
-        }
-    }
-
-    private func outcomeView(_ outcome: BattleEngine.Outcome) -> some View {
-        VStack(spacing: 20) {
-            Image(systemName: outcome == .victory ? "trophy.fill" : "heart.slash.fill")
-                .font(.system(size: 64))
-                .foregroundStyle(outcome == .victory ? .yellow : .red)
-            Text(outcome == .victory ? "Victory!" : "Defeat")
-                .font(.largeTitle.bold())
-            Button("Fight Again") {
-                runState = Self.makeSingleFightState()
-                self.outcome = nil
-            }
-            .buttonStyle(.borderedProminent)
-        }
-        .padding()
-    }
-
-    private static func makeSingleFightState() -> RunState {
-        RunState(
-            floors: [RunState.Floor(kind: .fight, enemyName: "slime", maxHP: Balance.fightHP)],
-            floorIndex: 0,
-            enemyHP: Balance.fightHP,
-            partyHP: Balance.partyHP,
-            turn: .kid,
-            dealt: [:],
-            kidDamageDealt: 0,
-            extensionsTaken: 0
-        )
     }
 }
 

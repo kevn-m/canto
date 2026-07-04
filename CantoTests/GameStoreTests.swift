@@ -197,6 +197,66 @@ final class GameStoreTests: XCTestCase {
         XCTAssertTrue(store.shopItems(includeArchived: true).first!.archived)
     }
 
+    // MARK: - reviewedCardIds
+
+    func test_reviewedCardIds_filtersByPlayerAndDate() throws {
+        let log = LogStore(directory: tempDir)
+        makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
+        makeChosenLookup(log, heard: "dog", traditional: "狗", jyutping: "gau2")
+        let store = GameStore(directory: tempDir)
+        store.syncDeck(from: log)
+        let eatId = store.deck().first { $0.traditional == "食" }!.id
+        let dogId = store.deck().first { $0.traditional == "狗" }!.id
+
+        // recordReview always stamps reviewed_at with the real clock, not the
+        // "on:" scheduling date, so seed rows directly to control the date.
+        try rawGameQueue(in: tempDir).write { db in
+            try db.execute(
+                sql: "INSERT INTO reviews (card_id, player, result, reviewed_at) VALUES (?, ?, ?, ?)",
+                arguments: [eatId, "kid", "hit", "2026-07-04T10:00:00Z"]
+            )
+            try db.execute(
+                sql: "INSERT INTO reviews (card_id, player, result, reviewed_at) VALUES (?, ?, ?, ?)",
+                arguments: [dogId, "dad", "hit", "2026-07-04T11:00:00Z"]
+            )
+            try db.execute(
+                sql: "INSERT INTO reviews (card_id, player, result, reviewed_at) VALUES (?, ?, ?, ?)",
+                arguments: [dogId, "kid", "hit", "2026-07-03T09:00:00Z"]
+            )
+        }
+
+        XCTAssertEqual(store.reviewedCardIds(for: .kid, on: "2026-07-04"), [eatId])
+        XCTAssertEqual(store.reviewedCardIds(for: .dad, on: "2026-07-04"), [dogId])
+        XCTAssertEqual(store.reviewedCardIds(for: .kid, on: "2026-07-03"), [dogId])
+    }
+
+    // reviewed_at is UTC but the queried day is local. East of UTC, an
+    // early-morning review's UTC date is still yesterday - a date-prefix
+    // match would drop it and let a resumed Run re-review the card.
+    // Honest limit: on a UTC-configured machine local == UTC, so this can't
+    // distinguish range- from prefix-matching there. It bites on the AEST
+    // machine this suite actually runs on.
+    func test_reviewedCardIds_includesEarlyMorningReviewAcrossUTCBoundary() throws {
+        let log = LogStore(directory: tempDir)
+        makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
+        let store = GameStore(directory: tempDir)
+        store.syncDeck(from: log)
+        let eatId = store.deck().first!.id
+
+        let localMidnight = ReviewEngine.startOfLocalDay("2026-07-04")!
+        let oneAMLocal = ISO8601DateFormatter().string(from: localMidnight.addingTimeInterval(3600))
+
+        try rawGameQueue(in: tempDir).write { db in
+            try db.execute(
+                sql: "INSERT INTO reviews (card_id, player, result, reviewed_at) VALUES (?, ?, ?, ?)",
+                arguments: [eatId, "kid", "hit", oneAMLocal]
+            )
+        }
+
+        XCTAssertEqual(store.reviewedCardIds(for: .kid, on: "2026-07-04"), [eatId])
+        XCTAssertTrue(store.reviewedCardIds(for: .kid, on: "2026-07-03").isEmpty)
+    }
+
     // MARK: - Runs
 
     private func makeRunState(enemyHP: Int = 7) -> RunState {
@@ -262,10 +322,6 @@ final class GameStoreTests: XCTestCase {
         RunLoop.main.run(until: Date().addingTimeInterval(0.05))
     }
 
-    private func rawGameQueue() throws -> DatabaseQueue {
-        try DatabaseQueue(path: tempDir.appendingPathComponent("game.sqlite").path)
-    }
-
     func test_deckAndDueCards_skipAndReportCorruptBoxRow() throws {
         let log = LogStore(directory: tempDir)
         makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
@@ -274,7 +330,7 @@ final class GameStoreTests: XCTestCase {
 
         // Plant a box the CHECK constraint would normally reject, as a
         // migration bug or pre-CHECK db would.
-        try rawGameQueue().write { db in
+        try rawGameQueue(in: tempDir).write { db in
             try db.execute(sql: "PRAGMA ignore_check_constraints = 1")
             try db.execute(sql: "UPDATE card_states SET box = 9 WHERE player = 'kid'")
         }
@@ -289,8 +345,27 @@ final class GameStoreTests: XCTestCase {
         let store = GameStore(directory: tempDir)
         XCTAssertNotNil(store.startRun(on: "2026-07-04", state: makeRunState()))
 
-        try rawGameQueue().write { db in
+        try rawGameQueue(in: tempDir).write { db in
             try db.execute(sql: "UPDATE runs SET state_json = 'not json'")
+        }
+
+        XCTAssertNil(store.todaysRun(on: "2026-07-04"))
+        drainMainQueue()
+        XCTAssertNotNil(store.lastError)
+        XCTAssertNotNil(store.startRun(on: "2026-07-04", state: makeRunState()))
+    }
+
+    // Decodes fine but would trap floors[floorIndex] - same recovery as
+    // undecodable JSON: clear the row so the day isn't dead.
+    func test_todaysRun_clearsStructurallyInvalidRowSoAFreshRunCanStart() throws {
+        let store = GameStore(directory: tempDir)
+        XCTAssertNotNil(store.startRun(on: "2026-07-04", state: makeRunState()))
+
+        var bad = makeRunState()
+        bad.floorIndex = 99
+        let json = String(data: try JSONEncoder().encode(bad), encoding: .utf8)!
+        try rawGameQueue(in: tempDir).write { db in
+            try db.execute(sql: "UPDATE runs SET state_json = ?", arguments: [json])
         }
 
         XCTAssertNil(store.todaysRun(on: "2026-07-04"))

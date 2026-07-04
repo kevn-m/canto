@@ -44,6 +44,12 @@ struct ReviewEngine {
         dateFormatter.string(from: now)
     }
 
+    // The instant a local YYYY-MM-DD day begins - GameStore converts local
+    // days to UTC ranges with it, from this one formatter.
+    static func startOfLocalDay(_ date: String) -> Date? {
+        dateFormatter.date(from: date)
+    }
+
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")

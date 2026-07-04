@@ -363,6 +363,32 @@ final class GameStore: ObservableObject {
         }
     }
 
+    // Cards a player already reviewed today, regardless of what RunState.dealt
+    // says - used on Run resume to reconcile a review that committed before a
+    // kill wiped out the not-yet-saved dealt list (see TowerEngine.reconcileDealt).
+    // reviewed_at is ISO8601 UTC but `date` is a local calendar day, so the
+    // day converts to a UTC instant range - a prefix match would miss every
+    // early-morning review east of UTC.
+    func reviewedCardIds(for player: Player, on date: String) -> Set<Int64> {
+        guard let range = Self.utcRange(ofLocalDay: date) else { return [] }
+        return readValue(default: []) { db in
+            let ids = try Int64.fetchAll(
+                db, sql: "SELECT DISTINCT card_id FROM reviews WHERE player = ? AND reviewed_at >= ? AND reviewed_at < ?",
+                arguments: [player.rawValue, range.start, range.end]
+            )
+            return Set(ids)
+        }
+    }
+
+    private static func utcRange(ofLocalDay date: String) -> (start: String, end: String)? {
+        guard let dayStart = ReviewEngine.startOfLocalDay(date),
+              let dayEnd = Calendar(identifier: .gregorian).date(byAdding: .day, value: 1, to: dayStart) else {
+            return nil
+        }
+        let iso = ISO8601DateFormatter()
+        return (iso.string(from: dayStart), iso.string(from: dayEnd))
+    }
+
     // MARK: - Runs
 
     func todaysRun(on date: String) -> (id: Int64, state: RunState, finished: Bool)? {
@@ -377,6 +403,13 @@ final class GameStore: ObservableObject {
                 // An undecodable snapshot would otherwise dead-end the tower
                 // for the whole day (run_date is UNIQUE and startRun sees the
                 // row). Losing one run's progress beats that, so clear it.
+                try db.execute(sql: "DELETE FROM runs WHERE run_date = ?", arguments: [date])
+                self.reportError("Corrupt run state for \(date) - cleared it so a fresh Run can start.")
+                return nil
+            }
+            // Same recovery for JSON that decodes but would trap the tower
+            // (empty floors / floorIndex out of range).
+            guard state.isStructurallyValid else {
                 try db.execute(sql: "DELETE FROM runs WHERE run_date = ?", arguments: [date])
                 self.reportError("Corrupt run state for \(date) - cleared it so a fresh Run can start.")
                 return nil
@@ -405,13 +438,17 @@ final class GameStore: ObservableObject {
         }
     }
 
-    func finishRun(id: Int64, state: RunState) {
-        write { db in
+    // False means the run is still marked unfinished on disk - TowerView's
+    // load path re-finishes an ended-but-unfinished run, so this self-heals.
+    @discardableResult
+    func finishRun(id: Int64, state: RunState) -> Bool {
+        writeValue(default: false) { db in
             let json = try self.encodeStateJSON(state)
             try db.execute(
                 sql: "UPDATE runs SET state_json = ?, finished = 1 WHERE id = ?",
                 arguments: [json, id]
             )
+            return true
         }
     }
 

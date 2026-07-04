@@ -7,6 +7,7 @@ enum Balance {
     static let partyHP = 5
     static let fightHP = 7                     // ~3 cards to clear
     static let bossHP = 12                     // ~5 cards
+    static let maxExtensions = 3               // door offers per Run
     static let runFinishPay = 10
     static let bossBonusPay = 5
     static let extensionPay = 2

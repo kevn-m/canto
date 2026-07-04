@@ -1,4 +1,5 @@
 import XCTest
+import GRDB
 @testable import Canto
 
 // Shared between GameStoreTests and BattleEngineTests: a lookup the player
@@ -13,5 +14,11 @@ extension XCTestCase {
         ])
         log.setChosenSense(lookupId: id, sense: sense)
         return id
+    }
+
+    // Opens the game db file directly, bypassing GameStore - for seeding
+    // rows the public API refuses (corrupt data) or asserting raw contents.
+    func rawGameQueue(in directory: URL) throws -> DatabaseQueue {
+        try DatabaseQueue(path: directory.appendingPathComponent("game.sqlite").path)
     }
 }
