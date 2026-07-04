@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct LookupView: View {
     @State private var query = ""
@@ -7,11 +8,13 @@ struct LookupView: View {
     @State private var showVoiceUnavailableAlert = false
     @State private var lastLookupId: Int64?
     @State private var lastLoggedQuery: String?
+    @State private var pendingCameraSense: Sense?
 
     @Environment(\.scenePhase) private var scenePhase
 
     private let store = DictionaryStore.shared
     private let logStore = LogStore.shared
+    private let photos = CardPhotos()
     @State private var speaker = CantoneseSpeaker()
     @State private var speechListener = SpeechListener()
 
@@ -89,7 +92,35 @@ struct LookupView: View {
                     startListeningIfRequested()
                 }
             }
+            .fullScreenCover(item: $pendingCameraSense) { sense in
+                CameraPicker { image in
+                    pendingCameraSense = nil
+                    if let image {
+                        attachPhoto(image, to: sense)
+                    }
+                }
+                .ignoresSafeArea()
+            }
         }
+    }
+
+    // Snapping a photo before the deck's next sync would leave nothing to
+    // attach it to, so this syncs first, then finds the just-created card by
+    // (traditional, jyutping) - the same UNIQUE key syncDeck dedupes on.
+    private func attachPhoto(_ image: UIImage, to sense: Sense) {
+        let gameStore = GameStore.shared
+        gameStore.syncDeck(from: logStore)
+        guard let cardId = gameStore.deck().first(where: {
+            $0.traditional == sense.traditional && $0.jyutping == sense.jyutping
+        })?.id else {
+            NSLog("attachPhoto: no card for %@ after syncDeck", sense.traditional)
+            return
+        }
+        guard let filename = photos.save(image: image, cardId: cardId) else {
+            NSLog("attachPhoto: photo save failed for card %lld", cardId)
+            return
+        }
+        gameStore.setPhoto(cardId: cardId, filename: filename)
     }
 
     // The Action Button intent can cold-launch the app (onAppear runs) or
@@ -136,10 +167,21 @@ struct LookupView: View {
             Spacer()
         } else if let result {
             List(result.senses) { sense in
-                SenseRowView(sense: sense)
-                    .contentShape(Rectangle())
-                    .onTapGesture { selectAndSpeak(sense) }
-                    .listRowBackground(sense.id == selectedSenseId ? Color.accentColor.opacity(0.15) : nil)
+                HStack {
+                    SenseRowView(sense: sense)
+                        .contentShape(Rectangle())
+                        .onTapGesture { selectAndSpeak(sense) }
+                    if sense.id == selectedSenseId, CameraPicker.isAvailable {
+                        Spacer()
+                        Button { pendingCameraSense = sense } label: {
+                            Image(systemName: "camera.fill")
+                                .font(.system(size: 22))
+                        }
+                        .buttonStyle(.borderless)
+                        .accessibilityLabel("Snap it now")
+                    }
+                }
+                .listRowBackground(sense.id == selectedSenseId ? Color.accentColor.opacity(0.15) : nil)
             }
         } else {
             Spacer()

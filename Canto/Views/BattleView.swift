@@ -81,6 +81,13 @@ struct TowerEntryView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 NavigationLink {
+                    DeckView()
+                } label: {
+                    Image(systemName: "rectangle.stack.fill")
+                }
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                NavigationLink {
                     ShopView()
                 } label: {
                     Image(systemName: "cart.fill")

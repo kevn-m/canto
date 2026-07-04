@@ -8,4 +8,17 @@ struct CardRecord: Identifiable, Hashable {
     let english: String
     let box: Int
     let dueOn: String
+    let photoFilename: String?
+
+    // Explicit init (not the synthesized memberwise one) so existing call
+    // sites that predate photos can omit photoFilename and still compile.
+    init(id: Int64, traditional: String, jyutping: String, english: String, box: Int, dueOn: String, photoFilename: String? = nil) {
+        self.id = id
+        self.traditional = traditional
+        self.jyutping = jyutping
+        self.english = english
+        self.box = box
+        self.dueOn = dueOn
+        self.photoFilename = photoFilename
+    }
 }

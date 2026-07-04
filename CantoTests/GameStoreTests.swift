@@ -151,6 +151,19 @@ final class GameStoreTests: XCTestCase {
         XCTAssertEqual(due[0].traditional, "食")
     }
 
+    func test_dueCards_carriesPhotoFilenameFromSetPhoto() {
+        let log = LogStore(directory: tempDir)
+        makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
+        let store = GameStore(directory: tempDir)
+        store.syncDeck(from: log)
+        let cardId = store.deck().first!.id
+
+        store.setPhoto(cardId: cardId, filename: "card-\(cardId).jpg")
+
+        let due = store.dueCards(for: .kid, on: "2026-07-04", excluding: [])
+        XCTAssertEqual(due.first?.photoFilename, "card-\(cardId).jpg")
+    }
+
     // MARK: - Ledger
 
     func test_balance_isSumOfLedgerAndCreditAdds() {

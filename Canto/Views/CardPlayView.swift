@@ -9,6 +9,7 @@ struct CardPlayView: View {
 
     @State private var speaker = CantoneseSpeaker()
     @State private var flipped = false
+    private let photos = CardPhotos()
 
     var body: some View {
         VStack(spacing: 32) {
@@ -25,9 +26,9 @@ struct CardPlayView: View {
         .onAppear { speaker.speakEnglish(card.english) }
     }
 
-    // Card art is family photos (Slice 6); CardRecord carries no photo yet,
-    // so the front always shows the characters big until that slice wires
-    // a photo-aware fetch through here.
+    // Card art is family photos: the front shows the attached photo when one
+    // resolves, else the characters big. The back always shows characters +
+    // Jyutping, photo or not.
     @ViewBuilder
     private var cardFace: some View {
         if flipped {
@@ -41,13 +42,26 @@ struct CardPlayView: View {
             .onAppear { speaker.speak(card.traditional) }
         } else {
             VStack(spacing: 20) {
-                Text(card.traditional)
-                    .font(.system(size: 96, weight: .bold))
+                frontArt
                 Button { speaker.speakEnglish(card.english) } label: {
                     Image(systemName: "speaker.wave.2.fill")
                         .font(.system(size: 44))
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    private var frontArt: some View {
+        if let filename = card.photoFilename, let uiImage = photos.load(filename: filename) {
+            Image(uiImage: uiImage)
+                .resizable()
+                .scaledToFit()
+                .frame(maxHeight: 240)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+        } else {
+            Text(card.traditional)
+                .font(.system(size: 96, weight: .bold))
         }
     }
 

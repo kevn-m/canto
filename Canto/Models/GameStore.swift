@@ -209,14 +209,14 @@ final class GameStore: ObservableObject {
 
     // Shared row -> CardRecord hydration for dueCards/nextCards.
     private func hydrateCardRecords(_ rows: [Row], excluding: Set<Int64>) -> [CardRecord] {
-        rows.compactMap { row in
+        rows.compactMap { row -> CardRecord? in
             let id: Int64 = row["id"]
             guard !excluding.contains(id) else { return nil }
             let box: Int = row["box"]
             guard validBox(box, cardId: id) else { return nil }
             return CardRecord(
                 id: id, traditional: row["traditional"], jyutping: row["jyutping"],
-                english: row["english"], box: box, dueOn: row["due_on"]
+                english: row["english"], box: box, dueOn: row["due_on"], photoFilename: row["photo_filename"]
             )
         }
     }
@@ -314,7 +314,7 @@ final class GameStore: ObservableObject {
     func dueCards(for player: Player, on date: String, excluding: Set<Int64>) -> [CardRecord] {
         readValue(default: []) { db in
             let rows = try Row.fetchAll(db, sql: """
-                SELECT c.id, c.traditional, c.jyutping, c.english, cs.box, cs.due_on
+                SELECT c.id, c.traditional, c.jyutping, c.english, c.photo_filename, cs.box, cs.due_on
                 FROM cards c
                 JOIN card_states cs ON cs.card_id = c.id AND cs.player = ?
                 WHERE c.benched = 0 AND cs.due_on <= ?
@@ -327,7 +327,7 @@ final class GameStore: ObservableObject {
     func nextCards(for player: Player, excluding: Set<Int64>, limit: Int) -> [CardRecord] {
         readValue(default: []) { db in
             let rows = try Row.fetchAll(db, sql: """
-                SELECT c.id, c.traditional, c.jyutping, c.english, cs.box, cs.due_on
+                SELECT c.id, c.traditional, c.jyutping, c.english, c.photo_filename, cs.box, cs.due_on
                 FROM cards c
                 JOIN card_states cs ON cs.card_id = c.id AND cs.player = ?
                 WHERE c.benched = 0
