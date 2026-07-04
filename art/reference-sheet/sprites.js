@@ -354,6 +354,37 @@
     blush(g, CX - 12, 29); blush(g, CX + 12, 29);
   }});
 
+  S.push({ name: 'player-kid', draw(g) {
+    ball(g, CX, 48, 9, 7.5, P.yel, P.org);                // yellow romper
+    ball(g, 26, 57, 4, 2.6, P.pch, P.brn);                // feet
+    ball(g, 37, 57, 4, 2.6, P.pch, P.brn);
+    ball(g, 21, 47, 3.2, 2.6, P.pch, P.brn);              // hands
+    ball(g, 42, 47, 3.2, 2.6, P.pch, P.brn);
+    ball(g, CX, 26, 14, 13, P.pch);                       // head (flat: a shade rim reads as a beard)
+    ellipse(g, CX, 17, 13, 6.5, P.brn);                   // hair cap
+    ellipse(g, 19, 22, 2, 4, P.brn);                      // side locks
+    ellipse(g, 44, 22, 2, 4, P.brn);
+    ball(g, CX, 9, 3, 3, P.brn);                          // sprout tuft
+    eyes(g, CX, 28, 6);
+    smileArc(g, CX, 34, 3, 1.4);
+    blush(g, CX - 10, 32); blush(g, CX + 10, 32);
+  }});
+
+  S.push({ name: 'player-dad', draw(g) {
+    ball(g, CX, 49, 10, 8, P.sky, P.lav);                 // shirt
+    ball(g, 26, 57, 4, 2.6, P.pch, P.brn);                // feet
+    ball(g, 37, 57, 4, 2.6, P.pch, P.brn);
+    ball(g, 20, 48, 3.2, 2.6, P.pch, P.brn);              // hands
+    ball(g, 43, 48, 3.2, 2.6, P.pch, P.brn);
+    ball(g, CX, 27, 14, 13, P.pch, P.brn);                // head
+    ellipse(g, CX, 17, 13, 5.5, P.dgy);                   // short dark hair
+    ellipse(g, 19, 22, 2, 4, P.dgy);                      // sideburns
+    ellipse(g, 44, 22, 2, 4, P.dgy);
+    eyes(g, CX, 29, 6);
+    smileArc(g, CX, 35, 3, 1.2);
+    blush(g, CX - 10, 33); blush(g, CX + 10, 33);
+  }});
+
   function renderGrid(name) {
     const item = S.find(s => s.name === name);
     const g = new Grid();

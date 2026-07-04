@@ -9,6 +9,7 @@ final class SpriteArtTests: XCTestCase {
             "bear", "coffee", "crocodile", "dolphin", "eating", "elephant",
             "giraffe", "lion", "monkey", "tiger",
             "enemy-slime", "enemy-bat", "boss-dragon",
+            "player-kid", "player-dad",
         ]
         for name in names {
             XCTAssertNotNil(SpriteArt.image(named: name), "\(name).png missing from the app bundle")
@@ -23,6 +24,11 @@ final class SpriteArtTests: XCTestCase {
     // The dictionary's word is "eat"; the sprite drawn for it is "eating".
     func test_cardImage_resolvesTheEatAlias() {
         XCTAssertNotNil(SpriteArt.cardImage(forEnglish: "eat"))
+    }
+
+    func test_playerImage_mapsBothPlayers() {
+        XCTAssertNotNil(SpriteArt.playerImage(for: .kid))
+        XCTAssertNotNil(SpriteArt.playerImage(for: .dad))
     }
 
     func test_enemyImage_mapsFloorNamesToSpriteFiles() {

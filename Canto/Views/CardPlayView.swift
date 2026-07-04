@@ -16,12 +16,20 @@ struct CardPlayView: View {
             cardFace
                 .contentShape(Rectangle())
                 .onTapGesture(perform: flip)
+            if !flipped {
+                Text("Tap to flip")
+                    .font(GameTheme.title(16))
+                    .foregroundStyle(GameTheme.cream.opacity(0.6))
+            }
             Spacer()
             if flipped {
                 gradeButtons
+                    .transition(.scale(scale: 0.6).combined(with: .opacity))
             }
         }
         .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(DungeonBackground())
         .onAppear { speaker.speakEnglish(card.english) }
     }
 
@@ -44,19 +52,28 @@ struct CardPlayView: View {
             frontArt
             Button { speaker.speakEnglish(card.english) } label: {
                 Image(systemName: "speaker.wave.2.fill")
-                    .font(.system(size: 44))
+                    .font(.system(size: 40))
+                    .foregroundStyle(GameTheme.gold)
             }
         }
+        .padding(28)
+        .frame(width: 320, height: 440)
+        .cardFrame()
     }
 
     private var backFace: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 12) {
             Text(card.traditional)
                 .font(.system(size: 96, weight: .bold))
+                .foregroundStyle(GameTheme.cream)
+                .minimumScaleFactor(0.4)
             Text(card.jyutping)
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(GameTheme.cream.opacity(0.55))
         }
+        .padding(28)
+        .frame(width: 320, height: 440)
+        .cardFrame(face: GameTheme.navy)
     }
 
     @ViewBuilder
@@ -75,31 +92,35 @@ struct CardPlayView: View {
                 .frame(maxHeight: 200)
         }
         Text(card.english)
-            .font(.system(size: 56, weight: .bold))
+            .font(GameTheme.title(48))
+            .foregroundStyle(GameTheme.navy)
             .multilineTextAlignment(.center)
             .minimumScaleFactor(0.4)
     }
 
     private var gradeButtons: some View {
         HStack(spacing: 40) {
-            Button { onGraded(.whiff) } label: {
-                Image(systemName: "xmark.circle.fill")
-                    .font(.system(size: 72))
-                    .foregroundStyle(.red)
-            }
-            .accessibilityLabel("Whiff")
-
-            Button { onGraded(.hit) } label: {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 72))
-                    .foregroundStyle(.green)
-            }
-            .accessibilityLabel("Hit")
+            gradeButton(symbol: "xmark", color: GameTheme.red, label: "Whiff") { onGraded(.whiff) }
+            gradeButton(symbol: "checkmark", color: GameTheme.green, label: "Hit") { onGraded(.hit) }
         }
+    }
+
+    private func gradeButton(symbol: String, color: Color, label: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 40, weight: .heavy))
+                .foregroundStyle(GameTheme.cream)
+                .frame(width: 84, height: 84)
+                .background(Circle().fill(color))
+                .overlay(Circle().strokeBorder(.black.opacity(0.3), lineWidth: 3))
+                .shadow(color: .black.opacity(0.45), radius: 5, y: 4)
+        }
+        .accessibilityLabel(label)
     }
 
     private func flip() {
         guard !flipped else { return }
+        SFXPlayer.shared.play(.flip)
         withAnimation(.spring(duration: 0.5)) { flipped = true }
         // Was the back face's onAppear; with both faces mounted for the
         // flip, the reveal moment lives here instead.

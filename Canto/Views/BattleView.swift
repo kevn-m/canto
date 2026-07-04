@@ -142,13 +142,25 @@ struct BattleView: View {
     var onVictory: () -> Void
     var onDefeat: () -> Void
 
+    // ImageRenderer (DesignSnapshotTests) never runs onAppear, so the deal
+    // can't happen there - snapshots inject a hand instead. Live play leaves
+    // this empty and deals as before.
+    init(runState: Binding<RunState>, onVictory: @escaping () -> Void, onDefeat: @escaping () -> Void, previewHand: [CardRecord] = []) {
+        _runState = runState
+        self.onVictory = onVictory
+        self.onDefeat = onDefeat
+        _hand = State(initialValue: previewHand)
+    }
+
     @ObservedObject private var gameStore = GameStore.shared
-    @State private var hand: [CardRecord] = []
+    @State private var hand: [CardRecord]
     @State private var playingCard: CardRecord?
     @State private var today = ReviewEngine.todayString()
     @State private var enemyShakes = 0
     @State private var partyShakes = 0
     @State private var damagePop: Int?
+    @State private var enemyFlashes = false
+    @State private var enemyLunges = false
 
     var body: some View {
         VStack(spacing: 20) {
@@ -158,16 +170,22 @@ struct BattleView: View {
 
             enemyView
             hpBars
-            turnIndicator
 
             Spacer()
 
+            // The banner sits with the hand it labels: these are the
+            // current player's cards.
+            turnIndicator
             handView
         }
         .padding()
+        .background(DungeonBackground())
+        .environment(\.colorScheme, .dark)
         .onAppear {
             today = ReviewEngine.todayString()
-            dealHandForCurrentTurn()
+            // Live play always lands here with an empty hand (fresh floor
+            // identity); only an injected previewHand skips the deal.
+            if hand.isEmpty { dealHandForCurrentTurn() }
         }
         // Swiping the sheet away without grading is allowed on purpose:
         // dad arbitrates, and grade inflation is parenting, not a bug
@@ -179,7 +197,16 @@ struct BattleView: View {
         }
         .onChange(of: runState.enemyHP) { old, new in
             guard new < old else { return }
+            SFXPlayer.shared.play(.hit)
             damagePop = old - new
+            // Two-step pulses need a real suspension between the writes:
+            // synchronous set-then-unset coalesces into one transaction and
+            // the flash never shows (Code Patrol caught both pulses here).
+            withAnimation(.linear(duration: 0.05)) { enemyFlashes = true }
+            Task {
+                try? await Task.sleep(for: .seconds(0.12))
+                withAnimation(.easeOut(duration: 0.3)) { enemyFlashes = false }
+            }
             withAnimation(.linear(duration: 0.3)) { enemyShakes += 1 }
             // enemyShakes doubles as the pop's generation token: a second
             // hit inside the 0.7s must not have its pop cleared early by
@@ -193,68 +220,114 @@ struct BattleView: View {
         }
         .onChange(of: runState.partyHP) { old, new in
             guard new < old else { return }
-            withAnimation(.linear(duration: 0.3)) { partyShakes += 1 }
+            SFXPlayer.shared.play(.whiff)
+            // The enemy lunges down at the party, then springs back. Same
+            // deferred-unset rule as the flash above.
+            withAnimation(.easeIn(duration: 0.15)) { enemyLunges = true }
+            Task {
+                try? await Task.sleep(for: .seconds(0.18))
+                withAnimation(.spring(duration: 0.4)) { enemyLunges = false }
+            }
+            withAnimation(.linear(duration: 0.3).delay(0.1)) { partyShakes += 1 }
         }
     }
 
     private var currentFloor: RunState.Floor { runState.floors[runState.floorIndex] }
 
     private var enemyView: some View {
-        EnemySpriteView(enemyName: currentFloor.enemyName, size: 140)
-            // A slow breathing bob so the enemy feels alive between turns.
-            .phaseAnimator([0.0, -5.0]) { view, offset in
-                view.offset(y: offset)
-            } animation: { _ in .easeInOut(duration: 1.2) }
-            .modifier(ShakeEffect(animatableData: CGFloat(enemyShakes)))
+        VStack(spacing: 4) {
+            Text(currentFloor.enemyName.capitalized)
+                .font(GameTheme.title(16))
+                .foregroundStyle(GameTheme.cream)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 4)
+                .background(Capsule().fill(GameTheme.deepNavy.opacity(0.8)))
+                .overlay(Capsule().strokeBorder(GameTheme.gold.opacity(0.6), lineWidth: 1.5))
+            ZStack(alignment: .bottom) {
+                // Ground shadow anchors the enemy to a "stage".
+                Ellipse()
+                    .fill(.black.opacity(0.35))
+                    .frame(width: enemySize * 0.8, height: 18)
+                    .blur(radius: 3)
+                EnemySpriteView(enemyName: currentFloor.enemyName, size: enemySize)
+                    // A slow breathing bob so the enemy feels alive between turns.
+                    .phaseAnimator([0.0, -6.0]) { view, offset in
+                        view.offset(y: offset)
+                    } animation: { _ in .easeInOut(duration: 1.2) }
+                    .brightness(enemyFlashes ? 0.8 : 0)
+                    .offset(y: enemyLunges ? 26 : 0)
+                    .scaleEffect(enemyLunges ? 1.12 : 1, anchor: .bottom)
+                    .modifier(ShakeEffect(animatableData: CGFloat(enemyShakes)))
+            }
             .overlay(alignment: .topTrailing) {
                 if let damagePop {
                     Text("-\(damagePop)")
-                        .font(.largeTitle.bold())
-                        .foregroundStyle(.orange)
-                        .transition(.offset(y: -20).combined(with: .opacity))
+                        .font(GameTheme.title(42))
+                        .foregroundStyle(GameTheme.yellow)
+                        .shadow(color: GameTheme.red, radius: 0, x: 2, y: 2)
+                        .transition(.offset(y: -24).combined(with: .opacity))
                 }
             }
+        }
     }
 
+    private var enemySize: CGFloat { currentFloor.kind == .boss ? 180 : 145 }
+
     private var hpBars: some View {
-        VStack(spacing: 8) {
-            hpBar(label: "Enemy", value: runState.enemyHP, max: currentFloor.maxHP, color: .red)
-            hpBar(label: "Party", value: runState.partyHP, max: Balance.partyHP, color: .green)
+        VStack(spacing: 10) {
+            GameHPBar(icon: "bolt.fill", value: runState.enemyHP, max: currentFloor.maxHP, fill: GameTheme.red)
+            GameHPBar(icon: "heart.fill", value: runState.partyHP, max: Balance.partyHP, fill: GameTheme.green)
                 .modifier(ShakeEffect(animatableData: CGFloat(partyShakes)))
         }
+        .padding(.horizontal, 8)
         .animation(.easeOut(duration: 0.35), value: runState.enemyHP)
         .animation(.easeOut(duration: 0.35), value: runState.partyHP)
     }
 
-    private func hpBar(label: String, value: Int, max maxValue: Int, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(label).font(.caption).foregroundStyle(.secondary)
-            ProgressView(value: Double(Swift.max(value, 0)), total: Double(maxValue))
-                .tint(color)
-        }
-    }
-
     private var turnIndicator: some View {
-        Text(runState.turn == .kid ? "🧒 Your turn" : "🧑 Dad's turn")
-            .font(.title3.bold())
+        HStack(spacing: 8) {
+            if let sprite = SpriteArt.playerImage(for: runState.turn) {
+                Image(uiImage: sprite)
+                    .resizable()
+                    .interpolation(.none)
+                    .scaledToFit()
+                    .frame(width: 34, height: 34)
+            }
+            Text(runState.turn == .kid ? "Your turn" : "Dad's turn")
+                .font(GameTheme.title(20))
+                .foregroundStyle(GameTheme.navy)
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 8)
+            .background(
+                Capsule().fill(
+                    LinearGradient(colors: [GameTheme.yellow, GameTheme.gold], startPoint: .top, endPoint: .bottom)
+                )
+            )
+            .shadow(color: .black.opacity(0.4), radius: 4, y: 3)
+            // A fresh identity per turn re-runs the insertion transition,
+            // so the banner bounces in on every handover.
+            .id(runState.turn)
+            .transition(.scale(scale: 0.5).combined(with: .opacity))
+            .animation(.spring(duration: 0.45, bounce: 0.5), value: runState.turn)
     }
 
     private var handView: some View {
-        HStack(spacing: 16) {
-            ForEach(hand) { card in
+        HStack(spacing: -6) {
+            ForEach(Array(hand.enumerated()), id: \.element.id) { index, card in
                 Button {
                     playingCard = card
                 } label: {
-                    VStack {
-                        Text(card.traditional).font(.largeTitle)
-                        Image(systemName: "hand.tap.fill")
-                    }
-                    .frame(width: 90, height: 90)
-                    .background(Color.accentColor.opacity(0.15))
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    HandCardView(card: card)
                 }
+                .buttonStyle(HandCardButtonStyle())
+                // A slight fan, like cards held across the table.
+                .rotationEffect(.degrees(Double(index - (hand.count - 1) / 2) * 5))
+                .offset(y: abs(Double(index) - Double(hand.count - 1) / 2) * 10)
+                .zIndex(Double(index))
             }
         }
+        .padding(.bottom, 8)
     }
 
     private func errorBanner(_ message: String) -> some View {
@@ -289,5 +362,58 @@ struct BattleView: View {
         case .defeat: onDefeat()
         case nil: dealHandForCurrentTurn()
         }
+    }
+}
+
+// One card in the hand: art window over the English word, framed like a
+// real card. The kid picks by picture; the word is there for dad.
+struct HandCardView: View {
+    let card: CardRecord
+    private let photos = CardPhotos()
+
+    var body: some View {
+        VStack(spacing: 6) {
+            artView
+                .frame(width: 76, height: 76)
+            Text(card.english)
+                .font(GameTheme.title(14))
+                .foregroundStyle(GameTheme.navy)
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+                .frame(maxWidth: 80)
+        }
+        .padding(.vertical, 14)
+        .padding(.horizontal, 10)
+        .cardFrame()
+    }
+
+    @ViewBuilder
+    private var artView: some View {
+        if let filename = card.photoFilename, let photo = photos.load(filename: filename) {
+            Image(uiImage: photo)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 76, height: 76)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+        } else if let sprite = SpriteArt.cardImage(forEnglish: card.english) {
+            Image(uiImage: sprite)
+                .resizable()
+                .interpolation(.none)
+                .scaledToFit()
+        } else {
+            Text(card.traditional)
+                .font(GameTheme.title(40))
+                .foregroundStyle(GameTheme.navy)
+                .minimumScaleFactor(0.5)
+        }
+    }
+}
+
+struct HandCardButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 1.08 : 1)
+            .offset(y: configuration.isPressed ? -12 : 0)
+            .animation(.spring(duration: 0.25), value: configuration.isPressed)
     }
 }

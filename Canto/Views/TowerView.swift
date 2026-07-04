@@ -72,6 +72,64 @@ enum TowerEngine {
     }
 }
 
+// The climb, boss on top: each floor is a node on a dotted path, the
+// current fight lit and pulsing, the rest waiting in the dark.
+struct TowerMapView: View {
+    let floors: [RunState.Floor]
+    let currentIndex: Int
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ForEach(Array(floors.enumerated()).reversed(), id: \.offset) { index, floor in
+                if index != floors.count - 1 {
+                    pathDots
+                }
+                floorNode(floor, current: index == currentIndex)
+            }
+        }
+    }
+
+    private var pathDots: some View {
+        VStack(spacing: 5) {
+            ForEach(0..<3, id: \.self) { _ in
+                Circle()
+                    .fill(GameTheme.cream.opacity(0.25))
+                    .frame(width: 5, height: 5)
+            }
+        }
+        .padding(.vertical, 6)
+    }
+
+    private func floorNode(_ floor: RunState.Floor, current: Bool) -> some View {
+        VStack(spacing: 2) {
+            ZStack {
+                Circle()
+                    .fill(GameTheme.deepNavy.opacity(0.85))
+                    .frame(width: nodeSize(floor) + 26, height: nodeSize(floor) + 26)
+                    .overlay(
+                        Circle().strokeBorder(
+                            current ? GameTheme.gold : GameTheme.lavender.opacity(0.4),
+                            lineWidth: current ? 4 : 2
+                        )
+                    )
+                EnemySpriteView(enemyName: floor.enemyName, size: nodeSize(floor))
+                    .saturation(current ? 1 : 0)
+                    .opacity(current ? 1 : 0.45)
+            }
+            .phaseAnimator(current ? [1.0, 1.06] : [1.0]) { view, scale in
+                view.scaleEffect(scale)
+            } animation: { _ in .easeInOut(duration: 0.8) }
+            Text(floor.enemyName.capitalized)
+                .font(GameTheme.title(15))
+                .foregroundStyle(current ? GameTheme.cream : GameTheme.cream.opacity(0.4))
+        }
+    }
+
+    private func nodeSize(_ floor: RunState.Floor) -> CGFloat {
+        floor.kind == .boss ? 72 : 54
+    }
+}
+
 // The map: today's Run, resumed or fresh, climbing 2 fights + a boss with an
 // optional extension door at the end. Runs repeat freely - an unfinished run
 // resumes, a finished one just means the next tap starts a new climb.
@@ -106,13 +164,15 @@ struct TowerView: View {
                 VStack(spacing: 24) {
                     RunSummaryView(state: runState, outcome: outcome)
                     Button("Climb again") { startRun() }
-                        .font(.title3.bold())
-                        .buttonStyle(.borderedProminent)
+                        .buttonStyle(GameButtonStyle())
                 }
             case .corrupt:
                 corruptView
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(DungeonBackground())
+        .environment(\.colorScheme, .dark)
         .onAppear(perform: loadTodaysRun)
         // Catches a midnight crossed while backgrounded: reload picks up the
         // new day (fresh run) instead of playing on with yesterday's date.
@@ -207,6 +267,7 @@ struct TowerView: View {
             phase = .doorOffer
         case .runFinished(let finalOutcome):
             gameStore.finishRun(id: runId, state: runState)
+            playFinishSounds(for: finalOutcome)
             phase = .finished(finalOutcome)
         }
     }
@@ -219,7 +280,17 @@ struct TowerView: View {
     private func declineDoor() {
         guard let runId else { return }
         gameStore.finishRun(id: runId, state: runState)
+        playFinishSounds(for: .victory)
         phase = .finished(.victory)
+    }
+
+    // Live finishes only - a summary reloaded on a later open stays quiet.
+    private func playFinishSounds(for outcome: BattleEngine.Outcome) {
+        SFXPlayer.shared.play(outcome == .victory ? .victory : .defeat)
+        Task {
+            try? await Task.sleep(for: .seconds(0.8))
+            SFXPlayer.shared.play(.coin)
+        }
     }
 
     // Excludes cards already played this Run: a card whiffed on the boss
@@ -235,45 +306,35 @@ struct TowerView: View {
     // MARK: - Views
 
     private var startView: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 28) {
             if let lastError = gameStore.lastError {
                 ErrorBanner(message: lastError) { gameStore.clearError() }
             }
-            VStack(spacing: 16) {
-                ForEach(Array(TowerEngine.baseFloors.enumerated()), id: \.offset) { index, floor in
-                    floorRow(floor, current: index == 0)
-                }
-            }
+            Text("The Tower")
+                .font(GameTheme.title(34))
+                .foregroundStyle(GameTheme.cream)
+            TowerMapView(floors: TowerEngine.baseFloors, currentIndex: 0)
             Button("Start") { startRun() }
-                .font(.title2.bold())
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(GameButtonStyle())
         }
         .padding()
-    }
-
-    private func floorRow(_ floor: RunState.Floor, current: Bool) -> some View {
-        HStack(spacing: 12) {
-            EnemySpriteView(enemyName: floor.enemyName, size: 44)
-                .saturation(current ? 1 : 0.3)
-                .opacity(current ? 1 : 0.6)
-            Text(floor.enemyName.capitalized)
-                .fontWeight(current ? .bold : .regular)
-        }
     }
 
     private var doorView: some View {
         VStack(spacing: 24) {
             Image(systemName: "door.left.hand.open")
                 .font(.system(size: 64))
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(GameTheme.gold)
             Text("Go deeper?")
-                .font(.largeTitle.bold())
+                .font(GameTheme.title(34))
+                .foregroundStyle(GameTheme.cream)
             Text("There are more due words - want another floor?")
-                .foregroundStyle(.secondary)
+                .foregroundStyle(GameTheme.cream.opacity(0.6))
             HStack(spacing: 20) {
                 Button("Not today", action: declineDoor)
+                    .buttonStyle(GameButtonStyle(prominent: false))
                 Button("Go deeper!", action: takeDoor)
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(GameButtonStyle())
             }
         }
         .padding()
@@ -285,10 +346,11 @@ struct TowerView: View {
                 .font(.system(size: 64))
                 .foregroundStyle(.orange)
             Text("Today's climb got scrambled")
-                .font(.title2.bold())
+                .font(GameTheme.title(24))
+                .foregroundStyle(GameTheme.cream)
             // GameStore clears bad rows on read, so reloading starts fresh.
             Button("Try again") { loadTodaysRun() }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(GameButtonStyle())
         }
         .padding()
     }

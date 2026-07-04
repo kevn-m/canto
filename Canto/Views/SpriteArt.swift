@@ -16,6 +16,10 @@ enum SpriteArt {
         image(named: enemyName == "dragon" ? "boss-dragon" : "enemy-\(enemyName)")
     }
 
+    static func playerImage(for player: Player) -> UIImage? {
+        image(named: player == .kid ? "player-kid" : "player-dad")
+    }
+
     // Tries the bundle root and the Sprites subdirectory: XcodeGen flattens
     // resource groups today, but a folder reference would nest them.
     static func image(named name: String) -> UIImage? {
