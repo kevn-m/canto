@@ -8,3 +8,6 @@ build/
 DerivedData/
 scripts/testflight.env
 *.p8
+art/*
+!art/style.md
+!art/reference-sheet/
