@@ -35,6 +35,20 @@ struct LookupView: View {
             .navigationTitle("Canto")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
+                    NavigationLink {
+                        TowerEntryView()
+                    } label: {
+                        Image(systemName: "shield.lefthalf.filled")
+                    }
+                    // Battle audio claims .playback; a still-running mic tap
+                    // (.record) would be yanked out from under the engine.
+                    .simultaneousGesture(TapGesture().onEnded {
+                        if speechListener.isListening {
+                            speechListener.cancel()
+                        }
+                    })
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
                     NavigationLink("History") {
                         HistoryView()
                     }

@@ -337,8 +337,11 @@ final class GameStore: ObservableObject {
         }
     }
 
-    func recordReview(cardId: Int64, player: Player, result: ReviewResult, on date: String) {
-        write { db in
+    // Returns false (and sets lastError) when the write failed - the battle
+    // must not advance HP or turns on a review that never persisted.
+    @discardableResult
+    func recordReview(cardId: Int64, player: Player, result: ReviewResult, on date: String) -> Bool {
+        writeValue(default: false) { db in
             guard let currentBox = try Int.fetchOne(
                 db, sql: "SELECT box FROM card_states WHERE card_id = ? AND player = ?",
                 arguments: [cardId, player.rawValue]
@@ -356,6 +359,7 @@ final class GameStore: ObservableObject {
                 sql: "UPDATE card_states SET box = ?, due_on = ? WHERE card_id = ? AND player = ?",
                 arguments: [newBox, newDueOn, cardId, player.rawValue]
             )
+            return true
         }
     }
 

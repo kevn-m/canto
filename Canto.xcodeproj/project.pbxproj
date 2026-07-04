@@ -8,12 +8,15 @@
 
 /* Begin PBXBuildFile section */
 		00FE3F2B90773BF66A0B0EB4 /* Sense.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885E49C7534FAF85E093A3DA /* Sense.swift */; };
+		0694C696EF4156CBE4BE1B6A /* CardPlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41C28FAE8CA06799AE9CA520 /* CardPlayView.swift */; };
 		1B610B54A9140FC493F10EB0 /* SpeechListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2D6BE2D453F5C84287472CC /* SpeechListener.swift */; };
 		1D092AB987CE165195C39AB2 /* ReviewEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ED2629AA71638788930608F /* ReviewEngineTests.swift */; };
 		27996708F75D18F86A38682B /* LookupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB8B1F9023E90A043E6E50FA /* LookupView.swift */; };
 		36C3E1A43553EC08B18FC5DD /* Balance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0133527D358D67007F897E88 /* Balance.swift */; };
 		4A40B5CAFD04906EBDA1CFB3 /* GameStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2FC8597638058702A4FE8A4 /* GameStore.swift */; };
 		51B13498CA1FDB56F73AD239 /* LogStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAD660C94DB4289000A31974 /* LogStore.swift */; };
+		58C3ED21E1E734A561CCD06B /* BattleEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E515F93170C95342E9B5CBAB /* BattleEngineTests.swift */; };
+		76FC3009093342A985C06CDF /* BattleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51BC4C3491C15749FE543B01 /* BattleView.swift */; };
 		7D2D8DA8498E6322C85C03F4 /* StartListeningIntentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAF68296C620D4460B245F6B /* StartListeningIntentTests.swift */; };
 		7FD1A5F66A4B0FF7DFB96388 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E1BBC063FCBB536E69ADC0D /* HistoryView.swift */; };
 		836022555801767C3681139E /* CantoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A6AE1480BF27184AF07F68 /* CantoApp.swift */; };
@@ -30,6 +33,7 @@
 		C6DDDF02FCCC833DE83F8A6F /* dict.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = E8B88DC913690CFF62C689DD /* dict.sqlite */; };
 		D2AE91B5437A243FCCE83121 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = 2945D2F46B209D75542E262F /* GRDB */; };
 		E13647BB45161A54A7DC94D2 /* StartListeningIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = F813B0579C0397D60FD5DC79 /* StartListeningIntent.swift */; };
+		F40066913EC7094BF0C85804 /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A323CEF32315B19EE9127894 /* TestHelpers.swift */; };
 		F90DB64C2DA050BAFDE18C7D /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93E1C1C90BF81BF9E887C151 /* AboutView.swift */; };
 		FE71B76FEA8D4CADEEDC481B /* SpeechListenerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442141962FAB4547CBBEF28E /* SpeechListenerTests.swift */; };
 /* End PBXBuildFile section */
@@ -51,14 +55,17 @@
 		2ED2629AA71638788930608F /* ReviewEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewEngineTests.swift; sourceTree = "<group>"; };
 		32A6AE1480BF27184AF07F68 /* CantoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CantoApp.swift; sourceTree = "<group>"; };
 		4051A0699C7A7C83A5DEA783 /* CantoTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = CantoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		41C28FAE8CA06799AE9CA520 /* CardPlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardPlayView.swift; sourceTree = "<group>"; };
 		42903DD53615021D2A5ECC64 /* DictionaryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryStore.swift; sourceTree = "<group>"; };
 		442141962FAB4547CBBEF28E /* SpeechListenerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechListenerTests.swift; sourceTree = "<group>"; };
 		5089DDD4BF31B9AE8A30B132 /* Canto.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Canto.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		51BC4C3491C15749FE543B01 /* BattleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BattleView.swift; sourceTree = "<group>"; };
 		590DA1321B3F97AA899D3323 /* RunState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunState.swift; sourceTree = "<group>"; };
 		885E49C7534FAF85E093A3DA /* Sense.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sense.swift; sourceTree = "<group>"; };
 		9216ABBD12327BE31E769C42 /* CantoneseSpeaker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CantoneseSpeaker.swift; sourceTree = "<group>"; };
 		93E1C1C90BF81BF9E887C151 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		9E1BBC063FCBB536E69ADC0D /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		A323CEF32315B19EE9127894 /* TestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestHelpers.swift; sourceTree = "<group>"; };
 		A9E623D52C1824CDAA4B63E0 /* DictionaryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryStoreTests.swift; sourceTree = "<group>"; };
 		AB8B1F9023E90A043E6E50FA /* LookupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LookupView.swift; sourceTree = "<group>"; };
 		AE9A465CFEE5318D7BCD0575 /* CardRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardRecord.swift; sourceTree = "<group>"; };
@@ -69,6 +76,7 @@
 		D4DE484F3782F6AEA31A4C4A /* SenseRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SenseRowView.swift; sourceTree = "<group>"; };
 		DAD660C94DB4289000A31974 /* LogStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogStore.swift; sourceTree = "<group>"; };
 		E2FC8597638058702A4FE8A4 /* GameStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameStore.swift; sourceTree = "<group>"; };
+		E515F93170C95342E9B5CBAB /* BattleEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BattleEngineTests.swift; sourceTree = "<group>"; };
 		E8B88DC913690CFF62C689DD /* dict.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = dict.sqlite; sourceTree = "<group>"; };
 		F813B0579C0397D60FD5DC79 /* StartListeningIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartListeningIntent.swift; sourceTree = "<group>"; };
 		FF3958C9D906F1C7AEAEEC7C /* ReviewEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewEngine.swift; sourceTree = "<group>"; };
@@ -108,6 +116,8 @@
 			isa = PBXGroup;
 			children = (
 				93E1C1C90BF81BF9E887C151 /* AboutView.swift */,
+				51BC4C3491C15749FE543B01 /* BattleView.swift */,
+				41C28FAE8CA06799AE9CA520 /* CardPlayView.swift */,
 				9E1BBC063FCBB536E69ADC0D /* HistoryView.swift */,
 				AB8B1F9023E90A043E6E50FA /* LookupView.swift */,
 				D4DE484F3782F6AEA31A4C4A /* SenseRowView.swift */,
@@ -133,6 +143,7 @@
 		64FCF21D364C5939F6F1CAB4 /* CantoTests */ = {
 			isa = PBXGroup;
 			children = (
+				E515F93170C95342E9B5CBAB /* BattleEngineTests.swift */,
 				C61C02CB19B0DA0520FFD65C /* CantoneseSpeakerTests.swift */,
 				A9E623D52C1824CDAA4B63E0 /* DictionaryStoreTests.swift */,
 				13D43970D60AD1596E99B349 /* GameStoreTests.swift */,
@@ -140,6 +151,7 @@
 				2ED2629AA71638788930608F /* ReviewEngineTests.swift */,
 				442141962FAB4547CBBEF28E /* SpeechListenerTests.swift */,
 				BAF68296C620D4460B245F6B /* StartListeningIntentTests.swift */,
+				A323CEF32315B19EE9127894 /* TestHelpers.swift */,
 			);
 			path = CantoTests;
 			sourceTree = "<group>";
@@ -280,8 +292,10 @@
 			files = (
 				F90DB64C2DA050BAFDE18C7D /* AboutView.swift in Sources */,
 				36C3E1A43553EC08B18FC5DD /* Balance.swift in Sources */,
+				76FC3009093342A985C06CDF /* BattleView.swift in Sources */,
 				836022555801767C3681139E /* CantoApp.swift in Sources */,
 				B6F3E5DE852976155190EFDD /* CantoneseSpeaker.swift in Sources */,
+				0694C696EF4156CBE4BE1B6A /* CardPlayView.swift in Sources */,
 				B31CEA86B2ACF82034D72DB6 /* CardRecord.swift in Sources */,
 				959048042509E6F3A74C2DC6 /* DictionaryStore.swift in Sources */,
 				4A40B5CAFD04906EBDA1CFB3 /* GameStore.swift in Sources */,
@@ -301,6 +315,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				58C3ED21E1E734A561CCD06B /* BattleEngineTests.swift in Sources */,
 				AFC32945D7F99821774BC0E8 /* CantoneseSpeakerTests.swift in Sources */,
 				9610802F9DE95FF7EC1F25AE /* DictionaryStoreTests.swift in Sources */,
 				C388488D1D77AB805FEC60ED /* GameStoreTests.swift in Sources */,
@@ -308,6 +323,7 @@
 				1D092AB987CE165195C39AB2 /* ReviewEngineTests.swift in Sources */,
 				FE71B76FEA8D4CADEEDC481B /* SpeechListenerTests.swift in Sources */,
 				7D2D8DA8498E6322C85C03F4 /* StartListeningIntentTests.swift in Sources */,
+				F40066913EC7094BF0C85804 /* TestHelpers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

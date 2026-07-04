@@ -19,4 +19,16 @@ final class CantoneseSpeaker {
         utterance.voice = voice
         synthesizer.speak(utterance)
     }
+
+    // Card fronts speak the English word (the kid can't read yet). Same
+    // .playback claim as speak(_:) and for the same reason.
+    func speakEnglish(_ text: String) {
+        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+        synthesizer.stopSpeaking(at: .immediate)
+        let utterance = AVSpeechUtterance(string: text)
+        utterance.voice = AVSpeechSynthesisVoice(language: "en-AU")
+            ?? AVSpeechSynthesisVoice(language: "en-GB")
+            ?? AVSpeechSynthesisVoice(language: "en-US")
+        synthesizer.speak(utterance)
+    }
 }

@@ -38,6 +38,12 @@ struct ReviewEngine {
         Array((due + soonest).prefix(3))
     }
 
+    // "Today" for screens: computed once per screen appearance and passed
+    // into the logic, so midnight can't split a Run (see context doc).
+    static func todayString(now: Date = Date()) -> String {
+        dateFormatter.string(from: now)
+    }
+
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")

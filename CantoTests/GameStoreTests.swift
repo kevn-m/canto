@@ -17,17 +17,6 @@ final class GameStoreTests: XCTestCase {
         super.tearDown()
     }
 
-    @discardableResult
-    private func makeChosenLookup(_ log: LogStore, heard: String, traditional: String, jyutping: String, senseId: Int64 = 1) -> Int64 {
-        let id = log.record(heard: heard, matched: true, viaVoice: false)!
-        let sense = Sense(row: [
-            "id": senseId, "traditional": traditional, "simplified": nil, "jyutping": jyutping,
-            "pinyin": nil, "gloss": "gloss", "source": 0, "popularity": 1,
-        ])
-        log.setChosenSense(lookupId: id, sense: sense)
-        return id
-    }
-
     // Reads reviews.count directly from the sqlite file: GameStore's public
     // API has no getter for it, and adding one just for this assertion would
     // be surface area the game never needs.
@@ -332,7 +321,8 @@ final class GameStoreTests: XCTestCase {
 
     func test_recordReview_unknownCardReportsInsteadOfSilentNoOp() {
         let store = GameStore(directory: tempDir)
-        store.recordReview(cardId: 999, player: .kid, result: .hit, on: "2026-07-04")
+        // The false return is what stops BattleView advancing the fight.
+        XCTAssertFalse(store.recordReview(cardId: 999, player: .kid, result: .hit, on: "2026-07-04"))
         XCTAssertNotNil(store.lastError)
     }
 
