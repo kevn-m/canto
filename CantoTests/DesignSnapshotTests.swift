@@ -81,6 +81,31 @@ final class DesignSnapshotTests: XCTestCase {
         }
     }
 
+    func test_forestBattleScreenRenders() {
+        var state = TowerEngine.makeFreshRun(biome: .forest)
+        state.enemyHP = 5
+        snapshot("battle-forest") {
+            BattleView(
+                runState: .constant(state),
+                onVictory: {}, onDefeat: {},
+                previewHand: sampleCards
+            )
+        }
+    }
+
+    func test_desertBattleScreenRenders() {
+        var state = TowerEngine.makeFreshRun(biome: .desert)
+        state.floorIndex = 2
+        state.enemyHP = 10
+        snapshot("battle-desert") {
+            BattleView(
+                runState: .constant(state),
+                onVictory: {}, onDefeat: {},
+                previewHand: sampleCards
+            )
+        }
+    }
+
     func test_towerMapRenders() {
         snapshot("tower-map") {
             VStack(spacing: 28) {

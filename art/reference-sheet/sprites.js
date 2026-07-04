@@ -354,6 +354,99 @@
     blush(g, CX - 12, 29); blush(g, CX + 12, 29);
   }});
 
+  S.push({ name: 'enemy-mushroom', draw(g) {
+    ball(g, CX, 42, 9.5, 10, P.crm, P.lgy);               // stalk
+    ball(g, CX, 22, 17, 12, P.red, P.plum);               // cap
+    ellipse(g, 21, 20, 3, 2, P.crm);                      // cap spots
+    ellipse(g, 33, 14, 3.4, 2.2, P.crm);
+    ellipse(g, 43, 22, 2.6, 1.8, P.crm);
+    eyes(g, CX, 42, 5.5);
+    smileArc(g, CX, 48, 2.6, 1.2);
+    blush(g, CX - 9, 46); blush(g, CX + 9, 46);
+  }});
+
+  S.push({ name: 'enemy-snail', draw(g) {
+    ball(g, 40, 30, 13, 12, P.org, P.brn);                // shell
+    ellipse(g, 40, 30, 7.5, 6.5, P.yel);                  // swirl rings
+    ellipse(g, 40, 30, 3.2, 2.8, P.org);
+    stroke(g, [[14, 30], [12, 22]], 1.1, 1.1, P.grn);     // antennae
+    stroke(g, [[22, 28], [23, 20]], 1.1, 1.1, P.grn);
+    ball(g, 12, 21, 2.4, 2.4, P.lim, P.grn);
+    ball(g, 23, 19, 2.4, 2.4, P.lim, P.grn);
+    ellipse(g, CX, 53, 19, 5, P.lim);                     // foot
+    ball(g, 18, 43, 8.5, 9, P.lim, P.grn);                // head
+    eyes(g, 18, 42, 4, 2.4);
+    smileArc(g, 18, 48, 2.2, 1);
+    blush(g, 11, 45); blush(g, 25, 45);
+  }});
+
+  S.push({ name: 'boss-wolf', draw(g) {
+    tri(g, 17, 17, 28, 12, 19, 4, P.dgy);                 // ears
+    tri(g, 46, 17, 35, 12, 44, 4, P.dgy);
+    tri(g, 20, 14, 26, 12, 21, 7, P.pch);
+    tri(g, 43, 14, 37, 12, 42, 7, P.pch);
+    stroke(g, [[46, 50], [54, 45], [56, 36]], 3.4, 1.8, P.dgy); // bushy tail
+    ball(g, CX, 48, 11, 8.5, P.dgy, P.lav);               // body
+    ellipse(g, CX, 49, 6, 5.5, P.lgy);                    // chest
+    ball(g, 25, 56, 4.5, 3, P.dgy, P.lav);                // feet
+    ball(g, 38, 56, 4.5, 3, P.dgy, P.lav);
+    ball(g, CX, 25, 15, 13, P.dgy, P.lav);                // head
+    ellipse(g, CX, 33, 7, 4.6, P.lgy);                    // muzzle
+    ellipse(g, CX, 31, 2.2, 1.5, P.navy);                 // nose
+    eyes(g, CX, 24, 7);
+    smileArc(g, CX, 35, 2.6, 1.1);
+    blush(g, CX - 12, 29); blush(g, CX + 12, 29);
+  }});
+
+  S.push({ name: 'enemy-cactus', draw(g) {
+    stroke(g, [[20, 40], [17, 32]], 3, 3, P.lim);         // arms with elbows
+    stroke(g, [[44, 44], [46, 36]], 3, 3, P.lim);
+    ball(g, 17, 31, 3, 3, P.lim, P.grn);
+    ball(g, 46, 35, 3, 3, P.lim, P.grn);
+    ball(g, CX, 38, 10, 18, P.lim, P.grn);                // body
+    ball(g, CX, 17, 4, 3, P.pnk, P.plum);                 // flower
+    ball(g, CX, 17, 1.6, 1.4, P.yel);
+    eyes(g, CX, 34, 5.5);
+    smileArc(g, CX, 41, 2.6, 1.2);
+    blush(g, CX - 8, 38); blush(g, CX + 8, 38);
+  }});
+
+  S.push({ name: 'enemy-scorpion', draw(g) {
+    stroke(g, [[44, 48], [53, 40], [52, 28]], 3, 1.8, P.org); // curled tail
+    ball(g, 51, 25, 3.2, 3.2, P.org, P.brn);              // stinger ball
+    tri(g, 49, 21, 54, 21, 51, 15, P.yel);                // stinger tip
+    ball(g, 15, 42, 5.5, 4.5, P.org, P.brn);              // claws
+    ball(g, 15, 52, 5.5, 4.5, P.org, P.brn);
+    rect(g, 15, 40, 16, 44, null); rect(g, 15, 50, 16, 54, null); // claw notches
+    ball(g, 33, 48, 12, 9, P.org, P.brn);                 // body
+    ball(g, 26, 57, 3.4, 2, P.org, P.brn);                // legs
+    ball(g, 36, 58, 3.4, 2, P.org, P.brn);
+    ball(g, 33, 34, 11, 10, P.org, P.brn);                // head
+    eyes(g, 33, 33, 5.5);
+    smileArc(g, 33, 39, 2.4, 1.1);
+    blush(g, 24, 37); blush(g, 42, 37);
+  }});
+
+  S.push({ name: 'boss-mummy', draw(g) {
+    ball(g, CX, 48, 11, 8.5, P.crm, P.lgy);               // wrapped body
+    ball(g, 25, 56, 4.5, 3, P.crm, P.lgy);                // feet
+    ball(g, 38, 56, 4.5, 3, P.crm, P.lgy);
+    ball(g, 17, 42, 4, 3, P.crm, P.lgy);                  // reaching arms
+    ball(g, 46, 42, 4, 3, P.crm, P.lgy);
+    ball(g, CX, 25, 15, 13, P.crm, P.lgy);                // head
+    clipTo(g, [P.crm], () => {                            // bandage stripes
+      rect(g, 12, 14, 51, 15, P.lgy);
+      rect(g, 12, 20, 51, 21, P.lgy);
+      rect(g, 12, 42, 51, 43, P.lgy);
+      rect(g, 12, 50, 51, 51, P.lgy);
+    });
+    rect(g, 22, 24, 41, 31, P.dgy);                       // eye gap in the wrap
+    eyes(g, CX, 28, 6);
+    stroke(g, [[45, 18], [51, 14], [52, 8]], 1.4, 1, P.crm); // loose bandage end
+    smileArc(g, CX, 36, 2.6, 1.1);
+    blush(g, CX - 12, 33); blush(g, CX + 12, 33);
+  }});
+
   S.push({ name: 'player-kid', draw(g) {
     ball(g, CX, 48, 9, 7.5, P.yel, P.org);                // yellow romper
     ball(g, 26, 57, 4, 2.6, P.pch, P.brn);                // feet

@@ -184,7 +184,7 @@ struct BattleView: View {
             handView
         }
         .padding()
-        .background(DungeonBackground())
+        .background(BiomeBackground(biome: Biome.containing(enemyName: currentFloor.enemyName)))
         .environment(\.colorScheme, .dark)
         .onAppear {
             today = ReviewEngine.todayString()

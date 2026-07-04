@@ -35,13 +35,7 @@ struct DungeonBackground: View {
                     .position(x: geo.size.width * 0.12, y: geo.size.height * 0.22)
                 WallTorch()
                     .position(x: geo.size.width * 0.88, y: geo.size.height * 0.22)
-                // The floor: a darker band the fight stands on.
-                LinearGradient(
-                    colors: [.clear, .black.opacity(0.45)],
-                    startPoint: .top, endPoint: .bottom
-                )
-                .frame(height: geo.size.height * 0.22)
-                .position(x: geo.size.width / 2, y: geo.size.height * 0.89)
+                FloorShadow(size: geo.size)
             }
         }
         .ignoresSafeArea()
@@ -121,6 +115,133 @@ private struct WallTorch: View {
         .phaseAnimator([1.0, 1.18, 0.92]) { view, s in
             view.scaleEffect(x: 2 - s, y: s, anchor: .bottom)
         } animation: { _ in .easeInOut(duration: 0.35) }
+    }
+}
+
+// One backdrop per Biome. The tower keeps its hallway; forest and desert
+// get their own drawn scenes so the place changes, not just the monsters.
+struct BiomeBackground: View {
+    let biome: Biome
+
+    var body: some View {
+        switch biome {
+        case .tower: DungeonBackground()
+        case .forest: ForestBackground()
+        case .desert: DesertBackground()
+        }
+    }
+}
+
+// A moonlit pine clearing: tree silhouettes down both edges, fireflies
+// drifting in the dark.
+private struct ForestBackground: View {
+    var body: some View {
+        ZStack {
+            LinearGradient(
+                colors: [Color(red: 0.02, green: 0.30, blue: 0.21), Color(red: 0.01, green: 0.09, blue: 0.08)],
+                startPoint: .top, endPoint: .bottom
+            )
+            TreeLine()
+            GeometryReader { geo in
+                ForEach(Array([(0.2, 0.30), (0.8, 0.24), (0.32, 0.55), (0.7, 0.62), (0.12, 0.74)].enumerated()), id: \.offset) { index, spot in
+                    Firefly(period: 0.8 + Double(index) * 0.23)
+                        .position(x: geo.size.width * spot.0, y: geo.size.height * spot.1)
+                }
+                FloorShadow(size: geo.size)
+            }
+        }
+        .ignoresSafeArea()
+    }
+}
+
+private struct TreeLine: View {
+    var body: some View {
+        Canvas { context, size in
+            // (x fraction, width, height fraction) per pine, mirrored feel.
+            let pines: [(CGFloat, CGFloat, CGFloat)] = [
+                (0.04, 90, 0.55), (0.16, 70, 0.38), (0.92, 100, 0.6),
+                (0.80, 65, 0.34), (0.55, 55, 0.22), (0.33, 50, 0.18),
+            ]
+            for (fx, width, fh) in pines {
+                let baseX = size.width * fx
+                let top = size.height * (1 - fh)
+                var path = Path()
+                path.move(to: CGPoint(x: baseX, y: top))
+                path.addLine(to: CGPoint(x: baseX - width / 2, y: size.height))
+                path.addLine(to: CGPoint(x: baseX + width / 2, y: size.height))
+                path.closeSubpath()
+                context.fill(path, with: .color(.black.opacity(0.30)))
+            }
+        }
+        .allowsHitTesting(false)
+    }
+}
+
+private struct Firefly: View {
+    let period: Double
+
+    var body: some View {
+        Circle()
+            .fill(GameTheme.yellow)
+            .frame(width: 5, height: 5)
+            .blur(radius: 1)
+            .shadow(color: GameTheme.yellow.opacity(0.9), radius: 6)
+            .phaseAnimator([0.15, 1.0]) { view, glow in
+                view.opacity(glow)
+            } animation: { _ in .easeInOut(duration: period) }
+            .allowsHitTesting(false)
+    }
+}
+
+// Dusk in the dunes: warm sky, a bright moon and stars, sand banking up
+// at the bottom.
+private struct DesertBackground: View {
+    var body: some View {
+        ZStack {
+            LinearGradient(
+                colors: [Color(red: 0.42, green: 0.16, blue: 0.28), Color(red: 0.12, green: 0.05, blue: 0.10)],
+                startPoint: .top, endPoint: .bottom
+            )
+            GeometryReader { geo in
+                Circle()
+                    .fill(GameTheme.cream)
+                    .frame(width: 46, height: 46)
+                    .shadow(color: GameTheme.cream.opacity(0.7), radius: 24)
+                    .position(x: geo.size.width * 0.82, y: geo.size.height * 0.10)
+                ForEach(Array([(0.12, 0.08), (0.3, 0.16), (0.55, 0.07), (0.68, 0.19), (0.9, 0.30)].enumerated()), id: \.offset) { _, spot in
+                    Circle()
+                        .fill(GameTheme.cream.opacity(0.8))
+                        .frame(width: 3, height: 3)
+                        .position(x: geo.size.width * spot.0, y: geo.size.height * spot.1)
+                }
+                // Dunes: two overlapping sand banks.
+                Ellipse()
+                    .fill(Color(red: 0.55, green: 0.30, blue: 0.20).opacity(0.5))
+                    .frame(width: geo.size.width * 1.6, height: geo.size.height * 0.4)
+                    .position(x: geo.size.width * 0.15, y: geo.size.height * 1.02)
+                Ellipse()
+                    .fill(Color(red: 0.67, green: 0.38, blue: 0.21).opacity(0.4))
+                    .frame(width: geo.size.width * 1.5, height: geo.size.height * 0.3)
+                    .position(x: geo.size.width * 0.85, y: geo.size.height * 1.04)
+                FloorShadow(size: geo.size)
+            }
+        }
+        .ignoresSafeArea()
+    }
+}
+
+// The darker band the fight stands on; shared by every biome.
+private struct FloorShadow: View {
+    let size: CGSize
+
+    var body: some View {
+        LinearGradient(
+            colors: [.clear, .black.opacity(0.45)],
+            startPoint: .top, endPoint: .bottom
+        )
+        .frame(height: size.height * 0.22)
+        .position(x: size.width / 2, y: size.height * 0.89)
+        .allowsHitTesting(false)
     }
 }
 

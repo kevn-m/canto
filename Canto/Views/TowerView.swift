@@ -1,5 +1,41 @@
 import SwiftUI
 
+// Where a Run happens. The biome is never persisted - it's derived from the
+// floors' enemy names, so old saved runs resume as .tower for free and the
+// schema never changes.
+enum Biome: CaseIterable {
+    case tower, forest, desert
+
+    var fightEnemies: [String] {
+        switch self {
+        case .tower: return ["slime", "bat"]
+        case .forest: return ["mushroom", "snail"]
+        case .desert: return ["cactus", "scorpion"]
+        }
+    }
+
+    var bossEnemy: String {
+        switch self {
+        case .tower: return "dragon"
+        case .forest: return "wolf"
+        case .desert: return "mummy"
+        }
+    }
+
+    var floors: [RunState.Floor] {
+        fightEnemies.map { RunState.Floor(kind: .fight, enemyName: $0, maxHP: Balance.fightHP) }
+            + [RunState.Floor(kind: .boss, enemyName: bossEnemy, maxHP: Balance.bossHP)]
+    }
+
+    static func containing(enemyName: String) -> Biome {
+        allCases.first { $0.fightEnemies.contains(enemyName) || $0.bossEnemy == enemyName } ?? .tower
+    }
+
+    static func random() -> Biome {
+        allCases.randomElement() ?? .tower
+    }
+}
+
 // Pure Run-progression rules (rule 6-7 in the tech plan): where a fight
 // outcome leaves the Run - another floor, the door, or the end - kept out
 // of the view body so it's testable the same way BattleEngine is.
@@ -25,17 +61,14 @@ enum TowerEngine {
         return .nextFloor
     }
 
-    static let baseFloors: [RunState.Floor] = [
-        RunState.Floor(kind: .fight, enemyName: "slime", maxHP: Balance.fightHP),
-        RunState.Floor(kind: .fight, enemyName: "bat", maxHP: Balance.fightHP),
-        RunState.Floor(kind: .boss, enemyName: "dragon", maxHP: Balance.bossHP),
-    ]
+    static let baseFloors: [RunState.Floor] = Biome.tower.floors
 
-    static func makeFreshRun() -> RunState {
-        RunState(
-            floors: baseFloors,
+    static func makeFreshRun(biome: Biome = .tower) -> RunState {
+        let floors = biome.floors
+        return RunState(
+            floors: floors,
             floorIndex: 0,
-            enemyHP: baseFloors[0].maxHP,
+            enemyHP: floors[0].maxHP,
             partyHP: Balance.partyHP,
             turn: .kid,
             dealt: [:],
@@ -45,9 +78,10 @@ enum TowerEngine {
     }
 
     // The door (rule 7): appends a fight floor and points at it. Reuses the
-    // regular fight enemy/HP, never the boss's.
+    // run's biome fight enemy/HP, never the boss's.
     static func takeDoor(state: inout RunState) {
-        state.floors.append(RunState.Floor(kind: .extensionFight, enemyName: "slime", maxHP: Balance.fightHP))
+        let biome = Biome.containing(enemyName: state.floors[0].enemyName)
+        state.floors.append(RunState.Floor(kind: .extensionFight, enemyName: biome.fightEnemies[0], maxHP: Balance.fightHP))
         state.floorIndex += 1
         state.enemyHP = Balance.fightHP
         state.extensionsTaken += 1
@@ -144,6 +178,9 @@ struct TowerView: View {
     @State private var runId: Int64?
     @State private var runState = TowerEngine.makeFreshRun()
     @State private var phase: Phase = .loading
+    // Rolled on entry and after each start, so the start screen previews
+    // exactly the run that Start/Climb Again will create.
+    @State private var nextBiome = Biome.random()
 
     var body: some View {
         Group {
@@ -171,7 +208,7 @@ struct TowerView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(DungeonBackground())
+        .background(BiomeBackground(biome: currentBiome))
         .environment(\.colorScheme, .dark)
         .onAppear(perform: loadTodaysRun)
         // Catches a midnight crossed while backgrounded: reload picks up the
@@ -244,8 +281,18 @@ struct TowerView: View {
 
     // MARK: - Actions
 
+    private var currentBiome: Biome {
+        switch phase {
+        case .notStarted: return nextBiome
+        case .fighting, .doorOffer, .finished:
+            return Biome.containing(enemyName: runState.floors.first?.enemyName ?? "")
+        case .loading, .corrupt: return .tower
+        }
+    }
+
     private func startRun() {
-        let state = TowerEngine.makeFreshRun()
+        let state = TowerEngine.makeFreshRun(biome: nextBiome)
+        nextBiome = Biome.random()
         guard let id = gameStore.startRun(on: today, state: state) else {
             // nil is either an unfinished run already on disk (load and
             // resume it) or a write failure (lastError set; reload lands on
@@ -310,9 +357,9 @@ struct TowerView: View {
             if let lastError = gameStore.lastError {
                 ErrorBanner(message: lastError) { gameStore.clearError() }
             }
-            // No heading: the hallway background and the map say "tower";
-            // the nav bar already carries the word.
-            TowerMapView(floors: TowerEngine.baseFloors, currentIndex: 0)
+            // No heading: the biome background and the map do the telling;
+            // the map previews the exact run Start will create.
+            TowerMapView(floors: nextBiome.floors, currentIndex: 0)
             Button("Start") { startRun() }
                 .buttonStyle(GameButtonStyle())
         }

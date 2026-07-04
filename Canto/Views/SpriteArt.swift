@@ -13,7 +13,8 @@ enum SpriteArt {
     }
 
     static func enemyImage(for enemyName: String) -> UIImage? {
-        image(named: enemyName == "dragon" ? "boss-dragon" : "enemy-\(enemyName)")
+        let isBoss = Biome.allCases.contains { $0.bossEnemy == enemyName }
+        return image(named: isBoss ? "boss-\(enemyName)" : "enemy-\(enemyName)")
     }
 
     static func playerImage(for player: Player) -> UIImage? {

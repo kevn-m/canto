@@ -87,6 +87,38 @@ final class TowerEngineTests: XCTestCase {
         XCTAssertTrue(state.isStructurallyValid)
     }
 
+    // MARK: - Biome
+
+    // Every biome must build a valid 2-fights-plus-boss run, and its floors
+    // must round-trip back to the same biome - that derivation is how a
+    // resumed run knows where it is (the biome is never persisted).
+    func test_everyBiome_buildsAValidRunThatRoundTrips() {
+        for biome in Biome.allCases {
+            let state = TowerEngine.makeFreshRun(biome: biome)
+            XCTAssertEqual(state.floors.count, 3)
+            XCTAssertEqual(state.floors.last?.kind, .boss)
+            XCTAssertTrue(state.isStructurallyValid)
+            for floor in state.floors {
+                XCTAssertEqual(Biome.containing(enemyName: floor.enemyName), biome,
+                               "\(floor.enemyName) does not map back to \(biome)")
+            }
+        }
+    }
+
+    func test_containing_unknownEnemyFallsBackToTower() {
+        XCTAssertEqual(Biome.containing(enemyName: "kraken"), .tower)
+    }
+
+    // The door must extend the run with the run's own biome, not the tower's.
+    func test_takeDoor_appendsTheRunsBiomeEnemy() {
+        var state = TowerEngine.makeFreshRun(biome: .desert)
+        state.floorIndex = 2
+
+        TowerEngine.takeDoor(state: &state)
+
+        XCTAssertEqual(state.floors.last?.enemyName, "cactus")
+    }
+
     // MARK: - takeDoor
 
     func test_takeDoor_appendsExtensionFloorAndIncrementsCount() {

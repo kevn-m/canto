@@ -9,6 +9,8 @@ final class SpriteArtTests: XCTestCase {
             "bear", "coffee", "crocodile", "dolphin", "eating", "elephant",
             "giraffe", "lion", "monkey", "tiger",
             "enemy-slime", "enemy-bat", "boss-dragon",
+            "enemy-mushroom", "enemy-snail", "boss-wolf",
+            "enemy-cactus", "enemy-scorpion", "boss-mummy",
             "player-kid", "player-dad",
         ]
         for name in names {
@@ -31,10 +33,14 @@ final class SpriteArtTests: XCTestCase {
         XCTAssertNotNil(SpriteArt.playerImage(for: .dad))
     }
 
-    func test_enemyImage_mapsFloorNamesToSpriteFiles() {
-        XCTAssertNotNil(SpriteArt.enemyImage(for: "slime"))
-        XCTAssertNotNil(SpriteArt.enemyImage(for: "bat"))
-        XCTAssertNotNil(SpriteArt.enemyImage(for: "dragon"))
+    // Every enemy any biome can put on a floor must resolve to a sprite -
+    // this is what keeps a new biome from shipping with a missing PNG.
+    func test_enemyImage_mapsEveryBiomeEnemyToASprite() {
+        for biome in Biome.allCases {
+            for enemy in biome.fightEnemies + [biome.bossEnemy] {
+                XCTAssertNotNil(SpriteArt.enemyImage(for: enemy), "\(enemy) has no sprite")
+            }
+        }
         XCTAssertNil(SpriteArt.enemyImage(for: "kraken"), "unknown enemies fall back to the SF Symbol")
     }
 }
