@@ -1,4 +1,5 @@
 log.sqlite
+dict.tmp.sqlite
 __pycache__/
 *.pyc
 .DS_Store

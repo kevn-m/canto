@@ -20,7 +20,7 @@ DATA = ROOT / "data" / "cccanto-webdist.txt"
 SUPPLEMENT = ROOT / "scripts" / "supplement.txt"
 DB_PATH = ROOT / "Canto" / "Resources" / "dict.sqlite"
 # Built here, then os.replace'd into DB_PATH only after assert_quality passes.
-# Named *.sqlite so the existing .gitignore rule covers it too.
+# dict.tmp.sqlite is gitignored so a transient build file never gets committed.
 BUILD_PATH = DB_PATH.parent / "dict.tmp.sqlite"
 
 MAX_DB_SIZE_MB = 50
