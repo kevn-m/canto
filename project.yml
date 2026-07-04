@@ -1,6 +1,6 @@
 name: Canto
 options:
-  bundleIdPrefix: io.captur3d.canto
+  bundleIdPrefix: com.kevinmok.cantoapp
   deploymentTarget:
     iOS: "17.0"
 
@@ -30,7 +30,7 @@ targets:
         NSSpeechRecognitionUsageDescription: "Speech recognition turns what you say into the word to look up. Recognition runs on this iPhone only."
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: io.captur3d.canto
+        PRODUCT_BUNDLE_IDENTIFIER: com.kevinmok.cantoapp
         SWIFT_VERSION: 5.0
         TARGETED_DEVICE_FAMILY: "1"
 
@@ -44,7 +44,7 @@ targets:
     settings:
       base:
         SWIFT_VERSION: 5.0
-        PRODUCT_BUNDLE_IDENTIFIER: io.captur3d.canto.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.kevinmok.cantoapp.tests
         GENERATE_INFOPLIST_FILE: YES
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Canto.app/Canto"
         BUNDLE_LOADER: "$(TEST_HOST)"
