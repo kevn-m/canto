@@ -1,8 +1,7 @@
 import SwiftUI
 
-// Front -> flip -> grade for one card. The kid can't read yet, so the front
-// prompt is spoken (speakEnglish) and icon-only; Jyutping only shows on the
-// back, for dad.
+// Front -> flip -> grade for one card. The front shows and speaks the
+// English word; Jyutping only shows on the back, for dad.
 struct CardPlayView: View {
     let card: CardRecord
     var onGraded: (ReviewResult) -> Void
@@ -26,9 +25,8 @@ struct CardPlayView: View {
         .onAppear { speaker.speakEnglish(card.english) }
     }
 
-    // Card art is family photos: the front shows the attached photo when one
-    // resolves, else the characters big. The back always shows characters +
-    // Jyutping, photo or not.
+    // The front is the English side: photo (when attached) over the written
+    // word. The back always shows characters + Jyutping, photo or not.
     @ViewBuilder
     private var cardFace: some View {
         if flipped {
@@ -57,12 +55,13 @@ struct CardPlayView: View {
             Image(uiImage: uiImage)
                 .resizable()
                 .scaledToFit()
-                .frame(maxHeight: 240)
+                .frame(maxHeight: 200)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
-        } else {
-            Text(card.traditional)
-                .font(.system(size: 96, weight: .bold))
         }
+        Text(card.english)
+            .font(.system(size: 56, weight: .bold))
+            .multilineTextAlignment(.center)
+            .minimumScaleFactor(0.4)
     }
 
     private var gradeButtons: some View {
