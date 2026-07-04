@@ -17,7 +17,9 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Canto listens so you can say the English word you want in Cantonese.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>

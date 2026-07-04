@@ -6,3 +6,5 @@ __pycache__/
 xcuserdata/
 build/
 DerivedData/
+scripts/testflight.env
+*.p8

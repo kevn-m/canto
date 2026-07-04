@@ -41,6 +41,20 @@ the launch intent are device-only, unverifiable on the simulator. Kevin's iPhone
 14 Pro Max has no Action Button (15 Pro+ only) — trigger `StartListeningIntent`
 via Back Tap, Siri, or the Shortcuts app.
 
+## Send a build to a phone that's off the network (TestFlight)
+
+`deploy_device.sh` only works when the phone is on the Mac's Wi-Fi. To get a
+build to a phone that's out with you, upload to TestFlight instead:
+
+```bash
+scripts/upload_testflight.sh
+```
+
+Archives, exports, and uploads (auto-bumps the build number). Send-and-wait, not
+instant: Apple processes it (minutes), then it shows in the TestFlight app to
+install. Needs one-time setup — an App Store Connect API key, an app record, and
+`scripts/testflight.env` (gitignored) — all documented in the script's header.
+
 ## Layout
 
 - `Canto/Models/` — `Sense`, `DictionaryStore` (read-only lookups), `LogStore` (writes the log)
