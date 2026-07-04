@@ -116,4 +116,23 @@ final class LogStore {
             return []
         }
     }
+
+    // Feeds GameStore.syncDeck: lookups the player actually chose a sense
+    // for, ascending so the checkpoint in game.sqlite's meta table can walk
+    // forward from the last imported id.
+    func lookupsWithChosenSense(afterId id: Int64) -> [LookupRecord] {
+        guard let dbQueue else { return [] }
+        do {
+            return try dbQueue.read { db in
+                try LookupRecord.fetchAll(
+                    db,
+                    sql: "SELECT * FROM lookups WHERE id > ? AND chosen_traditional IS NOT NULL ORDER BY id ASC",
+                    arguments: [id]
+                )
+            }
+        } catch {
+            NSLog("LogStore lookupsWithChosenSense failed: %@", String(describing: error))
+            return []
+        }
+    }
 }

@@ -13,7 +13,7 @@ xcodegen generate
 # Build (headless, simulator)
 xcodebuild -scheme Canto -destination 'platform=iOS Simulator,name=iPhone 17' build
 
-# Run the 30 unit tests
+# Run the unit tests
 xcodebuild -scheme Canto -destination 'platform=iOS Simulator,name=iPhone 17' test
 
 # Rebuild the bundled dictionary from data/ (only swaps in if all assertions pass)
@@ -80,12 +80,16 @@ top-5 with a top-2-per-word phrase fallback. The `eat → 食 not 吃` test in
 `DictionaryStoreTests` guards this — if you touch ranking in one, change the other
 and re-run the tests.
 
-## Two databases, two failure contracts
+## Three databases, three failure contracts
 
 - **`dict.sqlite`** — bundled, read-only. A missing or corrupt file `fatalError`s on
   launch, on purpose: the app is useless without it, so fail loud.
 - **`log.sqlite`** — writable, created in Application Support at runtime. Failures
   here are `NSLog`'d and swallowed: the app is fine without the log. Gitignored.
+- **`game.sqlite`** — writable, Application Support, owned by `GameStore` (the
+  battle-flashcards deck, boxes, CantoBux ledger, runs). Failures set the published
+  `lastError` — never crash, never swallow: a kid's wallet must not vanish silently
+  (ADR 0009). Sticky until `clearError()`.
   `senses.id` is just insertion order in `build_dict.py`, so a dictionary rebuild
   remaps every id — that's why log rows denormalise the chosen sense's characters
   and jyutping instead of trusting the id.
