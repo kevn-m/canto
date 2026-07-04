@@ -110,6 +110,7 @@ final class DesignSnapshotTests: XCTestCase {
         snapshot("tower-map") {
             VStack(spacing: 28) {
                 TowerMapView(floors: TowerEngine.baseFloors, currentIndex: 0)
+                BiomePickerView(selection: .constant(.tower))
                 Button("Start") {}
                     .buttonStyle(GameButtonStyle())
             }

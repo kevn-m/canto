@@ -164,6 +164,37 @@ struct TowerMapView: View {
     }
 }
 
+// Where to climb next, picked by boss portrait - no reading needed.
+struct BiomePickerView: View {
+    @Binding var selection: Biome
+
+    var body: some View {
+        HStack(spacing: 22) {
+            ForEach(Biome.allCases, id: \.self) { biome in
+                Button {
+                    withAnimation(.spring(duration: 0.3)) { selection = biome }
+                } label: {
+                    ZStack {
+                        Circle()
+                            .fill(GameTheme.deepNavy.opacity(0.85))
+                            .frame(width: 58, height: 58)
+                            .overlay(
+                                Circle().strokeBorder(
+                                    biome == selection ? GameTheme.gold : GameTheme.lavender.opacity(0.4),
+                                    lineWidth: biome == selection ? 3.5 : 2
+                                )
+                            )
+                        EnemySpriteView(enemyName: biome.bossEnemy, size: 40)
+                            .saturation(biome == selection ? 1 : 0)
+                            .opacity(biome == selection ? 1 : 0.5)
+                    }
+                    .scaleEffect(biome == selection ? 1.12 : 1)
+                }
+            }
+        }
+    }
+}
+
 // The map: today's Run, resumed or fresh, climbing 2 fights + a boss with an
 // optional extension door at the end. Runs repeat freely - an unfinished run
 // resumes, a finished one just means the next tap starts a new climb.
@@ -178,8 +209,8 @@ struct TowerView: View {
     @State private var runId: Int64?
     @State private var runState = TowerEngine.makeFreshRun()
     @State private var phase: Phase = .loading
-    // Rolled on entry and after each start, so the start screen previews
-    // exactly the run that Start/Climb Again will create.
+    // The picker's selection; map and backdrop preview exactly the run
+    // Start will create. Random only as the first suggestion.
     @State private var nextBiome = Biome.random()
 
     var body: some View {
@@ -200,7 +231,9 @@ struct TowerView: View {
             case .finished(let outcome):
                 VStack(spacing: 24) {
                     RunSummaryView(state: runState, outcome: outcome)
-                    Button("Climb again") { startRun() }
+                    // Back to the start screen, not straight into a run:
+                    // the next climb's biome is picked there.
+                    Button("Climb again") { phase = .notStarted }
                         .buttonStyle(GameButtonStyle())
                 }
             case .corrupt:
@@ -292,7 +325,6 @@ struct TowerView: View {
 
     private func startRun() {
         let state = TowerEngine.makeFreshRun(biome: nextBiome)
-        nextBiome = Biome.random()
         guard let id = gameStore.startRun(on: today, state: state) else {
             // nil is either an unfinished run already on disk (load and
             // resume it) or a write failure (lastError set; reload lands on
@@ -360,10 +392,15 @@ struct TowerView: View {
             // No heading: the biome background and the map do the telling;
             // the map previews the exact run Start will create.
             TowerMapView(floors: nextBiome.floors, currentIndex: 0)
+            biomePicker
             Button("Start") { startRun() }
                 .buttonStyle(GameButtonStyle())
         }
         .padding()
+    }
+
+    private var biomePicker: some View {
+        BiomePickerView(selection: $nextBiome)
     }
 
     private var doorView: some View {
