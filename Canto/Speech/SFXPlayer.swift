@@ -8,6 +8,7 @@ final class SFXPlayer {
 
     enum Effect: String, CaseIterable {
         case hit, whiff, flip, victory, defeat, coin
+        case enemyDown = "enemy-down"
     }
 
     private var players: [Effect: AVAudioPlayer] = [:]

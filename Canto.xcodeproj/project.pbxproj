@@ -70,6 +70,7 @@
 		E6118BDF824B1C6B8503FAA8 /* giraffe.png in Resources */ = {isa = PBXBuildFile; fileRef = 3668B28738E37763B837365E /* giraffe.png */; };
 		E712A179C6664DAA95BA773C /* CardPhotosTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5928EE16CD403B45E5744A0 /* CardPhotosTests.swift */; };
 		E71DC3CACE43666EF60FC03A /* crocodile.png in Resources */ = {isa = PBXBuildFile; fileRef = E63D39740B4710E748F4BE8B /* crocodile.png */; };
+		F13948823D9FA9A5E7B8C208 /* enemy-down.wav in Resources */ = {isa = PBXBuildFile; fileRef = 52337821A706E5F665088492 /* enemy-down.wav */; };
 		F40066913EC7094BF0C85804 /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A323CEF32315B19EE9127894 /* TestHelpers.swift */; };
 		F90DB64C2DA050BAFDE18C7D /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93E1C1C90BF81BF9E887C151 /* AboutView.swift */; };
 		FE71B76FEA8D4CADEEDC481B /* SpeechListenerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442141962FAB4547CBBEF28E /* SpeechListenerTests.swift */; };
@@ -109,6 +110,7 @@
 		5089DDD4BF31B9AE8A30B132 /* Canto.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Canto.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		51BC4C3491C15749FE543B01 /* BattleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BattleView.swift; sourceTree = "<group>"; };
 		51CEFB08E3290E205796D26D /* coffee.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = coffee.png; sourceTree = "<group>"; };
+		52337821A706E5F665088492 /* enemy-down.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "enemy-down.wav"; sourceTree = "<group>"; };
 		552B5DFE7698E0C10D133F1E /* bear.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bear.png; sourceTree = "<group>"; };
 		58376CB1AD0C9A07DCF16311 /* boss-dragon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "boss-dragon.png"; sourceTree = "<group>"; };
 		590DA1321B3F97AA899D3323 /* RunState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunState.swift; sourceTree = "<group>"; };
@@ -213,6 +215,7 @@
 			children = (
 				FD12088FEC7578CD852C2920 /* coin.wav */,
 				C80BF8EB118851ED5945540F /* defeat.wav */,
+				52337821A706E5F665088492 /* enemy-down.wav */,
 				EF66775D678C6D42D1A35D0A /* flip.wav */,
 				62BD85D92F9C90628362791D /* hit.wav */,
 				03E1F548931AAFC5A1723B69 /* victory.wav */,
@@ -420,6 +423,7 @@
 				26E712C4F38FFC1D8699BE36 /* eating.png in Resources */,
 				D75FF0DD5CEFF858E35B02D6 /* elephant.png in Resources */,
 				5DDDA30AB8F4C2F1E081835F /* enemy-bat.png in Resources */,
+				F13948823D9FA9A5E7B8C208 /* enemy-down.wav in Resources */,
 				8623C45CBABD0FE021C8E3E8 /* enemy-slime.png in Resources */,
 				89B143731C0DCF9CDCEB057B /* flip.wav in Resources */,
 				E6118BDF824B1C6B8503FAA8 /* giraffe.png in Resources */,

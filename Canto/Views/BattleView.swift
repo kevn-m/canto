@@ -161,6 +161,7 @@ struct BattleView: View {
     @State private var damagePop: Int?
     @State private var enemyFlashes = false
     @State private var enemyLunges = false
+    @State private var enemyDefeated = false
 
     var body: some View {
         VStack(spacing: 20) {
@@ -257,7 +258,22 @@ struct BattleView: View {
                     .brightness(enemyFlashes ? 0.8 : 0)
                     .offset(y: enemyLunges ? 26 : 0)
                     .scaleEffect(enemyLunges ? 1.12 : 1, anchor: .bottom)
+                    // The knockout: squash flat into the ground and fade.
+                    .scaleEffect(x: enemyDefeated ? 1.3 : 1, y: enemyDefeated ? 0.05 : 1, anchor: .bottom)
+                    .opacity(enemyDefeated ? 0 : 1)
                     .modifier(ShakeEffect(animatableData: CGFloat(enemyShakes)))
+                if enemyDefeated {
+                    HStack(spacing: 22) {
+                        ForEach(0..<3, id: \.self) { star in
+                            Image(systemName: "star.fill")
+                                .font(.system(size: star == 1 ? 44 : 30))
+                                .foregroundStyle(GameTheme.yellow)
+                                .shadow(color: GameTheme.gold.opacity(0.8), radius: 8)
+                        }
+                    }
+                    .padding(.bottom, enemySize * 0.35)
+                    .transition(.scale(scale: 0.2).combined(with: .opacity))
+                }
             }
             .overlay(alignment: .topTrailing) {
                 if let damagePop {
@@ -328,6 +344,8 @@ struct BattleView: View {
             }
         }
         .padding(.bottom, 8)
+        // No card plays during the knockout pause.
+        .allowsHitTesting(!enemyDefeated)
     }
 
     private func errorBanner(_ message: String) -> some View {
@@ -358,9 +376,22 @@ struct BattleView: View {
         }
 
         switch BattleEngine.applyResult(result, card: card, to: &runState) {
-        case .victory: onVictory()
+        case .victory: celebrateEnemyDefeat()
         case .defeat: onDefeat()
         case nil: dealHandForCurrentTurn()
+        }
+    }
+
+    // The knockout moment: let the final hit land, squash the enemy with a
+    // star burst, then advance. A kill mid-pause is safe - enemyHP 0 is
+    // already persisted, and TowerView's resume path replays the victory.
+    private func celebrateEnemyDefeat() {
+        Task {
+            try? await Task.sleep(for: .seconds(0.35))
+            SFXPlayer.shared.play(.enemyDown)
+            withAnimation(.easeIn(duration: 0.4)) { enemyDefeated = true }
+            try? await Task.sleep(for: .seconds(1.1))
+            onVictory()
         }
     }
 }
