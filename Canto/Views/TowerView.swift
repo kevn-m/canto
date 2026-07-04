@@ -249,22 +249,11 @@ struct TowerView: View {
 
     private func floorRow(_ floor: RunState.Floor, current: Bool) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: enemySymbol(for: floor.enemyName))
-                .font(.title2)
-                .foregroundStyle(current ? Color.accentColor : .secondary)
+            EnemySpriteView(enemyName: floor.enemyName, size: 44)
+                .saturation(current ? 1 : 0.3)
+                .opacity(current ? 1 : 0.6)
             Text(floor.enemyName.capitalized)
                 .fontWeight(current ? .bold : .regular)
-        }
-    }
-
-    // Placeholder art, same mapping as BattleView's (Floor.enemyName keys
-    // the future enemy-<name> sprite).
-    private func enemySymbol(for enemyName: String) -> String {
-        switch enemyName {
-        case "slime": return "drop.fill"
-        case "bat": return "bird.fill"
-        case "dragon": return "flame.fill"
-        default: return "ladybug.fill"
         }
     }
 

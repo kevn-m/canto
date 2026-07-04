@@ -301,6 +301,59 @@
     blush(g, CX - 13, 28); blush(g, CX + 13, 28);
   }});
 
+  /* Batch 2 — tower enemies. Same chibi rules: the player is under 6, so
+     even the boss is pleased to see you. */
+
+  S.push({ name: 'enemy-slime', draw(g) {
+    ball(g, CX + 6, 20, 3, 3.2, P.lim, P.grn);            // gooey top bump
+    ball(g, CX, 38, 17, 15, P.lim, P.grn);                // dome
+    ellipse(g, 14, 50, 3.4, 2.6, P.lim);                  // side goo blobs
+    ellipse(g, 49, 50, 3.4, 2.6, P.lim);
+    ellipse(g, CX, 51, 18, 4, P.grn);                     // spread base (shadow)
+    ellipse(g, CX, 50, 17, 3.2, P.lim);
+    eyes(g, CX, 36, 7);
+    smileArc(g, CX, 43, 3, 1.4);
+    blush(g, CX - 12, 40); blush(g, CX + 12, 40);
+  }});
+
+  S.push({ name: 'enemy-bat', draw(g) {
+    tri(g, 4, 24, 21, 21, 20, 40, P.lav);                 // huge wings
+    tri(g, 59, 24, 42, 21, 43, 40, P.lav);
+    tri(g, 4, 24, 13, 30, 9, 35, null);                   // wing scallop notches
+    tri(g, 59, 24, 50, 30, 54, 35, null);
+    tri(g, 22, 15, 28, 19, 20, 24, P.lgy);                // big ears
+    tri(g, 41, 15, 35, 19, 43, 24, P.lgy);
+    tri(g, 23, 17, 26, 19, 22, 22, P.pch);
+    tri(g, 40, 17, 37, 19, 41, 22, P.pch);
+    ball(g, CX, 33, 13, 12, P.lgy, P.lav);                // round body-head
+    ball(g, 27, 46, 3, 2.2, P.lgy, P.lav);                // stubby feet
+    ball(g, 36, 46, 3, 2.2, P.lgy, P.lav);
+    eyes(g, CX, 32, 6);
+    smileArc(g, CX, 38, 2.6, 1.2);
+    rect(g, 29, 39, 29, 40, P.crm);                       // friendly fangs
+    rect(g, 34, 39, 34, 40, P.crm);
+    blush(g, CX - 10, 36); blush(g, CX + 10, 36);
+  }});
+
+  S.push({ name: 'boss-dragon', draw(g) {
+    tri(g, 8, 20, 22, 17, 19, 38, P.org);                 // wings
+    tri(g, 55, 20, 41, 17, 44, 38, P.org);
+    tri(g, 24, 11, 29, 13, 25, 4, P.yel);                 // horns
+    tri(g, 39, 11, 34, 13, 38, 4, P.yel);
+    stroke(g, [[42, 52], [49, 49], [53, 43]], 2.6, 1.6, P.red); // tail
+    tri(g, 51, 44, 56, 42, 53, 38, P.yel);                // tail flame tip
+    ball(g, CX, 48, 11, 8, P.red, P.plum);                // body
+    ellipse(g, CX, 49, 6, 5.5, P.crm);                    // belly
+    ball(g, 25, 56, 4.5, 3, P.red, P.plum);               // feet
+    ball(g, 38, 56, 4.5, 3, P.red, P.plum);
+    ball(g, CX, 25, 15, 13, P.red, P.plum);               // head
+    ball(g, CX, 32, 6.5, 4.2, P.pch);                     // muzzle
+    g.set(29, 30, P.plum); g.set(34, 30, P.plum);         // nostrils
+    eyes(g, CX, 24, 7);
+    smileArc(g, CX, 33, 2.8, 1.2);
+    blush(g, CX - 12, 29); blush(g, CX + 12, 29);
+  }});
+
   function renderGrid(name) {
     const item = S.find(s => s.name === name);
     const g = new Grid();

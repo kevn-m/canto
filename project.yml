@@ -17,6 +17,7 @@ targets:
       - path: Canto
     resources:
       - path: Canto/Resources/dict.sqlite
+      - path: Canto/Resources/Sprites
     dependencies:
       - package: GRDB
         product: GRDB

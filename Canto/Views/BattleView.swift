@@ -46,6 +46,16 @@ enum BattleEngine {
     }
 }
 
+// A quick side-to-side wobble; bump animatableData by 1 inside
+// withAnimation to run one shake.
+struct ShakeEffect: GeometryEffect {
+    var animatableData: CGFloat
+
+    func effectValue(size: CGSize) -> ProjectionTransform {
+        ProjectionTransform(CGAffineTransform(translationX: 6 * sin(animatableData * .pi * 6), y: 0))
+    }
+}
+
 // GameStore.lastError, shown plainly wherever game screens live (ADR 0009).
 struct ErrorBanner: View {
     let message: String
@@ -136,6 +146,9 @@ struct BattleView: View {
     @State private var hand: [CardRecord] = []
     @State private var playingCard: CardRecord?
     @State private var today = ReviewEngine.todayString()
+    @State private var enemyShakes = 0
+    @State private var partyShakes = 0
+    @State private var damagePop: Int?
 
     var body: some View {
         VStack(spacing: 20) {
@@ -164,32 +177,48 @@ struct BattleView: View {
                 grade(card: card, result: result)
             }
         }
+        .onChange(of: runState.enemyHP) { old, new in
+            guard new < old else { return }
+            damagePop = old - new
+            withAnimation(.linear(duration: 0.3)) { enemyShakes += 1 }
+            Task {
+                try? await Task.sleep(for: .seconds(0.7))
+                withAnimation(.easeOut(duration: 0.4)) { damagePop = nil }
+            }
+        }
+        .onChange(of: runState.partyHP) { old, new in
+            guard new < old else { return }
+            withAnimation(.linear(duration: 0.3)) { partyShakes += 1 }
+        }
     }
 
     private var currentFloor: RunState.Floor { runState.floors[runState.floorIndex] }
 
     private var enemyView: some View {
-        Image(systemName: enemySymbol(for: currentFloor.enemyName))
-            .font(.system(size: 96))
-            .foregroundStyle(.red)
-    }
-
-    // Placeholder art: Floor.enemyName keys the future sprite
-    // (enemy-<name>); this maps it to an SF Symbol stand-in for now.
-    private func enemySymbol(for enemyName: String) -> String {
-        switch enemyName {
-        case "slime": return "drop.fill"
-        case "bat": return "bird.fill"
-        case "dragon": return "flame.fill"
-        default: return "ladybug.fill"
-        }
+        EnemySpriteView(enemyName: currentFloor.enemyName, size: 140)
+            // A slow breathing bob so the enemy feels alive between turns.
+            .phaseAnimator([0.0, -5.0]) { view, offset in
+                view.offset(y: offset)
+            } animation: { _ in .easeInOut(duration: 1.2) }
+            .modifier(ShakeEffect(animatableData: CGFloat(enemyShakes)))
+            .overlay(alignment: .topTrailing) {
+                if let damagePop {
+                    Text("-\(damagePop)")
+                        .font(.largeTitle.bold())
+                        .foregroundStyle(.orange)
+                        .transition(.offset(y: -20).combined(with: .opacity))
+                }
+            }
     }
 
     private var hpBars: some View {
         VStack(spacing: 8) {
             hpBar(label: "Enemy", value: runState.enemyHP, max: currentFloor.maxHP, color: .red)
             hpBar(label: "Party", value: runState.partyHP, max: Balance.partyHP, color: .green)
+                .modifier(ShakeEffect(animatableData: CGFloat(partyShakes)))
         }
+        .animation(.easeOut(duration: 0.35), value: runState.enemyHP)
+        .animation(.easeOut(duration: 0.35), value: runState.partyHP)
     }
 
     private func hpBar(label: String, value: Int, max maxValue: Int, color: Color) -> some View {

@@ -25,27 +25,37 @@ struct CardPlayView: View {
         .onAppear { speaker.speakEnglish(card.english) }
     }
 
-    // The front is the English side: photo (when attached) over the written
-    // word. The back always shows characters + Jyutping, photo or not.
-    @ViewBuilder
+    // The front is the English side: photo or sprite over the written word.
+    // The back always shows characters + Jyutping. Both faces stay mounted
+    // so the flip can rotate between them.
     private var cardFace: some View {
-        if flipped {
-            VStack(spacing: 8) {
-                Text(card.traditional)
-                    .font(.system(size: 96, weight: .bold))
-                Text(card.jyutping)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+        ZStack {
+            frontFace
+                .opacity(flipped ? 0 : 1)
+                .rotation3DEffect(.degrees(flipped ? 180 : 0), axis: (x: 0, y: 1, z: 0))
+            backFace
+                .opacity(flipped ? 1 : 0)
+                .rotation3DEffect(.degrees(flipped ? 0 : -180), axis: (x: 0, y: 1, z: 0))
+        }
+    }
+
+    private var frontFace: some View {
+        VStack(spacing: 20) {
+            frontArt
+            Button { speaker.speakEnglish(card.english) } label: {
+                Image(systemName: "speaker.wave.2.fill")
+                    .font(.system(size: 44))
             }
-            .onAppear { speaker.speak(card.traditional) }
-        } else {
-            VStack(spacing: 20) {
-                frontArt
-                Button { speaker.speakEnglish(card.english) } label: {
-                    Image(systemName: "speaker.wave.2.fill")
-                        .font(.system(size: 44))
-                }
-            }
+        }
+    }
+
+    private var backFace: some View {
+        VStack(spacing: 8) {
+            Text(card.traditional)
+                .font(.system(size: 96, weight: .bold))
+            Text(card.jyutping)
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 
@@ -57,6 +67,12 @@ struct CardPlayView: View {
                 .scaledToFit()
                 .frame(maxHeight: 200)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
+        } else if let sprite = SpriteArt.cardImage(forEnglish: card.english) {
+            Image(uiImage: sprite)
+                .resizable()
+                .interpolation(.none)
+                .scaledToFit()
+                .frame(maxHeight: 200)
         }
         Text(card.english)
             .font(.system(size: 56, weight: .bold))
@@ -84,6 +100,9 @@ struct CardPlayView: View {
 
     private func flip() {
         guard !flipped else { return }
-        flipped = true
+        withAnimation(.spring(duration: 0.5)) { flipped = true }
+        // Was the back face's onAppear; with both faces mounted for the
+        // flip, the reveal moment lives here instead.
+        speaker.speak(card.traditional)
     }
 }
