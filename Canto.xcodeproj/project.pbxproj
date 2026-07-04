@@ -9,15 +9,19 @@
 /* Begin PBXBuildFile section */
 		00FE3F2B90773BF66A0B0EB4 /* Sense.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885E49C7534FAF85E093A3DA /* Sense.swift */; };
 		1B610B54A9140FC493F10EB0 /* SpeechListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2D6BE2D453F5C84287472CC /* SpeechListener.swift */; };
+		1D092AB987CE165195C39AB2 /* ReviewEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ED2629AA71638788930608F /* ReviewEngineTests.swift */; };
 		27996708F75D18F86A38682B /* LookupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB8B1F9023E90A043E6E50FA /* LookupView.swift */; };
+		36C3E1A43553EC08B18FC5DD /* Balance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0133527D358D67007F897E88 /* Balance.swift */; };
 		51B13498CA1FDB56F73AD239 /* LogStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAD660C94DB4289000A31974 /* LogStore.swift */; };
 		7D2D8DA8498E6322C85C03F4 /* StartListeningIntentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAF68296C620D4460B245F6B /* StartListeningIntentTests.swift */; };
 		7FD1A5F66A4B0FF7DFB96388 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E1BBC063FCBB536E69ADC0D /* HistoryView.swift */; };
 		836022555801767C3681139E /* CantoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A6AE1480BF27184AF07F68 /* CantoApp.swift */; };
 		86D9F666337B1F6A6D08BC4E /* SenseRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4DE484F3782F6AEA31A4C4A /* SenseRowView.swift */; };
+		911210908328261E1A3BCCBE /* ReviewEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF3958C9D906F1C7AEAEEC7C /* ReviewEngine.swift */; };
 		959048042509E6F3A74C2DC6 /* DictionaryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42903DD53615021D2A5ECC64 /* DictionaryStore.swift */; };
 		9610802F9DE95FF7EC1F25AE /* DictionaryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E623D52C1824CDAA4B63E0 /* DictionaryStoreTests.swift */; };
 		AFC32945D7F99821774BC0E8 /* CantoneseSpeakerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61C02CB19B0DA0520FFD65C /* CantoneseSpeakerTests.swift */; };
+		B31CEA86B2ACF82034D72DB6 /* CardRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9A465CFEE5318D7BCD0575 /* CardRecord.swift */; };
 		B6F3E5DE852976155190EFDD /* CantoneseSpeaker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9216ABBD12327BE31E769C42 /* CantoneseSpeaker.swift */; };
 		C4305E2869C1680F730ACA1F /* LogStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D24662322C95C988A56FA1A1 /* LogStoreTests.swift */; };
 		C6DDDF02FCCC833DE83F8A6F /* dict.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = E8B88DC913690CFF62C689DD /* dict.sqlite */; };
@@ -38,7 +42,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0133527D358D67007F897E88 /* Balance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Balance.swift; sourceTree = "<group>"; };
 		2D77F72AF034F0315D37A797 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		2ED2629AA71638788930608F /* ReviewEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewEngineTests.swift; sourceTree = "<group>"; };
 		32A6AE1480BF27184AF07F68 /* CantoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CantoApp.swift; sourceTree = "<group>"; };
 		4051A0699C7A7C83A5DEA783 /* CantoTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = CantoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		42903DD53615021D2A5ECC64 /* DictionaryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryStore.swift; sourceTree = "<group>"; };
@@ -50,6 +56,7 @@
 		9E1BBC063FCBB536E69ADC0D /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		A9E623D52C1824CDAA4B63E0 /* DictionaryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryStoreTests.swift; sourceTree = "<group>"; };
 		AB8B1F9023E90A043E6E50FA /* LookupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LookupView.swift; sourceTree = "<group>"; };
+		AE9A465CFEE5318D7BCD0575 /* CardRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardRecord.swift; sourceTree = "<group>"; };
 		BAF68296C620D4460B245F6B /* StartListeningIntentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartListeningIntentTests.swift; sourceTree = "<group>"; };
 		C61C02CB19B0DA0520FFD65C /* CantoneseSpeakerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CantoneseSpeakerTests.swift; sourceTree = "<group>"; };
 		D24662322C95C988A56FA1A1 /* LogStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogStoreTests.swift; sourceTree = "<group>"; };
@@ -58,6 +65,7 @@
 		DAD660C94DB4289000A31974 /* LogStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogStore.swift; sourceTree = "<group>"; };
 		E8B88DC913690CFF62C689DD /* dict.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = dict.sqlite; sourceTree = "<group>"; };
 		F813B0579C0397D60FD5DC79 /* StartListeningIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartListeningIntent.swift; sourceTree = "<group>"; };
+		FF3958C9D906F1C7AEAEEC7C /* ReviewEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewEngine.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,8 +112,11 @@
 		5B007D05320BCEF73AC86645 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				0133527D358D67007F897E88 /* Balance.swift */,
+				AE9A465CFEE5318D7BCD0575 /* CardRecord.swift */,
 				42903DD53615021D2A5ECC64 /* DictionaryStore.swift */,
 				DAD660C94DB4289000A31974 /* LogStore.swift */,
+				FF3958C9D906F1C7AEAEEC7C /* ReviewEngine.swift */,
 				885E49C7534FAF85E093A3DA /* Sense.swift */,
 			);
 			path = Models;
@@ -117,6 +128,7 @@
 				C61C02CB19B0DA0520FFD65C /* CantoneseSpeakerTests.swift */,
 				A9E623D52C1824CDAA4B63E0 /* DictionaryStoreTests.swift */,
 				D24662322C95C988A56FA1A1 /* LogStoreTests.swift */,
+				2ED2629AA71638788930608F /* ReviewEngineTests.swift */,
 				442141962FAB4547CBBEF28E /* SpeechListenerTests.swift */,
 				BAF68296C620D4460B245F6B /* StartListeningIntentTests.swift */,
 			);
@@ -258,12 +270,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				F90DB64C2DA050BAFDE18C7D /* AboutView.swift in Sources */,
+				36C3E1A43553EC08B18FC5DD /* Balance.swift in Sources */,
 				836022555801767C3681139E /* CantoApp.swift in Sources */,
 				B6F3E5DE852976155190EFDD /* CantoneseSpeaker.swift in Sources */,
+				B31CEA86B2ACF82034D72DB6 /* CardRecord.swift in Sources */,
 				959048042509E6F3A74C2DC6 /* DictionaryStore.swift in Sources */,
 				7FD1A5F66A4B0FF7DFB96388 /* HistoryView.swift in Sources */,
 				51B13498CA1FDB56F73AD239 /* LogStore.swift in Sources */,
 				27996708F75D18F86A38682B /* LookupView.swift in Sources */,
+				911210908328261E1A3BCCBE /* ReviewEngine.swift in Sources */,
 				00FE3F2B90773BF66A0B0EB4 /* Sense.swift in Sources */,
 				86D9F666337B1F6A6D08BC4E /* SenseRowView.swift in Sources */,
 				1B610B54A9140FC493F10EB0 /* SpeechListener.swift in Sources */,
@@ -278,6 +293,7 @@
 				AFC32945D7F99821774BC0E8 /* CantoneseSpeakerTests.swift in Sources */,
 				9610802F9DE95FF7EC1F25AE /* DictionaryStoreTests.swift in Sources */,
 				C4305E2869C1680F730ACA1F /* LogStoreTests.swift in Sources */,
+				1D092AB987CE165195C39AB2 /* ReviewEngineTests.swift in Sources */,
 				FE71B76FEA8D4CADEEDC481B /* SpeechListenerTests.swift in Sources */,
 				7D2D8DA8498E6322C85C03F4 /* StartListeningIntentTests.swift in Sources */,
 			);
