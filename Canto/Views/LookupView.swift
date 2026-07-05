@@ -6,6 +6,7 @@ struct LookupView: View {
     @State private var result: LookupResult?
     @State private var selectedSenseId: Int64?
     @State private var keptSenseId: Int64?
+    @State private var customPickKept = false
     @State private var showVoiceUnavailableAlert = false
     @State private var lastLookupId: Int64?
     @State private var lastLoggedQuery: String?
@@ -174,10 +175,13 @@ struct LookupView: View {
                     pickPending: pickPending,
                     selectedSenseId: selectedSenseId,
                     keptSenseId: keptSenseId,
+                    customKept: customPickKept,
                     onTap: listen(to:),
                     onKeep: keep,
                     onCamera: { pendingCameraSense = $0 },
-                    onSpeakCharacters: { speaker.speak($0) }
+                    onSpeakCharacters: { speaker.speak($0) },
+                    readingCandidates: { store.readingCandidates(forCharacter: $0) },
+                    onKeepCustom: keepCustom
                 )
                 if result.senses.isEmpty {
                     Spacer()
@@ -236,6 +240,7 @@ struct LookupView: View {
             pickTask?.cancel()
             pick = nil
             pickPending = false
+            customPickKept = false
             browsing = false
             browsedSenses = []
             return
@@ -247,6 +252,7 @@ struct LookupView: View {
         result = store.lookup(trimmed)
         selectedSenseId = nil
         keptSenseId = nil
+        customPickKept = false
         browsing = false
         browsedSenses = []
         lastLookupId = logStore.record(
@@ -295,5 +301,14 @@ struct LookupView: View {
         }
         logStore.setChosenSense(lookupId: lastLookupId, sense: sense)
         keptSenseId = sense.id
+    }
+
+    private func keepCustom(_ jyutping: String) {
+        guard let lastLookupId, let pick else {
+            NSLog("keepCustom: no lookup row to attach to; keep dropped")
+            return
+        }
+        logStore.setChosenCustom(lookupId: lastLookupId, traditional: pick.characters, jyutping: jyutping)
+        customPickKept = true
     }
 }

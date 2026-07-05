@@ -55,6 +55,11 @@ final class DictionaryStore {
                  s.popularity DESC, LENGTH(s.gloss) ASC
         """
 
+    private static let readingCandidatesSQL = """
+        SELECT jyutping FROM senses WHERE traditional = ?
+        ORDER BY source ASC, popularity DESC, LENGTH(gloss) ASC
+        """
+
     // Crash-on-launch is deliberate for a missing/corrupt bundled dictionary:
     // the app is useless without it and a broken bundle should fail loud.
     init(bundle: Bundle = .main) {
@@ -170,6 +175,28 @@ final class DictionaryStore {
         } catch {
             NSLog("DictionaryStore browse failed for '%@': %@", token, String(describing: error))
             return []
+        }
+        return out
+    }
+
+    /// Candidate readings for ONE character, most-likely first (same source
+    /// order as everywhere else). Cap 3. Empty when the character is unknown.
+    func readingCandidates(forCharacter character: String) -> [String] {
+        var seen = Set<String>()
+        var out: [String] = []
+        do {
+            try dbQueue.read { db in
+                let cursor = try Row.fetchCursor(db, sql: Self.readingCandidatesSQL, arguments: [character])
+                while let row = try cursor.next() {
+                    let jp: String = row["jyutping"]
+                    if seen.contains(jp) { continue }
+                    seen.insert(jp)
+                    out.append(jp)
+                    if out.count == 3 { break }
+                }
+            }
+        } catch {
+            NSLog("DictionaryStore readingCandidates failed: %@", String(describing: error))
         }
         return out
     }

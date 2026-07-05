@@ -27,6 +27,7 @@
 		4A40B5CAFD04906EBDA1CFB3 /* GameStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2FC8597638058702A4FE8A4 /* GameStore.swift */; };
 		514C7256AC0C16242D4AAC7B /* RunStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26A87A1161C06B2181C8DB6 /* RunStateTests.swift */; };
 		51B13498CA1FDB56F73AD239 /* LogStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAD660C94DB4289000A31974 /* LogStore.swift */; };
+		55C5C60C940D0319BA59E8A5 /* PickEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F962A05648D1A08B738B60E2 /* PickEditorView.swift */; };
 		58C3ED21E1E734A561CCD06B /* BattleEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E515F93170C95342E9B5CBAB /* BattleEngineTests.swift */; };
 		5C683A2719EBC12FDCB40AD2 /* OnlineTranslatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DD36F12979530A285E0AD8C /* OnlineTranslatorTests.swift */; };
 		5DDDA30AB8F4C2F1E081835F /* enemy-bat.png in Resources */ = {isa = PBXBuildFile; fileRef = 80708E580CB3851927CFFDED /* enemy-bat.png */; };
@@ -180,6 +181,7 @@
 		EBD506A2E0B30C395813E389 /* SFXTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SFXTests.swift; sourceTree = "<group>"; };
 		EF66775D678C6D42D1A35D0A /* flip.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = flip.wav; sourceTree = "<group>"; };
 		F813B0579C0397D60FD5DC79 /* StartListeningIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartListeningIntent.swift; sourceTree = "<group>"; };
+		F962A05648D1A08B738B60E2 /* PickEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickEditorView.swift; sourceTree = "<group>"; };
 		FD12088FEC7578CD852C2920 /* coin.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = coin.wav; sourceTree = "<group>"; };
 		FF3958C9D906F1C7AEAEEC7C /* ReviewEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewEngine.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -226,6 +228,7 @@
 				9E1BBC063FCBB536E69ADC0D /* HistoryView.swift */,
 				9C1565AAC2EFA52F816417D3 /* LookupResultRowView.swift */,
 				AB8B1F9023E90A043E6E50FA /* LookupView.swift */,
+				F962A05648D1A08B738B60E2 /* PickEditorView.swift */,
 				425FD8290D6696295F4EA5ED /* PickSectionView.swift */,
 				369F96880B88C1FE987EC1BA /* RunSummaryView.swift */,
 				D4DE484F3782F6AEA31A4C4A /* SenseRowView.swift */,
@@ -508,6 +511,7 @@
 				27996708F75D18F86A38682B /* LookupView.swift in Sources */,
 				2505136B04086B4177DCE2C4 /* OnlineTranslator.swift in Sources */,
 				EC80D4C7560E3CE64A06558E /* Pick.swift in Sources */,
+				55C5C60C940D0319BA59E8A5 /* PickEditorView.swift in Sources */,
 				BC0A0C267A2734427B0E3673 /* PickSectionView.swift in Sources */,
 				911210908328261E1A3BCCBE /* ReviewEngine.swift in Sources */,
 				B4EA2D7502F37E4721F967AD /* RunState.swift in Sources */,

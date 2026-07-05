@@ -155,8 +155,9 @@ final class DesignSnapshotTests: XCTestCase {
         snapshot("pick-mapped") {
             PickSectionView(
                 pick: Pick(characters: "驚", senses: [sense]),
-                pickPending: false, selectedSenseId: nil, keptSenseId: nil,
-                onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }, onSpeakCharacters: { _ in }
+                pickPending: false, selectedSenseId: nil, keptSenseId: nil, customKept: false,
+                onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }, onSpeakCharacters: { _ in },
+                readingCandidates: { _ in [] }, onKeepCustom: { _ in }
             )
             .padding()
         }
@@ -166,8 +167,9 @@ final class DesignSnapshotTests: XCTestCase {
         snapshot("pick-unmapped") {
             PickSectionView(
                 pick: Pick(characters: "冇譜", senses: []),
-                pickPending: false, selectedSenseId: nil, keptSenseId: nil,
-                onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }, onSpeakCharacters: { _ in }
+                pickPending: false, selectedSenseId: nil, keptSenseId: nil, customKept: false,
+                onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }, onSpeakCharacters: { _ in },
+                readingCandidates: { _ in [] }, onKeepCustom: { _ in }
             )
             .padding()
         }
@@ -177,8 +179,21 @@ final class DesignSnapshotTests: XCTestCase {
         snapshot("pick-offline") {
             PickSectionView(
                 pick: nil,
-                pickPending: false, selectedSenseId: nil, keptSenseId: nil,
-                onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }, onSpeakCharacters: { _ in }
+                pickPending: false, selectedSenseId: nil, keptSenseId: nil, customKept: false,
+                onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }, onSpeakCharacters: { _ in },
+                readingCandidates: { _ in [] }, onKeepCustom: { _ in }
+            )
+            .padding()
+        }
+    }
+
+    func test_pickEditorRenders() {
+        snapshot("pick-editor") {
+            PickEditorView(
+                characters: "冇譜",
+                candidates: { char in char == "冇" ? ["mou5"] : ["pou2"] },
+                onSpeak: { _ in },
+                onKeep: { _ in }
             )
             .padding()
         }

@@ -43,6 +43,22 @@ final class GameStoreTests: XCTestCase {
         XCTAssertEqual(deck[0].traditional, "食")
     }
 
+    // A custom Keep (Slice 6, no dictionary sense) reaches the Deck the same
+    // way a normal Keep does - syncDeck only cares about the denormalised pair.
+    func test_syncDeck_importsCustomKeptLookup() {
+        let log = LogStore(directory: tempDir)
+        let id = log.record(heard: "unmapped word", matched: true, viaVoice: false)
+        log.setChosenCustom(lookupId: id!, traditional: "冇譜", jyutping: "mou5 pou2")
+
+        let store = GameStore(directory: tempDir)
+        store.syncDeck(from: log)
+
+        let deck = store.deck()
+        XCTAssertEqual(deck.count, 1)
+        XCTAssertEqual(deck[0].traditional, "冇譜")
+        XCTAssertEqual(deck[0].jyutping, "mou5 pou2")
+    }
+
     func test_syncDeck_duplicateTraditionalJyutpingCollapseToOneCard() {
         let log = LogStore(directory: tempDir)
         makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")

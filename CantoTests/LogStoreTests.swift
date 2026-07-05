@@ -64,6 +64,23 @@ final class LogStoreTests: XCTestCase {
         XCTAssertEqual(second?.chosenJyutping, "gau2")
     }
 
+    // A custom Keep (unmapped Pick) records the picked reading with no
+    // chosen_sense_id - lookupsWithChosenSense must still pick it up since it
+    // filters on chosen_traditional, not chosen_sense_id.
+    func test_setChosenCustom_updatesRowWithNilSenseId() {
+        let store = LogStore(directory: tempDir)
+        let id = store.record(heard: "unmapped word", matched: true, viaVoice: false)
+        XCTAssertNotNil(id)
+
+        store.setChosenCustom(lookupId: id!, traditional: "冇譜", jyutping: "mou5 pou2")
+
+        let rows = store.lookupsWithChosenSense(afterId: 0)
+        XCTAssertEqual(rows.count, 1)
+        XCTAssertEqual(rows[0].chosenTraditional, "冇譜")
+        XCTAssertEqual(rows[0].chosenJyutping, "mou5 pou2")
+        XCTAssertNil(rows[0].chosenSenseId)
+    }
+
     // Listening to a sense must never record it: recording only happens on
     // an explicit Keep (see LookupView.listen(to:) vs keep(_:)).
     func test_recordWithoutSetChosenSense_hasNoChosenSense() {

@@ -108,6 +108,18 @@ final class DictionaryStoreTests: XCTestCase {
         XCTAssertEqual(browsed, store.senses(for: "eat"))
     }
 
+    // Source-ordered, most-likely-first readings for one character - powers
+    // PickEditorView's per-character candidate picker.
+    func test_readingCandidates_returnsSourceOrderedCappedAtThree() {
+        let results = store.readingCandidates(forCharacter: "驚")
+        XCTAssertEqual(results, ["ging1", "geng1"])
+        XCTAssertLessThanOrEqual(results.count, 3)
+    }
+
+    func test_readingCandidates_unknownCharacterReturnsEmpty() {
+        XCTAssertTrue(store.readingCandidates(forCharacter: "㐀").isEmpty)
+    }
+
     func test_opensReadOnly_writeAttemptThrows() throws {
         // DictionaryStore itself only exposes reads. Reopen the same file
         // with the same readonly configuration DictionaryStore uses and

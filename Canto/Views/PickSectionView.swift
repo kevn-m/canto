@@ -8,10 +8,15 @@ struct PickSectionView: View {
     let pickPending: Bool
     let selectedSenseId: Int64?
     let keptSenseId: Int64?
+    let customKept: Bool
     let onTap: (Sense) -> Void
     let onKeep: (Sense) -> Void
     let onCamera: (Sense) -> Void
     let onSpeakCharacters: (String) -> Void
+    let readingCandidates: (String) -> [String]
+    let onKeepCustom: (String) -> Void
+
+    @State private var showingEditor = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -41,6 +46,10 @@ struct PickSectionView: View {
         }
         .padding(.horizontal)
         .padding(.top, 4)
+        // Collapse the editor when a new Pick arrives - a fresh unmapped word
+        // must not inherit the open editor from the last one (no silent state
+        // transitions), and "Keep anyway" stays a deliberate opt-in.
+        .onChange(of: pick?.characters) { _, _ in showingEditor = false }
     }
 
     private var googleBadge: some View {
@@ -49,24 +58,49 @@ struct PickSectionView: View {
             .foregroundStyle(.blue)
     }
 
+    @ViewBuilder
     private func unmappedRow(_ pick: Pick) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                googleBadge
-                Text(pick.characters)
-                    .font(.largeTitle)
-                Text("No reading yet")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    googleBadge
+                    Text(pick.characters)
+                        .font(.largeTitle)
+                    Text("No reading yet")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Button {
+                    onSpeakCharacters(pick.characters)
+                } label: {
+                    Image(systemName: "speaker.wave.2.fill")
+                }
+                .buttonStyle(.borderless)
+                .accessibilityLabel("Speak")
+
+                if customKept {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                } else {
+                    Button("Keep anyway") {
+                        showingEditor.toggle()
+                    }
+                    .buttonStyle(.borderless)
+                }
             }
-            Spacer()
-            Button {
-                onSpeakCharacters(pick.characters)
-            } label: {
-                Image(systemName: "speaker.wave.2.fill")
+
+            if showingEditor, !customKept {
+                PickEditorView(
+                    characters: pick.characters,
+                    candidates: readingCandidates,
+                    onSpeak: onSpeakCharacters,
+                    onKeep: { jyutping in
+                        onKeepCustom(jyutping)
+                        showingEditor = false
+                    }
+                )
             }
-            .buttonStyle(.borderless)
-            .accessibilityLabel("Speak")
         }
     }
 

@@ -101,6 +101,27 @@ final class LogStore {
         }
     }
 
+    /// Records a Keep for a word the dictionary doesn't know. NULL sense id is
+    /// safe: HistoryView and GameStore.syncDeck read only the denormalised pair
+    /// (chosen_traditional/chosen_jyutping), never chosen_sense_id.
+    func setChosenCustom(lookupId: Int64, traditional: String, jyutping: String) {
+        guard let dbQueue else { return }
+        do {
+            try dbQueue.write { db in
+                try db.execute(
+                    sql: """
+                        UPDATE lookups
+                        SET chosen_sense_id = NULL, chosen_traditional = ?, chosen_jyutping = ?
+                        WHERE id = ?
+                        """,
+                    arguments: [traditional, jyutping, lookupId]
+                )
+            }
+        } catch {
+            NSLog("LogStore setChosenCustom failed: %@", String(describing: error))
+        }
+    }
+
     func recentLookups(limit: Int = 200) -> [LookupRecord] {
         guard let dbQueue else { return [] }
         do {
