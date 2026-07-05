@@ -21,8 +21,10 @@
 # by Kevin (a Cantonese speaker) before it ships. Do NOT let an LLM invent or
 # guess jyutping here. ADR 0002 exists because fabricated jyutping poisons a
 # language-learning tool — this file is the one place in the pipeline where
-# that could happen, so it is deliberately left empty for human curation.
-# Do not add live entries in an automated pass.
+# that could happen. scripts/supplement_from_deck.py may append candidate lines
+# from Deck corrections, but it only copies the jyutping Kevin already verified
+# in the app, never invents it — and the git diff of this file is the review
+# gate before anything ships.
 #
 # Example (commented out — shows the format only, does not load):
 # 手推車 手推车 [shou3 tui1 che1] {sau2 teoi1 ce1} /pram/stroller/
