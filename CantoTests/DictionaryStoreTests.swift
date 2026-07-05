@@ -44,6 +44,14 @@ final class DictionaryStoreTests: XCTestCase {
         XCTAssertEqual(results.first?.jyutping, "hoi2 tyun4")
     }
 
+    // Pick's tie-break: rows whose gloss actually matches the query win over
+    // same-character rows that merely share the traditional form.
+    func test_pickSensesTieBreak() {
+        let results = store.pickSenses(forCharacters: "驚", query: "scared")
+        XCTAssertFalse(results.isEmpty)
+        XCTAssertEqual(results.first?.jyutping, "geng1")
+    }
+
     func test_fullPhraseMatch_washingMachine() {
         let results = store.senses(for: "washing machine")
         XCTAssertFalse(results.isEmpty)

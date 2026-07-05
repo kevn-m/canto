@@ -19,6 +19,8 @@ targets:
       - path: Canto/Resources/dict.sqlite
       - path: Canto/Resources/Sprites
       - path: Canto/Resources/SFX
+      - path: Canto/Resources/secrets.json
+        optional: true
     dependencies:
       - package: GRDB
         product: GRDB

@@ -1,5 +1,6 @@
 log.sqlite
 dict.tmp.sqlite
+Canto/Resources/secrets.json
 __pycache__/
 *.pyc
 .DS_Store

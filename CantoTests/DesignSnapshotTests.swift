@@ -147,6 +147,43 @@ final class DesignSnapshotTests: XCTestCase {
         }
     }
 
+    func test_pickMappedRenders() {
+        let sense = Sense(row: [
+            "id": 1, "traditional": "驚", "simplified": nil, "jyutping": "geng1",
+            "pinyin": nil, "gloss": "scared", "source": 0, "popularity": 5,
+        ])
+        snapshot("pick-mapped") {
+            PickSectionView(
+                pick: Pick(characters: "驚", senses: [sense]),
+                pickPending: false, selectedSenseId: nil, keptSenseId: nil,
+                onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }, onSpeakCharacters: { _ in }
+            )
+            .padding()
+        }
+    }
+
+    func test_pickUnmappedRenders() {
+        snapshot("pick-unmapped") {
+            PickSectionView(
+                pick: Pick(characters: "冇譜", senses: []),
+                pickPending: false, selectedSenseId: nil, keptSenseId: nil,
+                onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }, onSpeakCharacters: { _ in }
+            )
+            .padding()
+        }
+    }
+
+    func test_pickOfflineMarkerRenders() {
+        snapshot("pick-offline") {
+            PickSectionView(
+                pick: nil,
+                pickPending: false, selectedSenseId: nil, keptSenseId: nil,
+                onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }, onSpeakCharacters: { _ in }
+            )
+            .padding()
+        }
+    }
+
     func test_runSummaryRenders() {
         var state = TowerEngine.makeFreshRun()
         state.kidDamageDealt = 9

@@ -10,12 +10,16 @@ struct LookupView: View {
     @State private var lastLookupId: Int64?
     @State private var lastLoggedQuery: String?
     @State private var pendingCameraSense: Sense?
+    @State private var pick: Pick?
+    @State private var pickPending = false
+    @State private var pickTask: Task<Void, Never>?
 
     @Environment(\.scenePhase) private var scenePhase
 
     private let store = DictionaryStore.shared
     private let logStore = LogStore.shared
     private let photos = CardPhotos()
+    private let translator = OnlineTranslator()
     @State private var speaker = CantoneseSpeaker()
     @State private var speechListener = SpeechListener()
 
@@ -161,22 +165,36 @@ struct LookupView: View {
 
     @ViewBuilder
     private var resultsView: some View {
-        if let result, result.senses.isEmpty {
-            Spacer()
-            Text("No results")
-                .foregroundStyle(.secondary)
-            Spacer()
-        } else if let result {
-            List(result.senses) { sense in
-                LookupResultRowView(
-                    sense: sense,
+        if let result {
+            VStack(spacing: 0) {
+                PickSectionView(
+                    pick: pick,
+                    pickPending: pickPending,
                     selectedSenseId: selectedSenseId,
                     keptSenseId: keptSenseId,
                     onTap: listen(to:),
                     onKeep: keep,
-                    onCamera: { pendingCameraSense = $0 }
+                    onCamera: { pendingCameraSense = $0 },
+                    onSpeakCharacters: { speaker.speak($0) }
                 )
-                .listRowBackground(sense.id == selectedSenseId ? Color.accentColor.opacity(0.15) : nil)
+                if result.senses.isEmpty {
+                    Spacer()
+                    Text("No results")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                } else {
+                    List(result.senses) { sense in
+                        LookupResultRowView(
+                            sense: sense,
+                            selectedSenseId: selectedSenseId,
+                            keptSenseId: keptSenseId,
+                            onTap: listen(to:),
+                            onKeep: keep,
+                            onCamera: { pendingCameraSense = $0 }
+                        )
+                        .listRowBackground(sense.id == selectedSenseId ? Color.accentColor.opacity(0.15) : nil)
+                    }
+                }
             }
         } else {
             Spacer()
@@ -189,6 +207,9 @@ struct LookupView: View {
             result = nil
             lastLookupId = nil
             lastLoggedQuery = nil
+            pickTask?.cancel()
+            pick = nil
+            pickPending = false
             return
         }
         // A double-fired onSubmit would log the same intent twice, leaving a
@@ -204,6 +225,24 @@ struct LookupView: View {
             viaVoice: viaVoice
         )
         lastLoggedQuery = trimmed
+
+        pickTask?.cancel()
+        pick = nil
+        pickPending = translator.isEnabled
+        guard translator.isEnabled else { return }
+        pickTask = Task {
+            let characters = await translator.translate(trimmed)
+            // A slow answer for the previous word must not pin onto the current
+            // one: cancellation catches it, the query check is the belt-and-braces.
+            guard !Task.isCancelled, trimmed == lastLoggedQuery else { return }
+            let senses = characters.map { store.pickSenses(forCharacters: $0, query: trimmed) } ?? []
+            await MainActor.run {
+                if let characters {
+                    pick = Pick(characters: characters, senses: senses)
+                }
+                pickPending = false
+            }
+        }
     }
 
     private func listen(to sense: Sense) {

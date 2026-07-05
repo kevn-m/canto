@@ -32,6 +32,19 @@ final class DictionaryStore {
         LIMIT 40
         """
 
+    // Sibling of rankSQL for the Pick: readings for fixed characters, with a
+    // gloss that matches the query token winning the tie-break. See pickSenses.
+    private static let pickSQL = """
+        SELECT s.*, EXISTS(
+            SELECT 1 FROM english_index e
+            WHERE e.sense_id = s.id AND e.token = ?
+        ) AS matches_query
+        FROM senses s
+        WHERE s.traditional = ?
+        ORDER BY matches_query DESC, s.source ASC,
+                 s.popularity DESC, LENGTH(s.gloss) ASC
+        """
+
     // Crash-on-launch is deliberate for a missing/corrupt bundled dictionary:
     // the app is useless without it and a broken bundle should fail loud.
     init(bundle: Bundle = .main) {
@@ -95,6 +108,32 @@ final class DictionaryStore {
         } catch {
             // A read failure must not look like an ordinary Miss in the console.
             NSLog("DictionaryStore read failed for token '%@': %@", token, String(describing: error))
+            return []
+        }
+        return out
+    }
+
+    /// Readings for the Pick's characters. Rows whose gloss matches the query
+    /// win, then the usual source order. Verified: 驚 + "scared" -> geng1 first.
+    /// Dedup key is jyutping ALONE (all rows share one traditional), unlike
+    /// top5's (traditional, jyutping).
+    func pickSenses(forCharacters characters: String, query: String) -> [Sense] {
+        let token = Self.clean(query)
+        var seen = Set<String>()
+        var out: [Sense] = []
+        do {
+            try dbQueue.read { db in
+                let cursor = try Row.fetchCursor(db, sql: Self.pickSQL, arguments: [token, characters])
+                while let row = try cursor.next() {
+                    let sense = Sense(row: row)
+                    if seen.contains(sense.jyutping) { continue }
+                    seen.insert(sense.jyutping)
+                    out.append(sense)
+                    if out.count == 2 { break }
+                }
+            }
+        } catch {
+            NSLog("DictionaryStore pickSenses failed for '%@': %@", characters, String(describing: error))
             return []
         }
         return out
