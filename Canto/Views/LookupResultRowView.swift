@@ -19,14 +19,17 @@ struct LookupResultRowView: View {
             if sense.id == selectedSenseId, sense.id != keptSenseId {
                 Spacer()
                 Button { onKeep(sense) } label: {
-                    Image(systemName: "checkmark.circle")
+                    Label("Add", systemImage: "rectangle.stack.badge.plus")
+                        .font(.subheadline.weight(.semibold))
                 }
-                .buttonStyle(.borderless)
-                .accessibilityLabel("Keep this answer")
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+                .accessibilityLabel("Add to deck")
             }
             if sense.id == keptSenseId {
                 Spacer()
-                Image(systemName: "checkmark.circle.fill")
+                Label("Added", systemImage: "checkmark.circle.fill")
+                    .font(.subheadline.weight(.semibold))
                     .foregroundStyle(.green)
                 if CameraPicker.isAvailable {
                     Button { onCamera(sense) } label: {
