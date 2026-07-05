@@ -1,5 +1,6 @@
 import XCTest
 import GRDB
+import UIKit
 @testable import Canto
 
 final class GameStoreTests: XCTestCase {
@@ -162,6 +163,109 @@ final class GameStoreTests: XCTestCase {
 
         let due = store.dueCards(for: .kid, on: "2026-07-04", excluding: [])
         XCTAssertEqual(due.first?.photoFilename, "card-\(cardId).jpg")
+    }
+
+    // MARK: - deleteCard
+
+    func test_deleteCard_cascadesReviewsAndCardStatesForBothPlayers() throws {
+        let log = LogStore(directory: tempDir)
+        makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
+        let store = GameStore(directory: tempDir)
+        store.syncDeck(from: log)
+        let cardId = store.deck().first!.id
+        store.recordReview(cardId: cardId, player: .kid, result: .hit, on: "2026-07-04")
+
+        store.deleteCard(cardId: cardId)
+
+        XCTAssertTrue(store.deck().isEmpty)
+        XCTAssertEqual(try reviewCount(), 0)
+        let stateCount = try rawGameQueue(in: tempDir).read { db in
+            try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM card_states WHERE card_id = ?", arguments: [cardId]) ?? 0
+        }
+        XCTAssertEqual(stateCount, 0)
+    }
+
+    func test_deleteCard_refusesWhileRunUnfinished() {
+        let store = GameStore(directory: tempDir)
+        let log = LogStore(directory: tempDir)
+        makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
+        store.syncDeck(from: log)
+        let cardId = store.deck().first!.id
+        store.startRun(on: ReviewEngine.todayString(), state: makeRunState())
+
+        store.deleteCard(cardId: cardId)
+
+        XCTAssertEqual(store.deck().count, 1)
+        drainMainQueue()
+        XCTAssertNotNil(store.lastError)
+    }
+
+    // A Run abandoned on a past day is unresumable, so it must not lock deck
+    // cleanup forever - only TODAY's unfinished Run blocks a delete.
+    func test_deleteCard_allowedDespiteUnfinishedRunFromAnotherDay() {
+        let store = GameStore(directory: tempDir)
+        let log = LogStore(directory: tempDir)
+        makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
+        store.syncDeck(from: log)
+        let cardId = store.deck().first!.id
+        store.startRun(on: "2000-01-01", state: makeRunState())
+
+        store.deleteCard(cardId: cardId)
+
+        XCTAssertTrue(store.deck().isEmpty)
+    }
+
+    // The slice's real behaviour: a committed delete removes the photo file
+    // from disk, not just the DB rows.
+    func test_deleteCard_removesPhotoFileFromDisk() {
+        let log = LogStore(directory: tempDir)
+        makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
+        let store = GameStore(directory: tempDir)
+        store.syncDeck(from: log)
+        let cardId = store.deck().first!.id
+
+        let photos = CardPhotos(directory: tempDir)
+        let filename = photos.save(image: makeSmallImage(), cardId: cardId)!
+        store.setPhoto(cardId: cardId, filename: filename)
+        XCTAssertNotNil(photos.load(filename: filename))
+
+        store.deleteCard(cardId: cardId)
+
+        XCTAssertNil(photos.load(filename: filename))
+    }
+
+    func test_deleteCard_onUnknownIdIsANoOp() {
+        let store = GameStore(directory: tempDir)
+
+        store.deleteCard(cardId: 99999)
+
+        drainMainQueue()
+        XCTAssertNil(store.lastError)
+        XCTAssertTrue(store.deck().isEmpty)
+    }
+
+    private func makeSmallImage() -> UIImage {
+        UIGraphicsImageRenderer(size: CGSize(width: 4, height: 4)).image { context in
+            UIColor.red.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 4, height: 4))
+        }
+    }
+
+    func test_deleteCard_thenReKeepRecreatesAsFreshCard() {
+        let log = LogStore(directory: tempDir)
+        makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
+        let store = GameStore(directory: tempDir)
+        store.syncDeck(from: log)
+        let cardId = store.deck().first!.id
+        store.recordReview(cardId: cardId, player: .kid, result: .hit, on: "2026-07-04")
+
+        store.deleteCard(cardId: cardId)
+        makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
+        store.syncDeck(from: log)
+
+        let entry = store.deck().first!
+        XCTAssertEqual(entry.dadBox, 0)
+        XCTAssertEqual(entry.kidBox, 0)
     }
 
     // MARK: - Ledger

@@ -15,6 +15,7 @@ struct DeckView: View {
     @State private var pendingCameraEntry: DeckEntry?
     @State private var photosPickerItem: PhotosPickerItem?
     @State private var exportURL: URL?
+    @State private var deleteTarget: DeckEntry?
 
     private let photos = CardPhotos()
 
@@ -33,6 +34,7 @@ struct DeckView: View {
                             reload()
                         }
                         .tint(entry.benched ? .green : .gray)
+                        Button("Delete", role: .destructive) { deleteTarget = entry }
                     }
             }
             .listStyle(.plain)
@@ -62,6 +64,22 @@ struct DeckView: View {
                 Button("Remove Photo", role: .destructive, action: removePhoto)
             }
             Button("Cancel", role: .cancel) {}
+        }
+        .confirmationDialog(
+            "Delete this card?",
+            isPresented: Binding(get: { deleteTarget != nil }, set: { if !$0 { deleteTarget = nil } }),
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive) {
+                if let entry = deleteTarget {
+                    gameStore.deleteCard(cardId: entry.id)
+                    reload()
+                }
+                deleteTarget = nil
+            }
+            Button("Cancel", role: .cancel) { deleteTarget = nil }
+        } message: {
+            Text("Deletes its history too. The word comes back if you look it up and Keep it.")
         }
         .onChange(of: photosPickerItem) { _, newItem in
             guard let newItem else { return }

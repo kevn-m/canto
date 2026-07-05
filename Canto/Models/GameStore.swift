@@ -54,8 +54,10 @@ final class GameStore: ObservableObject {
     @Published private(set) var lastError: String?
 
     private let dbQueue: DatabaseQueue?
+    private let photos: CardPhotos
 
     init(directory: URL = GameStore.defaultDirectory) {
+        photos = CardPhotos(directory: directory)
         do {
             try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
             let path = directory.appendingPathComponent("game.sqlite").path
@@ -324,6 +326,32 @@ final class GameStore: ObservableObject {
     func deckSize() -> Int {
         readValue(default: 0) { db in
             try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM cards WHERE benched = 0") ?? 0
+        }
+    }
+
+    // Refuses only while TODAY's Run is unfinished — a Run abandoned on a past
+    // day is unresumable, so it must not block deletion forever. Guard, photo
+    // read and cascade share one transaction, so a refused or failed write
+    // returns nil and the photo file is deleted only when the rows really were.
+    func deleteCard(cardId: Int64) {
+        let filename = writeValue(default: String?.none) { db -> String? in
+            let today = ReviewEngine.todayString()
+            let unfinished = try Int.fetchOne(
+                db, sql: "SELECT COUNT(*) FROM runs WHERE run_date = ? AND finished = 0",
+                arguments: [today]
+            ) ?? 0
+            guard unfinished == 0 else {
+                self.reportError("Finish or abandon today's Run before deleting cards.")
+                return nil
+            }
+            let filename = try String.fetchOne(db, sql: "SELECT photo_filename FROM cards WHERE id = ?", arguments: [cardId])
+            try db.execute(sql: "DELETE FROM reviews WHERE card_id = ?", arguments: [cardId])
+            try db.execute(sql: "DELETE FROM card_states WHERE card_id = ?", arguments: [cardId])
+            try db.execute(sql: "DELETE FROM cards WHERE id = ?", arguments: [cardId])
+            return filename
+        }
+        if let filename, !photos.delete(filename: filename) {
+            NSLog("deleteCard: photo file delete failed for card %lld", cardId)
         }
     }
 
