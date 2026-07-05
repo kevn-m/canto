@@ -11,20 +11,28 @@ struct ShopView: View {
     @State private var showingEdit = false
 
     var body: some View {
-        VStack(spacing: 20) {
-            if let lastError = gameStore.lastError {
-                ErrorBanner(message: lastError) { gameStore.clearError() }
+        ZStack {
+            InnBackground()
+            VStack(spacing: 20) {
+                if let lastError = gameStore.lastError {
+                    ErrorBanner(message: lastError) { gameStore.clearError() }
+                }
+                balanceView
+                List(items) { item in
+                    itemRow(item)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16))
+                }
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
             }
-            balanceView
-            List(items) { item in
-                itemRow(item)
-            }
-            .listStyle(.plain)
         }
         .navigationTitle("Shop")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button("Edit") { showingEdit = true }
+                    .tint(GameTheme.gold)
             }
         }
         .onAppear(perform: reload)
@@ -42,22 +50,32 @@ struct ShopView: View {
     }
 
     private var balanceView: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 10) {
             Image(systemName: "dollarsign.circle.fill")
                 .font(.system(size: 44))
-                .foregroundStyle(.yellow)
+                .foregroundStyle(GameTheme.gold)
             Text("\(balance)")
-                .font(.system(size: 44, weight: .bold))
+                .font(GameTheme.title(44))
+                .foregroundStyle(GameTheme.cream)
         }
+        .padding(.top, 8)
     }
 
     private func itemRow(_ item: ShopItem) -> some View {
         HStack {
             Text(item.name)
+                .font(GameTheme.title(18))
+                .foregroundStyle(GameTheme.navy)
             Spacer()
+            let affordable = balance >= item.price
             Button("Redeem (\(item.price))") { pendingRedeem = item }
-                .disabled(balance < item.price)
+                .buttonStyle(GameButtonStyle(compact: true))
+                .disabled(!affordable)
+                .opacity(affordable ? 1 : 0.4)
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .cardFrame()
     }
 
     private func reload() {

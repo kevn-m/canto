@@ -54,39 +54,43 @@ struct PickSectionView: View {
 
     private var googleBadge: some View {
         Label("Google", systemImage: "globe")
-            .font(.caption2.weight(.semibold))
-            .foregroundStyle(.blue)
+            .font(GameTheme.title(12))
+            .foregroundStyle(GameTheme.sky)
     }
 
     @ViewBuilder
     private func unmappedRow(_ pick: Pick) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 10) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     googleBadge
                     Text(pick.characters)
-                        .font(.largeTitle)
+                        .font(.system(size: 40, weight: .bold))
+                        .foregroundStyle(GameTheme.navy)
                     Text("No reading yet")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(.system(size: 14, weight: .medium, design: .rounded))
+                        .foregroundStyle(GameTheme.lavender)
                 }
                 Spacer()
                 Button {
                     onSpeakCharacters(pick.characters)
                 } label: {
                     Image(systemName: "speaker.wave.2.fill")
+                        .font(.system(size: 22))
+                        .foregroundStyle(GameTheme.gold)
                 }
-                .buttonStyle(.borderless)
+                .buttonStyle(.plain)
                 .accessibilityLabel("Speak")
 
                 if customKept {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
+                        .font(.system(size: 24))
+                        .foregroundStyle(GameTheme.green)
                 } else {
                     Button("Keep anyway") {
                         showingEditor.toggle()
                     }
-                    .buttonStyle(.borderless)
+                    .buttonStyle(GameButtonStyle(compact: true))
                 }
             }
 
@@ -102,20 +106,24 @@ struct PickSectionView: View {
                 )
             }
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .cardFrame()
     }
 
     private var pendingRow: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 10) {
             ProgressView()
+                .tint(GameTheme.gold)
             Text("Checking Google…")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .font(GameTheme.title(15))
+                .foregroundStyle(GameTheme.cream.opacity(0.7))
         }
     }
 
     private var offlineMarker: some View {
         Text("Offline — not checked against Google")
-            .font(.caption)
-            .foregroundStyle(.secondary)
+            .font(GameTheme.title(14))
+            .foregroundStyle(GameTheme.cream.opacity(0.55))
     }
 }

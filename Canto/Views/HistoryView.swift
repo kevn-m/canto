@@ -5,30 +5,42 @@ struct HistoryView: View {
     @State private var rows: [LookupRecord] = []
 
     var body: some View {
-        List(rows) { row in
-            HStack {
-                VStack(alignment: .leading) {
-                    Text(row.heardText)
-                    Text(row.createdAt)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-                if !row.matched {
-                    Text("Miss")
-                        .font(.caption)
-                        .foregroundStyle(.orange)
-                } else if let chosen = row.chosenTraditional {
-                    VStack(alignment: .trailing) {
-                        Text(chosen)
-                        if let jyutping = row.chosenJyutping {
-                            Text(jyutping)
-                                .font(.caption)
+        ZStack {
+            InnBackground()
+            List(rows) { row in
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(row.heardText)
+                            .font(GameTheme.title(18))
+                            .foregroundStyle(GameTheme.cream)
+                        Text(row.createdAt)
+                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .foregroundStyle(GameTheme.cream.opacity(0.5))
+                    }
+                    Spacer()
+                    if !row.matched {
+                        Text("Miss")
+                            .font(GameTheme.title(13))
+                            .foregroundStyle(GameTheme.gold)
+                    } else if let chosen = row.chosenTraditional {
+                        VStack(alignment: .trailing, spacing: 2) {
+                            Text(chosen)
+                                .font(.system(size: 24, weight: .bold))
+                                .foregroundStyle(GameTheme.cream)
+                            if let jyutping = row.chosenJyutping {
+                                Text(jyutping)
+                                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                                    .foregroundStyle(GameTheme.cream.opacity(0.55))
+                            }
                         }
                     }
-                    .foregroundStyle(.secondary)
                 }
+                .padding(.vertical, 6)
+                .listRowBackground(Color.clear)
+                .listRowSeparatorTint(GameTheme.cream.opacity(0.12))
             }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
         }
         .navigationTitle("History")
         .onAppear { rows = logStore.recentLookups() }

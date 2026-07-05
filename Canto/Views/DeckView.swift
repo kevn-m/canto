@@ -19,25 +19,33 @@ struct DeckView: View {
 
     private let photos = CardPhotos()
 
-    private static let boxColors: [Color] = [.gray, .blue, .orange, .green] // New, Learning, Solid, Mastered
+    // New, Learning, Solid, Mastered — the PICO-8 palette in place of the
+    // old system gray/blue/orange/green.
+    private static let boxColors: [Color] = [GameTheme.lavender, GameTheme.sky, GameTheme.gold, GameTheme.green]
 
     var body: some View {
-        VStack(spacing: 0) {
-            if let lastError = gameStore.lastError {
-                ErrorBanner(message: lastError) { gameStore.clearError() }
-            }
-            List(entries) { entry in
-                row(entry)
-                    .swipeActions {
-                        Button(entry.benched ? "Unbench" : "Bench") {
-                            gameStore.setBenched(cardId: entry.id, !entry.benched)
-                            reload()
+        ZStack {
+            InnBackground()
+            VStack(spacing: 0) {
+                if let lastError = gameStore.lastError {
+                    ErrorBanner(message: lastError) { gameStore.clearError() }
+                }
+                List(entries) { entry in
+                    row(entry)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparatorTint(GameTheme.cream.opacity(0.12))
+                        .swipeActions {
+                            Button(entry.benched ? "Unbench" : "Bench") {
+                                gameStore.setBenched(cardId: entry.id, !entry.benched)
+                                reload()
+                            }
+                            .tint(entry.benched ? GameTheme.green : GameTheme.lavender)
+                            Button("Delete", role: .destructive) { deleteTarget = entry }
                         }
-                        .tint(entry.benched ? .green : .gray)
-                        Button("Delete", role: .destructive) { deleteTarget = entry }
-                    }
+                }
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
             }
-            .listStyle(.plain)
         }
         .navigationTitle("Deck")
         .toolbar {
@@ -101,8 +109,12 @@ struct DeckView: View {
         HStack(spacing: 12) {
             thumbnail(entry)
             VStack(alignment: .leading, spacing: 2) {
-                Text(entry.english).font(.headline)
-                Text(entry.traditional).font(.subheadline).foregroundStyle(.secondary)
+                Text(entry.english)
+                    .font(GameTheme.title(18))
+                    .foregroundStyle(GameTheme.cream)
+                Text(entry.traditional)
+                    .font(.system(size: 15, weight: .medium, design: .rounded))
+                    .foregroundStyle(GameTheme.cream.opacity(0.6))
             }
             Spacer()
             VStack(spacing: 4) {
@@ -110,7 +122,9 @@ struct DeckView: View {
                 boxDot(entry.kidBox, label: "K")
             }
             if entry.benched {
-                Text("Benched").font(.caption2).foregroundStyle(.secondary)
+                Text("Benched")
+                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .foregroundStyle(GameTheme.cream.opacity(0.5))
             }
         }
         .opacity(entry.benched ? 0.4 : 1)
@@ -128,12 +142,15 @@ struct DeckView: View {
                     .resizable()
                     .scaledToFill()
             } else {
-                Text(entry.traditional).font(.title2.bold())
+                Text(entry.traditional)
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundStyle(GameTheme.navy)
             }
         }
         .frame(width: 44, height: 44)
-        .background(Color.secondary.opacity(0.1))
+        .background(GameTheme.cream)
         .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(GameTheme.gold, lineWidth: 2))
     }
 
     private func boxDot(_ box: Int, label: String) -> some View {
@@ -141,7 +158,9 @@ struct DeckView: View {
             Circle()
                 .fill(Self.boxColors[min(max(box, 0), 3)])
                 .frame(width: 10, height: 10)
-            Text(label).font(.caption2).foregroundStyle(.secondary)
+            Text(label)
+                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .foregroundStyle(GameTheme.cream.opacity(0.6))
         }
     }
 

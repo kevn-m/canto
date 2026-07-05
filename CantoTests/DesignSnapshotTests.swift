@@ -26,6 +26,23 @@ final class DesignSnapshotTests: XCTestCase {
             .frame(width: 393, height: 760)
             .environment(\.colorScheme, .dark)
         let renderer = ImageRenderer(content: view)
+        render(name, renderer)
+    }
+
+    // The lookup/pick rows are cream cards designed to sit on the inn
+    // backdrop (the safe haven, not the battle dungeon); rendering them on the
+    // default (white) canvas hides the cream text and misjudges contrast, so
+    // these snapshot on the real background.
+    private func snapshotOnInn(_ name: String, @ViewBuilder content: () -> some View) {
+        let view = VStack { content() }
+            .frame(width: 393, height: 760)
+            .background(InnBackground())
+            .environment(\.colorScheme, .dark)
+        let renderer = ImageRenderer(content: view)
+        render(name, renderer)
+    }
+
+    private func render<V: View>(_ name: String, _ renderer: ImageRenderer<V>) {
         renderer.scale = 2
         guard let image = renderer.uiImage, let data = image.pngData() else {
             XCTFail("\(name) failed to render")
@@ -81,6 +98,12 @@ final class DesignSnapshotTests: XCTestCase {
         }
     }
 
+    func test_cardFrontForestBiomeRenders() {
+        snapshot("card-front-forest") {
+            CardPlayView(card: sampleCards[1], biome: .forest) { _ in }
+        }
+    }
+
     func test_forestBattleScreenRenders() {
         var state = TowerEngine.makeFreshRun(biome: .forest)
         state.enemyHP = 5
@@ -124,7 +147,7 @@ final class DesignSnapshotTests: XCTestCase {
             "id": 1, "traditional": "食", "simplified": nil, "jyutping": "sik6",
             "pinyin": nil, "gloss": "eat", "source": 0, "popularity": 5,
         ])
-        snapshot("lookup-row-selected") {
+        snapshotOnInn("lookup-row-selected") {
             LookupResultRowView(
                 sense: sense, selectedSenseId: 1, keptSenseId: nil,
                 onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }
@@ -138,7 +161,7 @@ final class DesignSnapshotTests: XCTestCase {
             "id": 1, "traditional": "食", "simplified": nil, "jyutping": "sik6",
             "pinyin": nil, "gloss": "eat", "source": 0, "popularity": 5,
         ])
-        snapshot("lookup-row-kept") {
+        snapshotOnInn("lookup-row-kept") {
             LookupResultRowView(
                 sense: sense, selectedSenseId: 1, keptSenseId: 1,
                 onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }
@@ -152,7 +175,7 @@ final class DesignSnapshotTests: XCTestCase {
             "id": 1, "traditional": "驚", "simplified": nil, "jyutping": "geng1",
             "pinyin": nil, "gloss": "scared", "source": 0, "popularity": 5,
         ])
-        snapshot("pick-mapped") {
+        snapshotOnInn("pick-mapped") {
             PickSectionView(
                 pick: Pick(characters: "驚", senses: [sense]),
                 pickPending: false, selectedSenseId: nil, keptSenseId: nil, customKept: false,
@@ -164,7 +187,7 @@ final class DesignSnapshotTests: XCTestCase {
     }
 
     func test_pickUnmappedRenders() {
-        snapshot("pick-unmapped") {
+        snapshotOnInn("pick-unmapped") {
             PickSectionView(
                 pick: Pick(characters: "冇譜", senses: []),
                 pickPending: false, selectedSenseId: nil, keptSenseId: nil, customKept: false,
@@ -176,7 +199,7 @@ final class DesignSnapshotTests: XCTestCase {
     }
 
     func test_pickOfflineMarkerRenders() {
-        snapshot("pick-offline") {
+        snapshotOnInn("pick-offline") {
             PickSectionView(
                 pick: nil,
                 pickPending: false, selectedSenseId: nil, keptSenseId: nil, customKept: false,
@@ -188,14 +211,22 @@ final class DesignSnapshotTests: XCTestCase {
     }
 
     func test_pickEditorRenders() {
-        snapshot("pick-editor") {
+        snapshotOnInn("pick-editor") {
             PickEditorView(
                 characters: "冇譜",
                 candidates: { char in char == "冇" ? ["mou5"] : ["pou2"] },
                 onSpeak: { _ in },
                 onKeep: { _ in }
             )
+            .padding(16)
+            .cardFrame()
             .padding()
+        }
+    }
+
+    func test_innBackgroundRenders() {
+        snapshot("inn-background") {
+            InnBackground()
         }
     }
 

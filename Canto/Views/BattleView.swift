@@ -196,7 +196,7 @@ struct BattleView: View {
         // dad arbitrates, and grade inflation is parenting, not a bug
         // (see the plan's accepted risks). The card just comes back.
         .sheet(item: $playingCard) { card in
-            CardPlayView(card: card) { result in
+            CardPlayView(card: card, biome: Biome.containing(enemyName: currentFloor.enemyName)) { result in
                 grade(card: card, result: result)
             }
         }

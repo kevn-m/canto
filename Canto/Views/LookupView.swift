@@ -28,10 +28,11 @@ struct LookupView: View {
 
     var body: some View {
         NavigationStack {
-            VStack {
+            VStack(spacing: 0) {
                 TextField("Type an English word", text: $query)
-                    .textFieldStyle(.roundedBorder)
-                    .padding()
+                    .textFieldStyle(GameTextFieldStyle())
+                    .padding(.horizontal)
+                    .padding(.top, 8)
                     .onSubmit { runLookup(viaVoice: false) }
                     .onChange(of: speechListener.heardText) { _, newValue in
                         if speechListener.isListening {
@@ -43,6 +44,8 @@ struct LookupView: View {
 
                 resultsView
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(InnBackground())
             .navigationTitle("Canto")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -145,7 +148,7 @@ struct LookupView: View {
             Image(systemName: "mic.fill")
                 .font(.system(size: 32))
                 .padding()
-                .foregroundStyle(speechListener.isListening ? .red : .accentColor)
+                .foregroundStyle(speechListener.isListening ? GameTheme.red : GameTheme.gold)
                 .symbolEffect(.pulse, isActive: speechListener.isListening)
         }
         .accessibilityLabel(speechListener.isListening ? "Stop listening" : "Start listening")
@@ -186,7 +189,8 @@ struct LookupView: View {
                 if result.senses.isEmpty {
                     Spacer()
                     Text("No results")
-                        .foregroundStyle(.secondary)
+                        .font(GameTheme.title(20))
+                        .foregroundStyle(GameTheme.cream.opacity(0.7))
                     Spacer()
                 } else {
                     List {
@@ -199,7 +203,9 @@ struct LookupView: View {
                                 onKeep: keep,
                                 onCamera: { pendingCameraSense = $0 }
                             )
-                            .listRowBackground(sense.id == selectedSenseId ? Color.accentColor.opacity(0.15) : nil)
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16))
                         }
                         if !browsing, !result.isWordFallback {
                             Button {
@@ -214,12 +220,17 @@ struct LookupView: View {
                                 }
                             } label: {
                                 Text("Show more")
+                                    .font(GameTheme.title(16))
                                     .frame(maxWidth: .infinity, alignment: .center)
-                                    .foregroundStyle(.secondary)
+                                    .foregroundStyle(GameTheme.cream.opacity(0.65))
                             }
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
                             .accessibilityLabel("Show more results")
                         }
                     }
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
                 }
             }
         } else {

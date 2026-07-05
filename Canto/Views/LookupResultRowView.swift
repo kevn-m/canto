@@ -11,35 +11,45 @@ struct LookupResultRowView: View {
     let onKeep: (Sense) -> Void
     let onCamera: (Sense) -> Void
 
+    private var isSelected: Bool { sense.id == selectedSenseId }
+    private var isKept: Bool { sense.id == keptSenseId }
+
     var body: some View {
-        HStack {
+        HStack(spacing: 10) {
             SenseRowView(sense: sense)
-                .contentShape(Rectangle())
-                .onTapGesture { onTap(sense) }
-            if sense.id == selectedSenseId, sense.id != keptSenseId {
-                Spacer()
-                Button { onKeep(sense) } label: {
-                    Label("Add", systemImage: "rectangle.stack.badge.plus")
-                        .font(.subheadline.weight(.semibold))
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.small)
-                .accessibilityLabel("Add to deck")
-            }
-            if sense.id == keptSenseId {
-                Spacer()
+            Spacer(minLength: 0)
+            trailing
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .cardFrame(selected: isSelected)
+        .contentShape(Rectangle())
+        .onTapGesture { onTap(sense) }
+    }
+
+    @ViewBuilder
+    private var trailing: some View {
+        if isKept {
+            HStack(spacing: 10) {
                 Label("Added", systemImage: "checkmark.circle.fill")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.green)
+                    .font(GameTheme.title(14))
+                    .foregroundStyle(GameTheme.green)
                 if CameraPicker.isAvailable {
                     Button { onCamera(sense) } label: {
                         Image(systemName: "camera.fill")
                             .font(.system(size: 22))
+                            .foregroundStyle(GameTheme.gold)
                     }
-                    .buttonStyle(.borderless)
+                    .buttonStyle(.plain)
                     .accessibilityLabel("Snap it now")
                 }
             }
+        } else if isSelected {
+            Button { onKeep(sense) } label: {
+                Label("Add", systemImage: "rectangle.stack.badge.plus")
+            }
+            .buttonStyle(GameButtonStyle(compact: true))
+            .accessibilityLabel("Add to deck")
         }
     }
 }

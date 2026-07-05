@@ -4,6 +4,7 @@ import SwiftUI
 // English word; Jyutping only shows on the back, for dad.
 struct CardPlayView: View {
     let card: CardRecord
+    var biome: Biome = .tower
     var onGraded: (ReviewResult) -> Void
 
     @State private var speaker = CantoneseSpeaker()
@@ -29,7 +30,7 @@ struct CardPlayView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(DungeonBackground())
+        .background(BiomeBackground(biome: biome))
         .onAppear { speaker.speakEnglish(card.english) }
     }
 

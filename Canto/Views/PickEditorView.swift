@@ -45,16 +45,18 @@ struct PickEditorView: View {
             }
 
             Text(joinedJyutping)
-                .font(.subheadline.monospaced())
-                .foregroundStyle(.secondary)
+                .font(GameTheme.title(16))
+                .foregroundStyle(GameTheme.navy.opacity(0.7))
 
             HStack {
                 Button {
                     onSpeak(characters)
                 } label: {
                     Image(systemName: "speaker.wave.2.fill")
+                        .font(.system(size: 22))
+                        .foregroundStyle(GameTheme.gold)
                 }
-                .buttonStyle(.borderless)
+                .buttonStyle(.plain)
                 .accessibilityLabel("Speak")
 
                 Spacer()
@@ -62,7 +64,9 @@ struct PickEditorView: View {
                 Button("Keep") {
                     onKeep(joinedJyutping)
                 }
+                .buttonStyle(GameButtonStyle(compact: true))
                 .disabled(hasUnknownCharacter)
+                .opacity(hasUnknownCharacter ? 0.4 : 1)
             }
         }
     }
@@ -76,11 +80,12 @@ struct PickEditorView: View {
         let selected = selections.indices.contains(index) ? selections[index] : ""
         VStack(spacing: 4) {
             Text(char)
-                .font(.title2)
+                .font(.system(size: 30, weight: .bold))
+                .foregroundStyle(GameTheme.navy)
             if options.isEmpty {
                 Text("unknown character")
-                    .font(.caption2)
-                    .foregroundStyle(.red)
+                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .foregroundStyle(GameTheme.red)
             } else {
                 VStack(spacing: 2) {
                     ForEach(options, id: \.self) { option in
@@ -88,9 +93,8 @@ struct PickEditorView: View {
                             selections[index] = option
                         } label: {
                             Text(option)
-                                .font(.caption)
-                                .fontWeight(selected == option ? .bold : .regular)
-                                .foregroundStyle(selected == option ? Color.accentColor : .secondary)
+                                .font(GameTheme.title(14))
+                                .foregroundStyle(selected == option ? GameTheme.gold : GameTheme.navy.opacity(0.5))
                         }
                         .buttonStyle(.plain)
                     }
