@@ -2,7 +2,10 @@
 
 Offline single-user iPhone app. Say or type an English word, get ranked Cantonese
 senses (traditional characters + jyutping + gloss), and hear them read aloud in
-Cantonese. Everything runs on-device — no network calls.
+Cantonese. Offline by default: the only network call is one Cloud Translation
+request per lookup, and only when `Canto/Resources/secrets.json` holds an API key
+— without it (or without a network) the app is fully offline (see "The one
+network call" below).
 
 ## Commands
 
@@ -57,11 +60,14 @@ install. Needs one-time setup — an App Store Connect API key, an app record, a
 
 ## Layout
 
-- `Canto/Models/` — `Sense`, `DictionaryStore` (read-only lookups), `LogStore` (writes the log)
+- `Canto/Models/` — `Sense`, `Pick`, `DictionaryStore` (read-only lookups), `LogStore` (writes the log), `OnlineTranslator` (the app's one network call, Cloud Translation v2)
 - `Canto/Speech/` — `SpeechListener` (speech-to-text), `CantoneseSpeaker` (text-to-speech)
 - `Canto/Intents/` — `StartListeningIntent`, the Action Button entry point
 - `Canto/Views/` — SwiftUI screens
 - `Canto/Resources/dict.sqlite` — the bundled read-only dictionary (built, committed)
+- `Canto/Resources/secrets.json` — the Google Translate key `{"translateApiKey": "..."}`,
+  gitignored and optional. Absent = the Pick is off and the app is fully offline.
+  Copy the committed `secrets.json.example` and paste a Cloud Translation v2 key.
 - `Canto/Resources/Sprites/` — bundled 64px chibi sprites, generated in
   `art/reference-sheet/` (see its CLAUDE.md). New batches: copy the PNGs here,
   run `xcodegen generate`. `SpriteArtTests` fails if a bundled sprite goes missing.
@@ -70,6 +76,11 @@ install. Needs one-time setup — an App Store Connect API key, an app record, a
   add an `SFXPlayer.Effect` case, `xcodegen generate`. `SFXTests` iterates
   every case, so a missing or undecodable WAV fails the build.
 - `scripts/build_dict.py` — builds `dict.sqlite` from `data/`
+- `scripts/spike_translate.py` — the Slice 0 gate: checks the Translate API answers the
+  burned words as well as the Translate UI (stdlib; reads `TRANSLATE_API_KEY`, else `secrets.json`)
+- `scripts/supplement_from_deck.py` — drafts CC-Canto lines into `scripts/supplement.txt` for
+  Deck cards the built dictionary can't rank in their word's top-5. Review the git diff, then
+  rebuild with `build_dict.py`. `--selftest` runs its self-checks.
 - `data/` — the four dictionary sources:
   - `cccanto-webdist.txt` — CC-Canto (cantonese.org/download.html)
   - `cccedict-canto-readings.txt` — jyutping readings for CC-CEDICT entries, no glosses
@@ -120,6 +131,25 @@ and re-run the tests.
   remaps every id — that's why log rows denormalise the chosen sense's characters
   and jyutping instead of trusting the id.
 
+## The one network call: the Pick
+
+Every lookup also asks Cloud Translation v2 (`OnlineTranslator`) for the word's
+Cantonese characters, in parallel with the instant offline list. The dictionary
+supplies the jyutping and gloss for those characters, and the result — the
+**Pick** — pins above the offline list with a "Google" badge (ADR 0012). The
+offline ranking is never touched; the Pick is a separate pinned layer (`pickSenses`
+sits beside `top5`, not inside it).
+
+`OnlineTranslator.translate` returns nil on any failure (no key, offline, non-200,
+empty, 4s timeout), so a missing `secrets.json` or a dropped network degrades to
+exactly the offline app — no crash, no hang. Jyutping never comes from the network:
+ADR 0002 forbids machine-guessed romanisation and the API has none anyway.
+
+Tapping a Sense is listen-only; one explicit **Keep** records it to history and the
+Deck (ADR 0013). A Pick whose characters aren't in the dictionary is **unmapped**:
+audio-only until a per-character reading is ear-picked in the editor (Slice 6). When
+Google is wrong or absent, "Show more" (`browseSenses`) reveals the full ranked list.
+
 ## Speech notes
 
 - Recognition is on-device only (`requiresOnDeviceRecognition` on the request).
@@ -134,3 +164,5 @@ and re-run the tests.
 - **Lookup** — one attempt to translate a word. A Lookup with no results is a **Miss**.
 - **Sense** — one Cantonese meaning: traditional characters, jyutping, English gloss.
 - **Jyutping** — the romanisation of Cantonese pronunciation (e.g. `sik6` for 食).
+- **Pick** — Google's suggested characters for a lookup, pinned above the offline list with our jyutping and gloss. **Unmapped** if those characters aren't in the dictionary.
+- **Keep** — the one explicit action that records a Sense or Pick to history and the Deck; tapping a row alone only plays audio.
