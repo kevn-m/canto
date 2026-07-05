@@ -1,0 +1,17 @@
+# Slice 0 spike words: does the Google Translate API match the Translate UI?
+#
+# One row per word, TAB-separated:  english<TAB>expected_traditional
+#
+# Kevin fills the `expected` column from the Translate APP on his phone
+# (translate.google.com or the iOS app), English -> Cantonese (Traditional).
+# Leave a row's expected blank to skip scoring it (spike prints "got" only).
+#
+# Seed the list with the words you actually gambled on and got burned by.
+# The four probes below have well-known answers and act as canaries.
+#
+# canaries (well-known answers)
+scared	驚
+dog	狗
+beer	啤酒
+eat	食
+afraid	驚
