@@ -28,7 +28,7 @@ final class DictionaryStore {
         FROM english_index e JOIN senses s ON s.id = e.sense_id
         WHERE e.token = ?
         GROUP BY s.id
-        ORDER BY w ASC, s.source ASC, s.popularity DESC, LENGTH(s.gloss) ASC
+        ORDER BY w ASC, s.source ASC, s.popularity DESC, LENGTH(s.gloss) ASC, s.id ASC
         LIMIT 40
         """
 
@@ -38,7 +38,7 @@ final class DictionaryStore {
         FROM english_index e JOIN senses s ON s.id = e.sense_id
         WHERE e.token = ?
         GROUP BY s.id
-        ORDER BY w ASC, s.source ASC, s.popularity DESC, LENGTH(s.gloss) ASC
+        ORDER BY w ASC, s.source ASC, s.popularity DESC, LENGTH(s.gloss) ASC, s.id ASC
         LIMIT 200
         """
 

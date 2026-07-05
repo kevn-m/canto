@@ -112,7 +112,8 @@ feedback), and show-don't-label (environment art over headings).
 `DictionaryStore` (Swift) and `build_dict.py`'s `senses_for` (Python) must rank
 identically. The Python is the oracle; the Swift is a port of it, not an
 approximation. Same `clean()`, same `STOPWORDS`, same `ORDER BY` (weight, source,
-popularity DESC, gloss length), same dedup on `(traditional, jyutping)`, same
+popularity DESC, gloss length, then `senses.id` as a stable tiebreaker so top-5
+and "Show more" never disagree on a full tie), same dedup on `(traditional, jyutping)`, same
 top-5 with a top-2-per-word phrase fallback. The `eat → 食 not 吃` test in
 `DictionaryStoreTests` guards this — if you touch ranking in one, change the other
 and re-run the tests.
