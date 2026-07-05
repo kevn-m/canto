@@ -95,6 +95,19 @@ final class DictionaryStoreTests: XCTestCase {
         XCTAssertTrue(results.isEmpty)
     }
 
+    // The right-but-drowned sense must be reachable via browse even though
+    // it's beyond top-5.
+    func test_browseSurfacesDrownedBeer() {
+        let results = store.browseSenses("beer")
+        XCTAssertTrue(results.contains { $0.traditional == "啤酒" && $0.jyutping == "be1 zau2" })
+    }
+
+    // Browse is a superset of top5 in the same order.
+    func test_browsePrefixEqualsTop5() {
+        let browsed = Array(store.browseSenses("eat").prefix(5))
+        XCTAssertEqual(browsed, store.senses(for: "eat"))
+    }
+
     func test_opensReadOnly_writeAttemptThrows() throws {
         // DictionaryStore itself only exposes reads. Reopen the same file
         // with the same readonly configuration DictionaryStore uses and

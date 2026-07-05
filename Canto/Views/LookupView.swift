@@ -13,6 +13,8 @@ struct LookupView: View {
     @State private var pick: Pick?
     @State private var pickPending = false
     @State private var pickTask: Task<Void, Never>?
+    @State private var browsing = false
+    @State private var browsedSenses: [Sense] = []
 
     @Environment(\.scenePhase) private var scenePhase
 
@@ -183,22 +185,46 @@ struct LookupView: View {
                         .foregroundStyle(.secondary)
                     Spacer()
                 } else {
-                    List(result.senses) { sense in
-                        LookupResultRowView(
-                            sense: sense,
-                            selectedSenseId: selectedSenseId,
-                            keptSenseId: keptSenseId,
-                            onTap: listen(to:),
-                            onKeep: keep,
-                            onCamera: { pendingCameraSense = $0 }
-                        )
-                        .listRowBackground(sense.id == selectedSenseId ? Color.accentColor.opacity(0.15) : nil)
+                    List {
+                        ForEach(displayedSenses) { sense in
+                            LookupResultRowView(
+                                sense: sense,
+                                selectedSenseId: selectedSenseId,
+                                keptSenseId: keptSenseId,
+                                onTap: listen(to:),
+                                onKeep: keep,
+                                onCamera: { pendingCameraSense = $0 }
+                            )
+                            .listRowBackground(sense.id == selectedSenseId ? Color.accentColor.opacity(0.15) : nil)
+                        }
+                        if !browsing, !result.isWordFallback {
+                            Button {
+                                // Fetch once, on the tap. Only switch to the
+                                // browse list if it actually loaded — an empty
+                                // result means a read error, and blanking the
+                                // screen is worse than leaving the top-5 up.
+                                let more = store.browseSenses(lastLoggedQuery ?? "")
+                                if !more.isEmpty {
+                                    browsedSenses = more
+                                    browsing = true
+                                }
+                            } label: {
+                                Text("Show more")
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .accessibilityLabel("Show more results")
+                        }
                     }
                 }
             }
         } else {
             Spacer()
         }
+    }
+
+    private var displayedSenses: [Sense] {
+        browsing ? browsedSenses : (result?.senses ?? [])
     }
 
     private func runLookup(viaVoice: Bool) {
@@ -210,6 +236,8 @@ struct LookupView: View {
             pickTask?.cancel()
             pick = nil
             pickPending = false
+            browsing = false
+            browsedSenses = []
             return
         }
         // A double-fired onSubmit would log the same intent twice, leaving a
@@ -219,6 +247,8 @@ struct LookupView: View {
         result = store.lookup(trimmed)
         selectedSenseId = nil
         keptSenseId = nil
+        browsing = false
+        browsedSenses = []
         lastLookupId = logStore.record(
             heard: trimmed,
             matched: !(result?.senses.isEmpty ?? true),

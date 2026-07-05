@@ -32,6 +32,16 @@ final class DictionaryStore {
         LIMIT 40
         """
 
+    // Same ordering as rankSQL, no 5-cut - powers the browse-further UI.
+    private static let browseSQL = """
+        SELECT s.*, MIN(e.weight) AS w
+        FROM english_index e JOIN senses s ON s.id = e.sense_id
+        WHERE e.token = ?
+        GROUP BY s.id
+        ORDER BY w ASC, s.source ASC, s.popularity DESC, LENGTH(s.gloss) ASC
+        LIMIT 200
+        """
+
     // Sibling of rankSQL for the Pick: readings for fixed characters, with a
     // gloss that matches the query token winning the tie-break. See pickSenses.
     private static let pickSQL = """
@@ -134,6 +144,31 @@ final class DictionaryStore {
             }
         } catch {
             NSLog("DictionaryStore pickSenses failed for '%@': %@", characters, String(describing: error))
+            return []
+        }
+        return out
+    }
+
+    /// The full ranked list for one query token - same ordering as top5,
+    /// same dedup, no 5-cut. For the browse-further UI; never feeds
+    /// LookupResult, so the Python/Swift oracle stays untouched.
+    func browseSenses(_ query: String) -> [Sense] {
+        let token = Self.clean(query)
+        var seen = Set<String>()
+        var out: [Sense] = []
+        do {
+            try dbQueue.read { db in
+                let cursor = try Row.fetchCursor(db, sql: Self.browseSQL, arguments: [token])
+                while let row = try cursor.next() {
+                    let sense = Sense(row: row)
+                    let key = Self.dedupKey(sense)
+                    if seen.contains(key) { continue }
+                    seen.insert(key)
+                    out.append(sense)
+                }
+            }
+        } catch {
+            NSLog("DictionaryStore browse failed for '%@': %@", token, String(describing: error))
             return []
         }
         return out
