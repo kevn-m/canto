@@ -15,15 +15,33 @@ targets:
     platform: iOS
     sources:
       - path: Canto
+        excludes:
+          # secrets.json is copied by the post-build script only if present;
+          # a project-file reference would fail a keyless build (see below).
+          - "Resources/secrets.json"
     resources:
       - path: Canto/Resources/dict.sqlite
       - path: Canto/Resources/Sprites
       - path: Canto/Resources/SFX
-      - path: Canto/Resources/secrets.json
-        optional: true
     dependencies:
       - package: GRDB
         product: GRDB
+    postBuildScripts:
+      - name: Bundle secrets.json if present
+        # Copies the gitignored, optional Google Translate key into the app
+        # only when it exists, so a keyless checkout still builds. A hard
+        # resource reference would fail the build when the file is absent
+        # (and force an environment-specific pbxproj). Runs before the
+        # implicit code-sign, so the injected file gets signed.
+        script: |
+          SRC="${SRCROOT}/Canto/Resources/secrets.json"
+          if [ -f "${SRC}" ]; then
+            cp "${SRC}" "${CODESIGNING_FOLDER_PATH}/secrets.json"
+            echo "note: bundled secrets.json (Pick enabled)"
+          else
+            echo "note: no secrets.json — Pick disabled (offline build)"
+          fi
+        basedOnDependencyAnalysis: false
     info:
       path: Canto/Info.plist
       properties:
