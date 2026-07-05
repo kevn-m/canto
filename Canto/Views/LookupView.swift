@@ -5,6 +5,7 @@ struct LookupView: View {
     @State private var query = ""
     @State private var result: LookupResult?
     @State private var selectedSenseId: Int64?
+    @State private var keptSenseId: Int64?
     @State private var showVoiceUnavailableAlert = false
     @State private var lastLookupId: Int64?
     @State private var lastLoggedQuery: String?
@@ -167,20 +168,14 @@ struct LookupView: View {
             Spacer()
         } else if let result {
             List(result.senses) { sense in
-                HStack {
-                    SenseRowView(sense: sense)
-                        .contentShape(Rectangle())
-                        .onTapGesture { selectAndSpeak(sense) }
-                    if sense.id == selectedSenseId, CameraPicker.isAvailable {
-                        Spacer()
-                        Button { pendingCameraSense = sense } label: {
-                            Image(systemName: "camera.fill")
-                                .font(.system(size: 22))
-                        }
-                        .buttonStyle(.borderless)
-                        .accessibilityLabel("Snap it now")
-                    }
-                }
+                LookupResultRowView(
+                    sense: sense,
+                    selectedSenseId: selectedSenseId,
+                    keptSenseId: keptSenseId,
+                    onTap: listen(to:),
+                    onKeep: keep,
+                    onCamera: { pendingCameraSense = $0 }
+                )
                 .listRowBackground(sense.id == selectedSenseId ? Color.accentColor.opacity(0.15) : nil)
             }
         } else {
@@ -202,6 +197,7 @@ struct LookupView: View {
         if trimmed == lastLoggedQuery, result != nil { return }
         result = store.lookup(trimmed)
         selectedSenseId = nil
+        keptSenseId = nil
         lastLookupId = logStore.record(
             heard: trimmed,
             matched: !(result?.senses.isEmpty ?? true),
@@ -210,18 +206,25 @@ struct LookupView: View {
         lastLoggedQuery = trimmed
     }
 
-    private func selectAndSpeak(_ sense: Sense) {
+    private func listen(to sense: Sense) {
         if speechListener.isListening {
             speechListener.cancel()
         }
         selectedSenseId = sense.id
-        if let lastLookupId {
-            logStore.setChosenSense(lookupId: lastLookupId, sense: sense)
-        }
         if speaker.voiceAvailable {
             speaker.speak(sense.traditional)
         } else {
             showVoiceUnavailableAlert = true
         }
+    }
+
+    // Keeping a different row overwrites the chosen sense — last Keep wins, deliberately.
+    private func keep(_ sense: Sense) {
+        guard let lastLookupId else {
+            NSLog("keep: no lookup row to attach to; keep dropped for %@", sense.traditional)
+            return
+        }
+        logStore.setChosenSense(lookupId: lastLookupId, sense: sense)
+        keptSenseId = sense.id
     }
 }

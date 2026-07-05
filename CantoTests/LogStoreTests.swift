@@ -64,6 +64,16 @@ final class LogStoreTests: XCTestCase {
         XCTAssertEqual(second?.chosenJyutping, "gau2")
     }
 
+    // Listening to a sense must never record it: recording only happens on
+    // an explicit Keep (see LookupView.listen(to:) vs keep(_:)).
+    func test_recordWithoutSetChosenSense_hasNoChosenSense() {
+        let store = LogStore(directory: tempDir)
+        let id = store.record(heard: "eat", matched: true, viaVoice: false)
+        XCTAssertNotNil(id)
+
+        XCTAssertTrue(store.lookupsWithChosenSense(afterId: 0).isEmpty)
+    }
+
     func test_recentLookups_returnsReverseChronologicalOrder() {
         let store = LogStore(directory: tempDir)
         let firstId = store.record(heard: "one", matched: true, viaVoice: false)

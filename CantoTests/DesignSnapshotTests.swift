@@ -119,6 +119,34 @@ final class DesignSnapshotTests: XCTestCase {
         }
     }
 
+    func test_lookupRowSelectedNotKeptRenders() {
+        let sense = Sense(row: [
+            "id": 1, "traditional": "食", "simplified": nil, "jyutping": "sik6",
+            "pinyin": nil, "gloss": "eat", "source": 0, "popularity": 5,
+        ])
+        snapshot("lookup-row-selected") {
+            LookupResultRowView(
+                sense: sense, selectedSenseId: 1, keptSenseId: nil,
+                onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }
+            )
+            .padding()
+        }
+    }
+
+    func test_lookupRowKeptRenders() {
+        let sense = Sense(row: [
+            "id": 1, "traditional": "食", "simplified": nil, "jyutping": "sik6",
+            "pinyin": nil, "gloss": "eat", "source": 0, "popularity": 5,
+        ])
+        snapshot("lookup-row-kept") {
+            LookupResultRowView(
+                sense: sense, selectedSenseId: 1, keptSenseId: 1,
+                onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }
+            )
+            .padding()
+        }
+    }
+
     func test_runSummaryRenders() {
         var state = TowerEngine.makeFreshRun()
         state.kidDamageDealt = 9

@@ -31,6 +31,7 @@
 		71FC4D3FB87B23D06BEE0062 /* ShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5FC51319DA16D1047828BBA /* ShopView.swift */; };
 		744D0D016191D42133E2DF96 /* bear.png in Resources */ = {isa = PBXBuildFile; fileRef = 552B5DFE7698E0C10D133F1E /* bear.png */; };
 		76FC3009093342A985C06CDF /* BattleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51BC4C3491C15749FE543B01 /* BattleView.swift */; };
+		774EE0FF1C839F9ED2629C8D /* LookupResultRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C1565AAC2EFA52F816417D3 /* LookupResultRowView.swift */; };
 		7D2D8DA8498E6322C85C03F4 /* StartListeningIntentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAF68296C620D4460B245F6B /* StartListeningIntentTests.swift */; };
 		7D63F8E206CF5F7D014756A0 /* lion.png in Resources */ = {isa = PBXBuildFile; fileRef = 707F03FE5CBB27A637AA2026 /* lion.png */; };
 		7FD1A5F66A4B0FF7DFB96388 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E1BBC063FCBB536E69ADC0D /* HistoryView.swift */; };
@@ -139,6 +140,7 @@
 		961B940FEF0F63FCA3BA7F3A /* player-kid.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "player-kid.png"; sourceTree = "<group>"; };
 		9625DDB976493CFEAD0302CF /* monkey.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = monkey.png; sourceTree = "<group>"; };
 		9861B4059E180B4249D8317D /* SpriteArt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpriteArt.swift; sourceTree = "<group>"; };
+		9C1565AAC2EFA52F816417D3 /* LookupResultRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LookupResultRowView.swift; sourceTree = "<group>"; };
 		9E1BBC063FCBB536E69ADC0D /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		A323CEF32315B19EE9127894 /* TestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestHelpers.swift; sourceTree = "<group>"; };
 		A5FC51319DA16D1047828BBA /* ShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopView.swift; sourceTree = "<group>"; };
@@ -212,6 +214,7 @@
 				BB83AEA67F0DDAC154A927ED /* DeckView.swift */,
 				4DF2A789AB8FC3B4584711B3 /* GameTheme.swift */,
 				9E1BBC063FCBB536E69ADC0D /* HistoryView.swift */,
+				9C1565AAC2EFA52F816417D3 /* LookupResultRowView.swift */,
 				AB8B1F9023E90A043E6E50FA /* LookupView.swift */,
 				369F96880B88C1FE987EC1BA /* RunSummaryView.swift */,
 				D4DE484F3782F6AEA31A4C4A /* SenseRowView.swift */,
@@ -485,6 +488,7 @@
 				8BC37475838F379DF077CB66 /* GameTheme.swift in Sources */,
 				7FD1A5F66A4B0FF7DFB96388 /* HistoryView.swift in Sources */,
 				51B13498CA1FDB56F73AD239 /* LogStore.swift in Sources */,
+				774EE0FF1C839F9ED2629C8D /* LookupResultRowView.swift in Sources */,
 				27996708F75D18F86A38682B /* LookupView.swift in Sources */,
 				911210908328261E1A3BCCBE /* ReviewEngine.swift in Sources */,
 				B4EA2D7502F37E4721F967AD /* RunState.swift in Sources */,
