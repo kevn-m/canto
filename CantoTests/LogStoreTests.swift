@@ -53,7 +53,7 @@ final class LogStoreTests: XCTestCase {
             "id": 42, "traditional": "狗", "simplified": nil, "jyutping": "gau2",
             "pinyin": nil, "gloss": "dog", "source": 0, "popularity": 5,
         ])
-        store.setChosenSense(lookupId: secondId!, sense: sense)
+        XCTAssertTrue(store.setChosenSense(lookupId: secondId!, sense: sense))
 
         let rows = store.recentLookups()
         let first = rows.first { $0.id == firstId }
@@ -109,6 +109,20 @@ final class LogStoreTests: XCTestCase {
         let rows = secondStore.recentLookups()
         XCTAssertEqual(rows.count, 1)
         XCTAssertEqual(rows[0].heardText, "reopen me")
+    }
+
+    // The green "Added" tick is gated on this return (LookupView.keep), so a
+    // Keep whose write can't persist must report false, not a silent success.
+    func test_setChosenOnUnwritablePath_returnsFalse() throws {
+        try "not a directory".write(to: tempDir, atomically: true, encoding: .utf8)
+
+        let store = LogStore(directory: tempDir)
+        let sense = Sense(row: [
+            "id": 1, "traditional": "狗", "simplified": nil, "jyutping": "gau2",
+            "pinyin": nil, "gloss": "dog", "source": 0, "popularity": 1,
+        ])
+        XCTAssertFalse(store.setChosenSense(lookupId: 1, sense: sense))
+        XCTAssertFalse(store.setChosenCustom(lookupId: 1, traditional: "冇譜", jyutping: "mou5 pou2"))
     }
 
     func test_recordOnUnwritablePath_returnsNilWithoutCrashing() throws {

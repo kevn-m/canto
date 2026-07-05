@@ -83,8 +83,11 @@ final class LogStore {
     // Stores the sense's text alongside its id: senses.id is just insertion
     // order in build_dict.py, so a dictionary rebuild remaps every historical
     // id. The characters and jyutping are what the flashcard seed needs.
-    func setChosenSense(lookupId: Int64, sense: Sense) {
-        guard let dbQueue else { return }
+    // Returns false when the write didn't persist so the caller doesn't show
+    // an "Added" tick over a Keep that never reached the deck.
+    @discardableResult
+    func setChosenSense(lookupId: Int64, sense: Sense) -> Bool {
+        guard let dbQueue else { return false }
         do {
             try dbQueue.write { db in
                 try db.execute(
@@ -96,16 +99,19 @@ final class LogStore {
                     arguments: [sense.id, sense.traditional, sense.jyutping, lookupId]
                 )
             }
+            return true
         } catch {
             NSLog("LogStore setChosenSense failed: %@", String(describing: error))
+            return false
         }
     }
 
     /// Records a Keep for a word the dictionary doesn't know. NULL sense id is
     /// safe: HistoryView and GameStore.syncDeck read only the denormalised pair
     /// (chosen_traditional/chosen_jyutping), never chosen_sense_id.
-    func setChosenCustom(lookupId: Int64, traditional: String, jyutping: String) {
-        guard let dbQueue else { return }
+    @discardableResult
+    func setChosenCustom(lookupId: Int64, traditional: String, jyutping: String) -> Bool {
+        guard let dbQueue else { return false }
         do {
             try dbQueue.write { db in
                 try db.execute(
@@ -117,8 +123,10 @@ final class LogStore {
                     arguments: [traditional, jyutping, lookupId]
                 )
             }
+            return true
         } catch {
             NSLog("LogStore setChosenCustom failed: %@", String(describing: error))
+            return false
         }
     }
 

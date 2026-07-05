@@ -299,8 +299,11 @@ struct LookupView: View {
             NSLog("keep: no lookup row to attach to; keep dropped for %@", sense.traditional)
             return
         }
-        logStore.setChosenSense(lookupId: lastLookupId, sense: sense)
-        keptSenseId = sense.id
+        // Only flip to "Added" if the log write persisted — a swallowed failure
+        // must not leave a green tick over a card that never reached the deck.
+        if logStore.setChosenSense(lookupId: lastLookupId, sense: sense) {
+            keptSenseId = sense.id
+        }
     }
 
     private func keepCustom(_ jyutping: String) {
@@ -308,7 +311,8 @@ struct LookupView: View {
             NSLog("keepCustom: no lookup row to attach to; keep dropped")
             return
         }
-        logStore.setChosenCustom(lookupId: lastLookupId, traditional: pick.characters, jyutping: jyutping)
-        customPickKept = true
+        if logStore.setChosenCustom(lookupId: lastLookupId, traditional: pick.characters, jyutping: jyutping) {
+            customPickKept = true
+        }
     }
 }
