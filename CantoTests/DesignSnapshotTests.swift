@@ -129,6 +129,12 @@ final class DesignSnapshotTests: XCTestCase {
         }
     }
 
+    func test_towerLockedRenders() {
+        snapshot("tower-locked") {
+            TowerLockedView(deckSize: 6)
+        }
+    }
+
     func test_towerMapRenders() {
         snapshot("tower-map") {
             VStack(spacing: 28) {

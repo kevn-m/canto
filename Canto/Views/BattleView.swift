@@ -80,7 +80,7 @@ struct TowerEntryView: View {
     var body: some View {
         Group {
             if deckSize < Balance.deckUnlockSize {
-                lockedView(deckSize: deckSize)
+                TowerLockedView(deckSize: deckSize)
             } else {
                 TowerView()
             }
@@ -114,25 +114,84 @@ struct TowerEntryView: View {
         }
     }
 
-    private func lockedView(deckSize: Int) -> some View {
-        VStack(spacing: 20) {
+}
+
+// The tower before it's earned: the dungeon backdrop sealed behind a gold
+// padlock, with one pip per word still to collect so a kid who can't read
+// the count can still see the gap close.
+struct TowerLockedView: View {
+    let deckSize: Int
+    @ObservedObject private var gameStore = GameStore.shared
+
+    var body: some View {
+        VStack(spacing: 24) {
             // A broken game.sqlite reads as deckSize 0, which looks exactly
             // like "not enough words yet" - the error must show here too
             // (ADR 0009), not just inside the fight screen.
             if let lastError = gameStore.lastError {
                 ErrorBanner(message: lastError) { gameStore.clearError() }
             }
-            Image(systemName: "lock.fill")
-                .font(.system(size: 64))
-                .foregroundStyle(.secondary)
-            Text("\(deckSize) / \(Balance.deckUnlockSize) words collected")
-                .font(.title2.bold())
-            ProgressView(value: Double(deckSize), total: Double(Balance.deckUnlockSize))
-                .padding(.horizontal, 40)
-            Text("Look things up to unlock the tower")
-                .foregroundStyle(.secondary)
+            Spacer()
+            lockBadge
+            VStack(spacing: 16) {
+                Text("\(deckSize) / \(Balance.deckUnlockSize) words collected")
+                    .font(GameTheme.title(24))
+                    .foregroundStyle(GameTheme.cream)
+                WordPips(collected: deckSize, total: Balance.deckUnlockSize)
+                    .padding(.horizontal, 32)
+            }
+            Text("Add words to start your climb")
+                .font(GameTheme.title(16))
+                .foregroundStyle(GameTheme.cream.opacity(0.6))
+                .multilineTextAlignment(.center)
+            Spacer()
+            Spacer()
         }
         .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(DungeonBackground())
+        .environment(\.colorScheme, .dark)
+    }
+
+    // A gold padlock in a deepNavy node, matching the tower-map floors so the
+    // locked screen reads as the same place, just sealed.
+    private var lockBadge: some View {
+        ZStack {
+            Circle()
+                .fill(GameTheme.deepNavy.opacity(0.85))
+                .frame(width: 128, height: 128)
+                .overlay(Circle().strokeBorder(GameTheme.gold.opacity(0.5), lineWidth: 3))
+            Image(systemName: "lock.fill")
+                .font(.system(size: 58, weight: .bold))
+                .foregroundStyle(
+                    LinearGradient(colors: [GameTheme.yellow, GameTheme.gold], startPoint: .top, endPoint: .bottom)
+                )
+                .shadow(color: GameTheme.gold.opacity(0.55), radius: 12)
+        }
+        .phaseAnimator([1.0, 1.04]) { view, scale in
+            view.scaleEffect(scale)
+        } animation: { _ in .easeInOut(duration: 1.2) }
+    }
+}
+
+// One pip per word to unlock, gold once collected, dark while still to earn.
+private struct WordPips: View {
+    let collected: Int
+    let total: Int
+
+    var body: some View {
+        HStack(spacing: 4) {
+            ForEach(0..<total, id: \.self) { index in
+                Capsule()
+                    .fill(
+                        index < collected
+                            ? AnyShapeStyle(LinearGradient(colors: [GameTheme.yellow, GameTheme.gold], startPoint: .top, endPoint: .bottom))
+                            : AnyShapeStyle(GameTheme.deepNavy)
+                    )
+                    .overlay(Capsule().strokeBorder(.black.opacity(0.4), lineWidth: 1.5))
+                    .frame(height: 16)
+            }
+        }
     }
 }
 
