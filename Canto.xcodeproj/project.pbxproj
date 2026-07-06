@@ -25,6 +25,7 @@
 		45000AA1934297AF2C1F4183 /* boss-mummy.png in Resources */ = {isa = PBXBuildFile; fileRef = C7F09F6F8C225A2ABFDA0E91 /* boss-mummy.png */; };
 		477FA6427F07EE574857A96B /* coin.wav in Resources */ = {isa = PBXBuildFile; fileRef = FD12088FEC7578CD852C2920 /* coin.wav */; };
 		4A40B5CAFD04906EBDA1CFB3 /* GameStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2FC8597638058702A4FE8A4 /* GameStore.swift */; };
+		4E49EC8B1A024A58667EE5F3 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94D75235BBD4F201D107A1E0 /* SettingsView.swift */; };
 		514C7256AC0C16242D4AAC7B /* RunStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B26A87A1161C06B2181C8DB6 /* RunStateTests.swift */; };
 		51B13498CA1FDB56F73AD239 /* LogStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAD660C94DB4289000A31974 /* LogStore.swift */; };
 		55C5C60C940D0319BA59E8A5 /* PickEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F962A05648D1A08B738B60E2 /* PickEditorView.swift */; };
@@ -83,7 +84,6 @@
 		F13948823D9FA9A5E7B8C208 /* enemy-down.wav in Resources */ = {isa = PBXBuildFile; fileRef = 52337821A706E5F665088492 /* enemy-down.wav */; };
 		F40066913EC7094BF0C85804 /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A323CEF32315B19EE9127894 /* TestHelpers.swift */; };
 		F8C74C2891AE560C315E5306 /* enemy-scorpion.png in Resources */ = {isa = PBXBuildFile; fileRef = 45C6959FCBFF790850B376E0 /* enemy-scorpion.png */; };
-		F90DB64C2DA050BAFDE18C7D /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93E1C1C90BF81BF9E887C151 /* AboutView.swift */; };
 		FE71B76FEA8D4CADEEDC481B /* SpeechListenerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442141962FAB4547CBBEF28E /* SpeechListenerTests.swift */; };
 		FF157B9A655C161AC89EC301 /* TowerEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3811C71550E71654EDEFE0A4 /* TowerEngineTests.swift */; };
 /* End PBXBuildFile section */
@@ -143,7 +143,7 @@
 		885E49C7534FAF85E093A3DA /* Sense.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sense.swift; sourceTree = "<group>"; };
 		8A39EC43BA9D065DCF065479 /* enemy-mushroom.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "enemy-mushroom.png"; sourceTree = "<group>"; };
 		9216ABBD12327BE31E769C42 /* CantoneseSpeaker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CantoneseSpeaker.swift; sourceTree = "<group>"; };
-		93E1C1C90BF81BF9E887C151 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
+		94D75235BBD4F201D107A1E0 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		9625DDB976493CFEAD0302CF /* monkey.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = monkey.png; sourceTree = "<group>"; };
 		9861B4059E180B4249D8317D /* SpriteArt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpriteArt.swift; sourceTree = "<group>"; };
 		9C1565AAC2EFA52F816417D3 /* LookupResultRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LookupResultRowView.swift; sourceTree = "<group>"; };
@@ -215,7 +215,6 @@
 		2A206BE175F12AE7E56E98A7 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				93E1C1C90BF81BF9E887C151 /* AboutView.swift */,
 				51BC4C3491C15749FE543B01 /* BattleView.swift */,
 				84CA9D806C07C1BF39769FE6 /* CameraPicker.swift */,
 				41C28FAE8CA06799AE9CA520 /* CardPlayView.swift */,
@@ -228,6 +227,7 @@
 				425FD8290D6696295F4EA5ED /* PickSectionView.swift */,
 				369F96880B88C1FE987EC1BA /* RunSummaryView.swift */,
 				D4DE484F3782F6AEA31A4C4A /* SenseRowView.swift */,
+				94D75235BBD4F201D107A1E0 /* SettingsView.swift */,
 				A5FC51319DA16D1047828BBA /* ShopView.swift */,
 				9861B4059E180B4249D8317D /* SpriteArt.swift */,
 				4D29854843ABF4A0961AE43A /* TowerView.swift */,
@@ -506,7 +506,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F90DB64C2DA050BAFDE18C7D /* AboutView.swift in Sources */,
 				36C3E1A43553EC08B18FC5DD /* Balance.swift in Sources */,
 				76FC3009093342A985C06CDF /* BattleView.swift in Sources */,
 				E21AEB5C4916F98A92F94020 /* CameraPicker.swift in Sources */,
@@ -534,6 +533,7 @@
 				AD4382B3C3AFF3DB21F7C4CE /* SFXPlayer.swift in Sources */,
 				00FE3F2B90773BF66A0B0EB4 /* Sense.swift in Sources */,
 				86D9F666337B1F6A6D08BC4E /* SenseRowView.swift in Sources */,
+				4E49EC8B1A024A58667EE5F3 /* SettingsView.swift in Sources */,
 				71FC4D3FB87B23D06BEE0062 /* ShopView.swift in Sources */,
 				1B610B54A9140FC493F10EB0 /* SpeechListener.swift in Sources */,
 				DD3C1AEB815D9161C0DC2302 /* SpriteArt.swift in Sources */,

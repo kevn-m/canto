@@ -48,12 +48,13 @@ struct LookupView: View {
             .background(InnBackground())
             .navigationTitle("Canto")
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItemGroup(placement: .bottomBar) {
                     NavigationLink {
                         TowerEntryView()
                     } label: {
                         Image(systemName: "shield.lefthalf.filled")
                     }
+                    .accessibilityLabel("Tower")
                     // Battle audio claims .playback; a still-running mic tap
                     // (.record) would be yanked out from under the engine.
                     .simultaneousGesture(TapGesture().onEnded {
@@ -61,16 +62,17 @@ struct LookupView: View {
                             speechListener.cancel()
                         }
                     })
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                    Spacer()
                     NavigationLink("History") {
                         HistoryView()
                     }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    NavigationLink("About") {
-                        AboutView()
+                    Spacer()
+                    NavigationLink {
+                        SettingsView()
+                    } label: {
+                        Image(systemName: "gearshape.fill")
                     }
+                    .accessibilityLabel("Settings")
                 }
             }
             .alert("Cantonese voice not installed", isPresented: $showVoiceUnavailableAlert) {

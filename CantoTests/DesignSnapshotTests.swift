@@ -230,6 +230,14 @@ final class DesignSnapshotTests: XCTestCase {
         }
     }
 
+    func test_settingsScreenRenders() {
+        // No NavigationStack: ImageRenderer draws UIKit-backed containers
+        // as a "no entry" placeholder. The bare view is what's under design.
+        snapshot("settings") {
+            SettingsView()
+        }
+    }
+
     func test_runSummaryRenders() {
         var state = TowerEngine.makeFreshRun()
         state.damageDealt = 9

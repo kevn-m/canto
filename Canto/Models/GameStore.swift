@@ -353,6 +353,36 @@ final class GameStore: ObservableObject {
         }
     }
 
+    // Full fresh start: wipes the kid's progress across both databases and
+    // all card photos. Keeps shop_items (dad-configured). Unlike deleteCard
+    // this does NOT guard on an unfinished run — a reset intentionally
+    // clears runs too.
+    //
+    // Clears log.sqlite BEFORE touching game.sqlite: if the app dies
+    // mid-reset, an untouched checkpoint means the next syncDeck just
+    // re-tries the same history it already saw, rather than resurrecting a
+    // "wiped" deck from history that never got cleared.
+    func resetEverything(clearing log: LogStore) {
+        guard log.clearHistory() else {
+            reportError("Couldn't reset — try again.")
+            return
+        }
+        let filenames: [String] = writeValue(default: []) { db in
+            let names = try String.fetchAll(
+                db, sql: "SELECT photo_filename FROM cards WHERE photo_filename IS NOT NULL")
+            for table in ["reviews", "card_states", "cards", "bux_ledger", "runs"] {
+                try db.execute(sql: "DELETE FROM \(table)")
+            }
+            try db.execute(
+                sql: "INSERT OR REPLACE INTO meta (key, value) VALUES (?, '0')",
+                arguments: ["last_imported_lookup_id"])
+            return names
+        }
+        for name in filenames where !photos.delete(filename: name) {
+            NSLog("resetEverything: photo delete failed for %@", name)
+        }
+    }
+
     // MARK: - Review
 
     func dueCards(on date: String, excluding: Set<Int64>) -> [CardRecord] {

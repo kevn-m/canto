@@ -125,6 +125,24 @@ final class LogStoreTests: XCTestCase {
         XCTAssertFalse(store.setChosenCustom(lookupId: 1, traditional: "冇譜", jyutping: "mou5 pou2"))
     }
 
+    func test_clearHistory_deletesAllLookupsAndReturnsTrue() {
+        let store = LogStore(directory: tempDir)
+        store.record(heard: "eat", matched: true, viaVoice: false)
+        store.record(heard: "dog", matched: true, viaVoice: false)
+
+        XCTAssertTrue(store.clearHistory())
+
+        XCTAssertTrue(store.recentLookups().isEmpty)
+    }
+
+    func test_clearHistoryOnUnwritablePath_returnsFalseWithoutCrashing() throws {
+        try "not a directory".write(to: tempDir, atomically: true, encoding: .utf8)
+
+        let store = LogStore(directory: tempDir)
+
+        XCTAssertFalse(store.clearHistory())
+    }
+
     func test_recordOnUnwritablePath_returnsNilWithoutCrashing() throws {
         // Point "directory" at a path that is actually a plain file, so
         // FileManager can't create a directory there and LogStore's open
