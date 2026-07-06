@@ -132,6 +132,12 @@ and re-run the tests.
   remaps every id — that's why log rows denormalise the chosen sense's characters
   and jyutping instead of trusting the id.
 
+Only the kid plays (ADR 0015) — `card_states.player` and its CHECK stay in the
+schema but every read and write is `'kid'`; it's vestigial, not a live feature.
+`GameStore.abandonRun` lets a Run be quit partway from `BattleView`; it deletes
+the unfinished `runs` row and pays no CantoBux (ADR 0016), unlike a defeat,
+which still pays.
+
 ## The one network call: the Pick
 
 Every lookup also asks Cloud Translation v2 (`OnlineTranslator`) for the word's

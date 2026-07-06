@@ -24,8 +24,8 @@ final class TowerEngineTests: XCTestCase {
                 RunState.Floor(kind: .fight, enemyName: "bat", maxHP: Balance.fightHP),
                 RunState.Floor(kind: .boss, enemyName: "dragon", maxHP: Balance.bossHP),
             ],
-            floorIndex: floorIndex, enemyHP: 0, partyHP: Balance.partyHP, turn: .kid,
-            dealt: [:], kidDamageDealt: 0, extensionsTaken: extensionsTaken
+            floorIndex: floorIndex, enemyHP: 0, partyHP: Balance.partyHP,
+            dealt: [], damageDealt: 0, extensionsTaken: extensionsTaken
         )
     }
 
@@ -156,7 +156,7 @@ final class TowerEngineTests: XCTestCase {
 
     // MARK: - reconcileDealt
 
-    func test_reconcileDealt_mergesTodaysReviewsPerPlayerWithoutDuplicating() throws {
+    func test_reconcileDealt_mergesTodaysReviewsWithoutDuplicating() throws {
         let log = LogStore(directory: tempDir)
         makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
         makeChosenLookup(log, heard: "dog", traditional: "狗", jyutping: "gau2")
@@ -173,16 +173,17 @@ final class TowerEngineTests: XCTestCase {
             )
             try db.execute(
                 sql: "INSERT INTO reviews (card_id, player, result, reviewed_at) VALUES (?, ?, ?, ?)",
-                arguments: [dogId, "dad", "hit", "2026-07-04T11:00:00Z"]
+                arguments: [dogId, "kid", "hit", "2026-07-04T11:00:00Z"]
             )
         }
 
         var state = makeState()
-        state.dealt = ["kid": [eatId]]
+        state.dealt = [eatId]
 
         TowerEngine.reconcileDealt(in: &state, store: store, today: "2026-07-04")
 
-        XCTAssertEqual(state.dealt["kid"], [eatId], "already-tracked deal must not duplicate")
-        XCTAssertEqual(state.dealt["dad"], [dogId])
+        XCTAssertEqual(state.dealt.filter { $0 == eatId }.count, 1, "already-tracked deal must not duplicate")
+        // dog was reviewed today but not yet in dealt -> merged in
+        XCTAssertEqual(Set(state.dealt), [eatId, dogId])
     }
 }

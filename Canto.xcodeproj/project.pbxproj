@@ -47,7 +47,6 @@
 		8AC25C30466185AE218E9461 /* DesignSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A2E621F6984812321AC982 /* DesignSnapshotTests.swift */; };
 		8BC37475838F379DF077CB66 /* GameTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DF2A789AB8FC3B4584711B3 /* GameTheme.swift */; };
 		8C30DD6B37C02C496B67FDAF /* boss-dragon.png in Resources */ = {isa = PBXBuildFile; fileRef = 58376CB1AD0C9A07DCF16311 /* boss-dragon.png */; };
-		8EB65DAEF5374CEAFAED8C64 /* player-dad.png in Resources */ = {isa = PBXBuildFile; fileRef = 06EF141827598A71E0C2C13C /* player-dad.png */; };
 		8FC3C8EDBD658BCD2A3DE42A /* TowerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D29854843ABF4A0961AE43A /* TowerView.swift */; };
 		911210908328261E1A3BCCBE /* ReviewEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF3958C9D906F1C7AEAEEC7C /* ReviewEngine.swift */; };
 		91414A0C49339A4A64153498 /* enemy-mushroom.png in Resources */ = {isa = PBXBuildFile; fileRef = 8A39EC43BA9D065DCF065479 /* enemy-mushroom.png */; };
@@ -55,7 +54,6 @@
 		9610802F9DE95FF7EC1F25AE /* DictionaryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9E623D52C1824CDAA4B63E0 /* DictionaryStoreTests.swift */; };
 		9F1A3CA7E411B126D82D2C7B /* coffee.png in Resources */ = {isa = PBXBuildFile; fileRef = 51CEFB08E3290E205796D26D /* coffee.png */; };
 		AD4382B3C3AFF3DB21F7C4CE /* SFXPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAE2A4A33E73BD06260D362E /* SFXPlayer.swift */; };
-		AE048E9C43956155EF80F39C /* player-kid.png in Resources */ = {isa = PBXBuildFile; fileRef = 961B940FEF0F63FCA3BA7F3A /* player-kid.png */; };
 		AFC32945D7F99821774BC0E8 /* CantoneseSpeakerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61C02CB19B0DA0520FFD65C /* CantoneseSpeakerTests.swift */; };
 		B31CEA86B2ACF82034D72DB6 /* CardRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9A465CFEE5318D7BCD0575 /* CardRecord.swift */; };
 		B4EA2D7502F37E4721F967AD /* RunState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 590DA1321B3F97AA899D3323 /* RunState.swift */; };
@@ -103,7 +101,6 @@
 /* Begin PBXFileReference section */
 		0133527D358D67007F897E88 /* Balance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Balance.swift; sourceTree = "<group>"; };
 		03E1F548931AAFC5A1723B69 /* victory.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = victory.wav; sourceTree = "<group>"; };
-		06EF141827598A71E0C2C13C /* player-dad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "player-dad.png"; sourceTree = "<group>"; };
 		0CAEF2C97B7141479B3CFA6B /* SpriteArtTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpriteArtTests.swift; sourceTree = "<group>"; };
 		13D43970D60AD1596E99B349 /* GameStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameStoreTests.swift; sourceTree = "<group>"; };
 		15A2E621F6984812321AC982 /* DesignSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSnapshotTests.swift; sourceTree = "<group>"; };
@@ -147,7 +144,6 @@
 		8A39EC43BA9D065DCF065479 /* enemy-mushroom.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "enemy-mushroom.png"; sourceTree = "<group>"; };
 		9216ABBD12327BE31E769C42 /* CantoneseSpeaker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CantoneseSpeaker.swift; sourceTree = "<group>"; };
 		93E1C1C90BF81BF9E887C151 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
-		961B940FEF0F63FCA3BA7F3A /* player-kid.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "player-kid.png"; sourceTree = "<group>"; };
 		9625DDB976493CFEAD0302CF /* monkey.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = monkey.png; sourceTree = "<group>"; };
 		9861B4059E180B4249D8317D /* SpriteArt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpriteArt.swift; sourceTree = "<group>"; };
 		9C1565AAC2EFA52F816417D3 /* LookupResultRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LookupResultRowView.swift; sourceTree = "<group>"; };
@@ -346,8 +342,6 @@
 				3668B28738E37763B837365E /* giraffe.png */,
 				707F03FE5CBB27A637AA2026 /* lion.png */,
 				9625DDB976493CFEAD0302CF /* monkey.png */,
-				06EF141827598A71E0C2C13C /* player-dad.png */,
-				961B940FEF0F63FCA3BA7F3A /* player-kid.png */,
 				E19843F99D94C4D33D9C8F2A /* tiger.png */,
 			);
 			path = Sprites;
@@ -476,8 +470,6 @@
 				C9AB0B3024B4FE77452DF418 /* hit.wav in Resources */,
 				7D63F8E206CF5F7D014756A0 /* lion.png in Resources */,
 				342843B1CE4FD89E8D312C1B /* monkey.png in Resources */,
-				8EB65DAEF5374CEAFAED8C64 /* player-dad.png in Resources */,
-				AE048E9C43956155EF80F39C /* player-kid.png in Resources */,
 				2908063D859707358CCD4881 /* secrets.json.example in Resources */,
 				16B0A0429B58050DEE7A011C /* tiger.png in Resources */,
 				85263D0CD20CECE0AB12750F /* victory.wav in Resources */,

@@ -1,6 +1,5 @@
-// A card as ReviewEngine sees it. GameStore (Slice 1) extends this with
-// per-player box state read from card_states; this shape is what the pure
-// review logic needs today.
+// A card as ReviewEngine sees it. GameStore extends this with box state read
+// from card_states; this shape is what the pure review logic needs today.
 struct CardRecord: Identifiable, Hashable {
     let id: Int64
     let traditional: String

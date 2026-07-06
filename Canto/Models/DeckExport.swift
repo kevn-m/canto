@@ -9,8 +9,7 @@ enum DeckExport {
         let traditional: String
         let jyutping: String
         let benched: Bool
-        let dadBox: Int
-        let kidBox: Int
+        let box: Int
     }
 
     struct Payload: Codable {
@@ -26,7 +25,7 @@ enum DeckExport {
             cards: entries.map { entry in
                 Card(
                     english: entry.english, traditional: entry.traditional, jyutping: entry.jyutping,
-                    benched: entry.benched, dadBox: entry.dadBox, kidBox: entry.kidBox
+                    benched: entry.benched, box: entry.box
                 )
             }
         )

@@ -70,9 +70,8 @@ enum TowerEngine {
             floorIndex: 0,
             enemyHP: floors[0].maxHP,
             partyHP: Balance.partyHP,
-            turn: .kid,
-            dealt: [:],
-            kidDamageDealt: 0,
+            dealt: [],
+            damageDealt: 0,
             extensionsTaken: 0
         )
     }
@@ -97,12 +96,10 @@ enum TowerEngine {
     // the updated `dealt` - merge in what actually got reviewed today so a
     // resumed Run can't re-deal (and re-review) the same card.
     static func reconcileDealt(in state: inout RunState, store: GameStore, today: String) {
-        for player in Player.allCases {
-            let reviewedToday = store.reviewedCardIds(for: player, on: today)
-            let missing = reviewedToday.subtracting(Set(state.dealt[player.rawValue] ?? []))
-            guard !missing.isEmpty else { continue }
-            state.dealt[player.rawValue, default: []].append(contentsOf: missing)
-        }
+        let reviewedToday = store.reviewedCardIds(on: today)
+        let missing = reviewedToday.subtracting(Set(state.dealt))
+        guard !missing.isEmpty else { return }
+        state.dealt.append(contentsOf: missing)
     }
 }
 
@@ -221,7 +218,12 @@ struct TowerView: View {
             case .notStarted:
                 startView
             case .fighting:
-                BattleView(runState: $runState, onVictory: { handleOutcome(.victory) }, onDefeat: { handleOutcome(.defeat) })
+                BattleView(
+                    runState: $runState,
+                    onVictory: { handleOutcome(.victory) },
+                    onDefeat: { handleOutcome(.defeat) },
+                    onAbandon: { abandonRun() }
+                )
                     // Load-bearing: phase stays .fighting across floors, so
                     // without a per-floor identity BattleView would keep its
                     // stale hand instead of re-running onAppear's deal.
@@ -337,6 +339,16 @@ struct TowerView: View {
         phase = .fighting
     }
 
+    private func abandonRun() {
+        guard let runId else { return }
+        // Only drop to Start if the delete persisted; otherwise the unfinished
+        // row survives and would resume, so keep the fight on screen with the
+        // error banner rather than lie that the climb ended (ADR 0009).
+        guard gameStore.abandonRun(id: runId) else { return }
+        self.runId = nil
+        phase = .notStarted
+    }
+
     private func handleOutcome(_ outcome: BattleEngine.Outcome) {
         guard let runId else { return }
         switch TowerEngine.advance(after: outcome, state: &runState, dueCardsExist: dueCardsExist(for: runState)) {
@@ -376,10 +388,7 @@ struct TowerView: View {
     // floor is "due" all day but can't be re-dealt, so it must not open
     // the door on its own.
     private func dueCardsExist(for state: RunState) -> Bool {
-        Player.allCases.contains { player in
-            let dealt = Set(state.dealt[player.rawValue] ?? [])
-            return !gameStore.dueCards(for: player, on: today, excluding: dealt).isEmpty
-        }
+        !gameStore.dueCards(on: today, excluding: Set(state.dealt)).isEmpty
     }
 
     // MARK: - Views

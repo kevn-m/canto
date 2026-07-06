@@ -6,10 +6,9 @@ struct RunState: Codable, Equatable {
     var floors: [Floor]
     var floorIndex: Int
     var enemyHP: Int
-    var partyHP: Int                     // shared; Run fails at 0
-    var turn: Player                     // alternates every card played
-    var dealt: [String: [Int64]]         // Player.rawValue -> card ids already dealt this Run
-    var kidDamageDealt: Int              // display only
+    var partyHP: Int                     // the hero's HP; Run fails at 0
+    var dealt: [Int64]                   // card ids already dealt this Run
+    var damageDealt: Int                 // display only
     var extensionsTaken: Int
 
     // A snapshot that would trap floors[floorIndex] must never host a fight;

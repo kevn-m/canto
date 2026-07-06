@@ -11,7 +11,6 @@ final class SpriteArtTests: XCTestCase {
             "enemy-slime", "enemy-bat", "boss-dragon",
             "enemy-mushroom", "enemy-snail", "boss-wolf",
             "enemy-cactus", "enemy-scorpion", "boss-mummy",
-            "player-kid", "player-dad",
         ]
         for name in names {
             XCTAssertNotNil(SpriteArt.image(named: name), "\(name).png missing from the app bundle")
@@ -26,11 +25,6 @@ final class SpriteArtTests: XCTestCase {
     // The dictionary's word is "eat"; the sprite drawn for it is "eating".
     func test_cardImage_resolvesTheEatAlias() {
         XCTAssertNotNil(SpriteArt.cardImage(forEnglish: "eat"))
-    }
-
-    func test_playerImage_mapsBothPlayers() {
-        XCTAssertNotNil(SpriteArt.playerImage(for: .kid))
-        XCTAssertNotNil(SpriteArt.playerImage(for: .dad))
     }
 
     // Every enemy any biome can put on a floor must resolve to a sprite -

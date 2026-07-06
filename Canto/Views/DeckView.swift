@@ -2,10 +2,10 @@ import SwiftUI
 import PhotosUI
 import UIKit
 
-// The whole deck: photo, english, characters, each player's box, bench
-// toggle, and photo attach. Also hosts Deck Export (ADR 0010) - a share
-// button sending deck JSON off-device for the card-art-pipeline plan, and as
-// a manual backup.
+// The whole deck: photo, english, characters, its box, bench toggle, and
+// photo attach. Also hosts Deck Export (ADR 0010) - a share button sending
+// deck JSON off-device for the card-art-pipeline plan, and as a manual
+// backup.
 struct DeckView: View {
     @ObservedObject private var gameStore = GameStore.shared
     @State private var entries: [DeckEntry] = []
@@ -117,10 +117,7 @@ struct DeckView: View {
                     .foregroundStyle(GameTheme.cream.opacity(0.6))
             }
             Spacer()
-            VStack(spacing: 4) {
-                boxDot(entry.dadBox, label: "D")
-                boxDot(entry.kidBox, label: "K")
-            }
+            boxDot(entry.box)
             if entry.benched {
                 Text("Benched")
                     .font(.system(size: 11, weight: .semibold, design: .rounded))
@@ -153,15 +150,10 @@ struct DeckView: View {
         .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(GameTheme.gold, lineWidth: 2))
     }
 
-    private func boxDot(_ box: Int, label: String) -> some View {
-        HStack(spacing: 4) {
-            Circle()
-                .fill(Self.boxColors[min(max(box, 0), 3)])
-                .frame(width: 10, height: 10)
-            Text(label)
-                .font(.system(size: 11, weight: .semibold, design: .rounded))
-                .foregroundStyle(GameTheme.cream.opacity(0.6))
-        }
+    private func boxDot(_ box: Int) -> some View {
+        Circle()
+            .fill(Self.boxColors[min(max(box, 0), 3)])
+            .frame(width: 10, height: 10)
     }
 
     private func reload() {

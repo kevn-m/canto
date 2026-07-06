@@ -59,7 +59,7 @@ final class DesignSnapshotTests: XCTestCase {
         snapshot("battle") {
             BattleView(
                 runState: .constant(state),
-                onVictory: {}, onDefeat: {},
+                onVictory: {}, onDefeat: {}, onAbandon: {},
                 previewHand: sampleCards
             )
         }
@@ -72,7 +72,7 @@ final class DesignSnapshotTests: XCTestCase {
         snapshot("battle-boss") {
             BattleView(
                 runState: .constant(state),
-                onVictory: {}, onDefeat: {},
+                onVictory: {}, onDefeat: {}, onAbandon: {},
                 previewHand: sampleCards
             )
         }
@@ -110,7 +110,7 @@ final class DesignSnapshotTests: XCTestCase {
         snapshot("battle-forest") {
             BattleView(
                 runState: .constant(state),
-                onVictory: {}, onDefeat: {},
+                onVictory: {}, onDefeat: {}, onAbandon: {},
                 previewHand: sampleCards
             )
         }
@@ -123,7 +123,7 @@ final class DesignSnapshotTests: XCTestCase {
         snapshot("battle-desert") {
             BattleView(
                 runState: .constant(state),
-                onVictory: {}, onDefeat: {},
+                onVictory: {}, onDefeat: {}, onAbandon: {},
                 previewHand: sampleCards
             )
         }
@@ -232,7 +232,7 @@ final class DesignSnapshotTests: XCTestCase {
 
     func test_runSummaryRenders() {
         var state = TowerEngine.makeFreshRun()
-        state.kidDamageDealt = 9
+        state.damageDealt = 9
         // No NavigationStack: ImageRenderer draws UIKit-backed containers
         // as a "no entry" placeholder. The bare view is what's under design.
         snapshot("summary-victory") {

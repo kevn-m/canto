@@ -4,11 +4,11 @@ import XCTest
 final class DeckExportTests: XCTestCase {
     private func makeEntry(
         traditional: String = "食", jyutping: String = "sik6", english: String = "eat",
-        benched: Bool = false, dadBox: Int = 2, kidBox: Int = 1
+        benched: Bool = false, box: Int = 1
     ) -> DeckEntry {
         DeckEntry(
             id: 1, traditional: traditional, jyutping: jyutping, english: english, photoFilename: nil,
-            benched: benched, dadBox: dadBox, dadDueOn: "2026-07-05", kidBox: kidBox, kidDueOn: "2026-07-04"
+            benched: benched, box: box, dueOn: "2026-07-04"
         )
     }
 
@@ -25,8 +25,7 @@ final class DeckExportTests: XCTestCase {
         XCTAssertEqual(card.traditional, "食")
         XCTAssertEqual(card.jyutping, "sik6")
         XCTAssertFalse(card.benched)
-        XCTAssertEqual(card.dadBox, 2)
-        XCTAssertEqual(card.kidBox, 1)
+        XCTAssertEqual(card.box, 1)
     }
 
     func test_json_emptyDeckStillEncodesBalanceAndDate() throws {

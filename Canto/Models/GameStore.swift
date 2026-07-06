@@ -1,11 +1,7 @@
 import Foundation
 import GRDB
 
-enum Player: String, Codable, CaseIterable { case dad, kid }
-
-// A card plus both players' box/due state, for DeckView. CardRecord stays
-// the single-player shape ReviewEngine consumes; this is GameStore's own
-// read model, not a bent version of it.
+// A card plus its box/due state, for DeckView.
 struct DeckEntry: Identifiable, Hashable {
     let id: Int64
     let traditional: String
@@ -13,10 +9,8 @@ struct DeckEntry: Identifiable, Hashable {
     let english: String
     let photoFilename: String?
     let benched: Bool
-    let dadBox: Int
-    let dadDueOn: String
-    let kidBox: Int
-    let kidDueOn: String
+    let box: Int
+    let dueOn: String
 }
 
 struct ShopItem: Identifiable, Hashable {
@@ -84,6 +78,8 @@ final class GameStore: ObservableObject {
               UNIQUE(traditional, jyutping)
             )
             """)
+        // 'dad' stays legal in the CHECK to avoid a PK rebuild on the live
+        // wallet DB; app code only ever writes 'kid' now (see the migration below).
         try db.execute(sql: """
             CREATE TABLE IF NOT EXISTS card_states (
               card_id INTEGER NOT NULL REFERENCES cards(id),
@@ -149,9 +145,18 @@ final class GameStore: ObservableObject {
                 DROP TABLE runs_v1
                 """)
         }
+        // Single-player: the dad/kid hot seat is gone. Keep the player column
+        // (rebuilding the PK on the live wallet DB isn't worth it), collapse to
+        // the kid's rows, and reset every box - Kevin chose a fresh start over
+        // carrying old progress forward. Fires for v1 and v2 both: a device
+        // that skipped the v2 release jumps 1 -> 3 and must still reset.
+        if version == 1 || version == 2 {
+            try db.execute(sql: "DELETE FROM card_states WHERE player = 'dad'")
+            try db.execute(sql: "UPDATE card_states SET box = 0, due_on = '1970-01-01'")
+        }
         // Schema version stamp so a future release can migrate a
         // populated device db instead of no-op'ing on IF NOT EXISTS.
-        try db.execute(sql: "PRAGMA user_version = 2")
+        try db.execute(sql: "PRAGMA user_version = 3")
     }
 
     func clearError() {
@@ -269,12 +274,10 @@ final class GameStore: ObservableObject {
                 )
                 guard db.changesCount > 0 else { continue }
                 let cardId = db.lastInsertedRowID
-                for player in Player.allCases {
-                    try db.execute(
-                        sql: "INSERT INTO card_states (card_id, player) VALUES (?, ?)",
-                        arguments: [cardId, player.rawValue]
-                    )
-                }
+                try db.execute(
+                    sql: "INSERT INTO card_states (card_id, player) VALUES (?, 'kid')",
+                    arguments: [cardId]
+                )
             }
             let maxId = lookups.map(\.id).max() ?? lastId
             try db.execute(
@@ -288,24 +291,19 @@ final class GameStore: ObservableObject {
         readValue(default: []) { db in
             let rows = try Row.fetchAll(db, sql: """
                 SELECT c.id, c.traditional, c.jyutping, c.english, c.photo_filename, c.benched,
-                       dad.box AS dad_box, dad.due_on AS dad_due_on,
-                       kid.box AS kid_box, kid.due_on AS kid_due_on
+                       cs.box, cs.due_on
                 FROM cards c
-                JOIN card_states dad ON dad.card_id = c.id AND dad.player = 'dad'
-                JOIN card_states kid ON kid.card_id = c.id AND kid.player = 'kid'
+                JOIN card_states cs ON cs.card_id = c.id AND cs.player = 'kid'
                 ORDER BY c.id
                 """)
             return rows.compactMap { row -> DeckEntry? in
                 let id: Int64 = row["id"]
-                let dadBox: Int = row["dad_box"]
-                let kidBox: Int = row["kid_box"]
-                guard self.validBox(dadBox, cardId: id), self.validBox(kidBox, cardId: id) else {
-                    return nil
-                }
+                let box: Int = row["box"]
+                guard self.validBox(box, cardId: id) else { return nil }
                 return DeckEntry(
                     id: id, traditional: row["traditional"], jyutping: row["jyutping"],
                     english: row["english"], photoFilename: row["photo_filename"], benched: row["benched"],
-                    dadBox: dadBox, dadDueOn: row["dad_due_on"], kidBox: kidBox, kidDueOn: row["kid_due_on"]
+                    box: box, dueOn: row["due_on"]
                 )
             }
         }
@@ -357,40 +355,40 @@ final class GameStore: ObservableObject {
 
     // MARK: - Review
 
-    func dueCards(for player: Player, on date: String, excluding: Set<Int64>) -> [CardRecord] {
+    func dueCards(on date: String, excluding: Set<Int64>) -> [CardRecord] {
         readValue(default: []) { db in
             let rows = try Row.fetchAll(db, sql: """
                 SELECT c.id, c.traditional, c.jyutping, c.english, c.photo_filename, cs.box, cs.due_on
                 FROM cards c
-                JOIN card_states cs ON cs.card_id = c.id AND cs.player = ?
+                JOIN card_states cs ON cs.card_id = c.id AND cs.player = 'kid'
                 WHERE c.benched = 0 AND cs.due_on <= ?
                 ORDER BY cs.due_on ASC
-                """, arguments: [player.rawValue, date])
+                """, arguments: [date])
             return self.hydrateCardRecords(rows, excluding: excluding)
         }
     }
 
-    func nextCards(for player: Player, excluding: Set<Int64>, limit: Int) -> [CardRecord] {
+    func nextCards(excluding: Set<Int64>, limit: Int) -> [CardRecord] {
         readValue(default: []) { db in
             let rows = try Row.fetchAll(db, sql: """
                 SELECT c.id, c.traditional, c.jyutping, c.english, c.photo_filename, cs.box, cs.due_on
                 FROM cards c
-                JOIN card_states cs ON cs.card_id = c.id AND cs.player = ?
+                JOIN card_states cs ON cs.card_id = c.id AND cs.player = 'kid'
                 WHERE c.benched = 0
                 ORDER BY cs.due_on ASC
-                """, arguments: [player.rawValue])
+                """)
             return Array(self.hydrateCardRecords(rows, excluding: excluding).prefix(limit))
         }
     }
 
     // Returns false (and sets lastError) when the write failed - the battle
-    // must not advance HP or turns on a review that never persisted.
+    // must not advance HP on a review that never persisted.
     @discardableResult
-    func recordReview(cardId: Int64, player: Player, result: ReviewResult, on date: String) -> Bool {
+    func recordReview(cardId: Int64, result: ReviewResult, on date: String) -> Bool {
         writeValue(default: false) { db in
             guard let currentBox = try Int.fetchOne(
-                db, sql: "SELECT box FROM card_states WHERE card_id = ? AND player = ?",
-                arguments: [cardId, player.rawValue]
+                db, sql: "SELECT box FROM card_states WHERE card_id = ? AND player = 'kid'",
+                arguments: [cardId]
             ) else { throw GameStoreError.unknownCard(cardId) }
 
             let newBox = ReviewEngine.nextBox(from: currentBox, result: result)
@@ -398,29 +396,29 @@ final class GameStore: ObservableObject {
             let reviewedAt = ISO8601DateFormatter().string(from: Date())
 
             try db.execute(
-                sql: "INSERT INTO reviews (card_id, player, result, reviewed_at) VALUES (?, ?, ?, ?)",
-                arguments: [cardId, player.rawValue, result.rawValue, reviewedAt]
+                sql: "INSERT INTO reviews (card_id, player, result, reviewed_at) VALUES (?, 'kid', ?, ?)",
+                arguments: [cardId, result.rawValue, reviewedAt]
             )
             try db.execute(
-                sql: "UPDATE card_states SET box = ?, due_on = ? WHERE card_id = ? AND player = ?",
-                arguments: [newBox, newDueOn, cardId, player.rawValue]
+                sql: "UPDATE card_states SET box = ?, due_on = ? WHERE card_id = ? AND player = 'kid'",
+                arguments: [newBox, newDueOn, cardId]
             )
             return true
         }
     }
 
-    // Cards a player already reviewed today, regardless of what RunState.dealt
-    // says - used on Run resume to reconcile a review that committed before a
-    // kill wiped out the not-yet-saved dealt list (see TowerEngine.reconcileDealt).
+    // Cards already reviewed today, regardless of what RunState.dealt says -
+    // used on Run resume to reconcile a review that committed before a kill
+    // wiped out the not-yet-saved dealt list (see TowerEngine.reconcileDealt).
     // reviewed_at is ISO8601 UTC but `date` is a local calendar day, so the
     // day converts to a UTC instant range - a prefix match would miss every
     // early-morning review east of UTC.
-    func reviewedCardIds(for player: Player, on date: String) -> Set<Int64> {
+    func reviewedCardIds(on date: String) -> Set<Int64> {
         guard let range = Self.utcRange(ofLocalDay: date) else { return [] }
         return readValue(default: []) { db in
             let ids = try Int64.fetchAll(
-                db, sql: "SELECT DISTINCT card_id FROM reviews WHERE player = ? AND reviewed_at >= ? AND reviewed_at < ?",
-                arguments: [player.rawValue, range.start, range.end]
+                db, sql: "SELECT DISTINCT card_id FROM reviews WHERE player = 'kid' AND reviewed_at >= ? AND reviewed_at < ?",
+                arguments: [range.start, range.end]
             )
             return Set(ids)
         }
@@ -513,6 +511,20 @@ final class GameStore: ObservableObject {
                     )
                 }
             }
+            return true
+        }
+    }
+
+    // Quitting a Run partway: delete the unfinished row so no summary or
+    // payout follows. Pays nothing (contrast finishRun) - abandoning isn't
+    // finishing. The finished = 0 guard keeps a paid, finished run immutable,
+    // same as saveRun/finishRun. Returns false only if the write itself failed
+    // (db not open, or the delete threw), like finishRun - TowerView then keeps
+    // the fight on screen rather than lie that the climb ended.
+    @discardableResult
+    func abandonRun(id: Int64) -> Bool {
+        writeValue(default: false) { db in
+            try db.execute(sql: "DELETE FROM runs WHERE id = ? AND finished = 0", arguments: [id])
             return true
         }
     }

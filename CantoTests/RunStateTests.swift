@@ -4,8 +4,8 @@ import XCTest
 final class RunStateTests: XCTestCase {
     private func makeState(floors: [RunState.Floor], floorIndex: Int, partyHP: Int) -> RunState {
         RunState(
-            floors: floors, floorIndex: floorIndex, enemyHP: 0, partyHP: partyHP, turn: .kid,
-            dealt: [:], kidDamageDealt: 0, extensionsTaken: 0
+            floors: floors, floorIndex: floorIndex, enemyHP: 0, partyHP: partyHP,
+            dealt: [], damageDealt: 0, extensionsTaken: 0
         )
     }
 

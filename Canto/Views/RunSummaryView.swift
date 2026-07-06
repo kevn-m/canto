@@ -30,7 +30,7 @@ struct RunSummaryView: View {
                 .foregroundStyle(GameTheme.cream)
 
             HStack(spacing: 32) {
-                stat(icon: "bolt.fill", value: state.kidDamageDealt)
+                stat(icon: "bolt.fill", value: state.damageDealt)
                 stat(icon: "square.stack.3d.up.fill", value: floorsClimbed)
                 if state.extensionsTaken > 0 {
                     stat(icon: "door.left.hand.open", value: state.extensionsTaken)

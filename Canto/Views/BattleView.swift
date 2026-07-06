@@ -13,25 +13,23 @@ enum BattleEngine {
     // joins dealt - marking the whole shown hand would let a kid dodge the
     // hard words forever by always playing the easy one (ADR 0005).
     static func applyResult(_ result: ReviewResult, card: CardRecord, to state: inout RunState) -> Outcome? {
-        state.dealt[state.turn.rawValue, default: []].append(card.id)
+        state.dealt.append(card.id)
         switch result {
         case .hit:
             let damage = ReviewEngine.damage(forBox: card.box)
             state.enemyHP -= damage
-            if state.turn == .kid { state.kidDamageDealt += damage }
+            state.damageDealt += damage
         case .whiff:
             state.partyHP -= Balance.enemyAttack
         }
         if state.enemyHP <= 0 { return .victory }
         if state.partyHP <= 0 { return .defeat }
-        state.turn = state.turn == .kid ? .dad : .kid
         return nil
     }
 
-    static func dealHand(store: GameStore, player: Player, dealt: Set<Int64>, today: String) -> [CardRecord] {
-        let due = store.dueCards(for: player, on: today, excluding: dealt)
+    static func dealHand(store: GameStore, dealt: Set<Int64>, today: String) -> [CardRecord] {
+        let due = store.dueCards(on: today, excluding: dealt)
         let fill = store.nextCards(
-            for: player,
             excluding: dealt.union(due.map(\.id)),
             limit: max(0, 3 - due.count)
         )
@@ -39,7 +37,7 @@ enum BattleEngine {
         guard hand.isEmpty else { return hand }
 
         return Array(
-            store.nextCards(for: player, excluding: [], limit: Int.max)
+            store.nextCards(excluding: [], limit: Int.max)
                 .sorted { $0.box < $1.box }
                 .prefix(3)
         )
@@ -145,14 +143,19 @@ struct BattleView: View {
     @Binding var runState: RunState
     var onVictory: () -> Void
     var onDefeat: () -> Void
+    var onAbandon: () -> Void
 
     // ImageRenderer (DesignSnapshotTests) never runs onAppear, so the deal
     // can't happen there - snapshots inject a hand instead. Live play leaves
     // this empty and deals as before.
-    init(runState: Binding<RunState>, onVictory: @escaping () -> Void, onDefeat: @escaping () -> Void, previewHand: [CardRecord] = []) {
+    init(
+        runState: Binding<RunState>, onVictory: @escaping () -> Void, onDefeat: @escaping () -> Void,
+        onAbandon: @escaping () -> Void, previewHand: [CardRecord] = []
+    ) {
         _runState = runState
         self.onVictory = onVictory
         self.onDefeat = onDefeat
+        self.onAbandon = onAbandon
         _hand = State(initialValue: previewHand)
     }
 
@@ -166,6 +169,7 @@ struct BattleView: View {
     @State private var enemyFlashes = false
     @State private var enemyLunges = false
     @State private var enemyDefeated = false
+    @State private var confirmingAbandon = false
 
     var body: some View {
         VStack(spacing: 20) {
@@ -173,14 +177,12 @@ struct BattleView: View {
                 errorBanner(lastError)
             }
 
+            abandonButton
             enemyView
             hpBars
 
             Spacer()
 
-            // The banner sits with the hand it labels: these are the
-            // current player's cards.
-            turnIndicator
             handView
         }
         .padding()
@@ -190,7 +192,7 @@ struct BattleView: View {
             today = ReviewEngine.todayString()
             // Live play always lands here with an empty hand (fresh floor
             // identity); only an injected previewHand skips the deal.
-            if hand.isEmpty { dealHandForCurrentTurn() }
+            if hand.isEmpty { dealHand() }
         }
         // Swiping the sheet away without grading is allowed on purpose:
         // dad arbitrates, and grade inflation is parenting, not a bug
@@ -199,6 +201,12 @@ struct BattleView: View {
             CardPlayView(card: card, biome: Biome.containing(enemyName: currentFloor.enemyName)) { result in
                 grade(card: card, result: result)
             }
+        }
+        .confirmationDialog("Give up this climb?", isPresented: $confirmingAbandon, titleVisibility: .visible) {
+            Button("Give up", role: .destructive) { onAbandon() }
+            Button("Keep going", role: .cancel) {}
+        } message: {
+            Text("Ends the climb now. No CantoBux for an unfinished climb.")
         }
         .onChange(of: runState.enemyHP) { old, new in
             guard new < old else { return }
@@ -304,32 +312,18 @@ struct BattleView: View {
         .animation(.easeOut(duration: 0.35), value: runState.partyHP)
     }
 
-    private var turnIndicator: some View {
-        HStack(spacing: 8) {
-            if let sprite = SpriteArt.playerImage(for: runState.turn) {
-                Image(uiImage: sprite)
-                    .resizable()
-                    .interpolation(.none)
-                    .scaledToFit()
-                    .frame(width: 34, height: 34)
+    // An escape hatch, not a main action - kept quiet in the corner so it
+    // doesn't compete with the fight.
+    private var abandonButton: some View {
+        HStack {
+            Spacer()
+            Button {
+                confirmingAbandon = true
+            } label: {
+                Image(systemName: "flag.fill")
+                    .foregroundStyle(GameTheme.cream.opacity(0.6))
             }
-            Text(runState.turn == .kid ? "Your turn" : "Dad's turn")
-                .font(GameTheme.title(20))
-                .foregroundStyle(GameTheme.navy)
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 8)
-            .background(
-                Capsule().fill(
-                    LinearGradient(colors: [GameTheme.yellow, GameTheme.gold], startPoint: .top, endPoint: .bottom)
-                )
-            )
-            .shadow(color: .black.opacity(0.4), radius: 4, y: 3)
-            // A fresh identity per turn re-runs the insertion transition,
-            // so the banner bounces in on every handover.
-            .id(runState.turn)
-            .transition(.scale(scale: 0.5).combined(with: .opacity))
-            .animation(.spring(duration: 0.45, bounce: 0.5), value: runState.turn)
     }
 
     private var handView: some View {
@@ -357,14 +351,12 @@ struct BattleView: View {
             gameStore.clearError()
             // The failure may have starved the hand (empty reads);
             // re-deal so the fight can continue once the db recovers.
-            dealHandForCurrentTurn()
+            dealHand()
         }
     }
 
-    private func dealHandForCurrentTurn() {
-        let player = runState.turn
-        let dealt = Set(runState.dealt[player.rawValue] ?? [])
-        hand = BattleEngine.dealHand(store: gameStore, player: player, dealt: dealt, today: today)
+    private func dealHand() {
+        hand = BattleEngine.dealHand(store: gameStore, dealt: Set(runState.dealt), today: today)
     }
 
     private func grade(card: CardRecord, result: ReviewResult) {
@@ -375,14 +367,14 @@ struct BattleView: View {
 
         // A review that never persisted must not advance the fight - the
         // banner shows the failure and the same card can be played again.
-        guard gameStore.recordReview(cardId: card.id, player: runState.turn, result: result, on: today) else {
+        guard gameStore.recordReview(cardId: card.id, result: result, on: today) else {
             return
         }
 
         switch BattleEngine.applyResult(result, card: card, to: &runState) {
         case .victory: celebrateEnemyDefeat()
         case .defeat: onDefeat()
-        case nil: dealHandForCurrentTurn()
+        case nil: dealHand()
         }
     }
 

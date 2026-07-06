@@ -95,7 +95,7 @@ final class GameStoreTests: XCTestCase {
         XCTAssertEqual(store.deck().count, 2)
     }
 
-    func test_syncDeck_createsCardStatesForBothPlayersOnNewCard() {
+    func test_syncDeck_createsCardStateOnNewCard() {
         let log = LogStore(directory: tempDir)
         makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
 
@@ -103,10 +103,8 @@ final class GameStoreTests: XCTestCase {
         store.syncDeck(from: log)
 
         let entry = store.deck().first!
-        XCTAssertEqual(entry.dadBox, 0)
-        XCTAssertEqual(entry.kidBox, 0)
-        XCTAssertEqual(entry.dadDueOn, "1970-01-01")
-        XCTAssertEqual(entry.kidDueOn, "1970-01-01")
+        XCTAssertEqual(entry.box, 0)
+        XCTAssertEqual(entry.dueOn, "1970-01-01")
     }
 
     // MARK: - recordReview
@@ -118,11 +116,11 @@ final class GameStoreTests: XCTestCase {
         store.syncDeck(from: log)
         let cardId = store.deck().first!.id
 
-        store.recordReview(cardId: cardId, player: .kid, result: .hit, on: "2026-07-04")
+        store.recordReview(cardId: cardId, result: .hit, on: "2026-07-04")
 
         let entry = store.deck().first!
-        XCTAssertEqual(entry.kidBox, 1)
-        XCTAssertEqual(entry.kidDueOn, "2026-07-05")
+        XCTAssertEqual(entry.box, 1)
+        XCTAssertEqual(entry.dueOn, "2026-07-05")
         XCTAssertEqual(try reviewCount(), 1)
     }
 
@@ -133,12 +131,12 @@ final class GameStoreTests: XCTestCase {
         store.syncDeck(from: log)
         let cardId = store.deck().first!.id
 
-        store.recordReview(cardId: cardId, player: .dad, result: .hit, on: "2026-07-04")
-        store.recordReview(cardId: cardId, player: .dad, result: .whiff, on: "2026-07-05")
+        store.recordReview(cardId: cardId, result: .hit, on: "2026-07-04")
+        store.recordReview(cardId: cardId, result: .whiff, on: "2026-07-05")
 
         let entry = store.deck().first!
-        XCTAssertEqual(entry.dadBox, 1)
-        XCTAssertEqual(entry.dadDueOn, "2026-07-05")
+        XCTAssertEqual(entry.box, 1)
+        XCTAssertEqual(entry.dueOn, "2026-07-05")
         XCTAssertEqual(try reviewCount(), 2)
     }
 
@@ -153,8 +151,8 @@ final class GameStoreTests: XCTestCase {
 
         store.setBenched(cardId: cardId, true)
 
-        XCTAssertTrue(store.dueCards(for: .kid, on: "2026-07-04", excluding: []).isEmpty)
-        XCTAssertTrue(store.nextCards(for: .kid, excluding: [], limit: 3).isEmpty)
+        XCTAssertTrue(store.dueCards(on: "2026-07-04", excluding: []).isEmpty)
+        XCTAssertTrue(store.nextCards(excluding: [], limit: 3).isEmpty)
     }
 
     func test_dueCards_returnsUnbenchedDueCard() {
@@ -163,7 +161,7 @@ final class GameStoreTests: XCTestCase {
         let store = GameStore(directory: tempDir)
         store.syncDeck(from: log)
 
-        let due = store.dueCards(for: .kid, on: "2026-07-04", excluding: [])
+        let due = store.dueCards(on: "2026-07-04", excluding: [])
         XCTAssertEqual(due.count, 1)
         XCTAssertEqual(due[0].traditional, "食")
     }
@@ -177,19 +175,19 @@ final class GameStoreTests: XCTestCase {
 
         store.setPhoto(cardId: cardId, filename: "card-\(cardId).jpg")
 
-        let due = store.dueCards(for: .kid, on: "2026-07-04", excluding: [])
+        let due = store.dueCards(on: "2026-07-04", excluding: [])
         XCTAssertEqual(due.first?.photoFilename, "card-\(cardId).jpg")
     }
 
     // MARK: - deleteCard
 
-    func test_deleteCard_cascadesReviewsAndCardStatesForBothPlayers() throws {
+    func test_deleteCard_cascadesReviewsAndCardStates() throws {
         let log = LogStore(directory: tempDir)
         makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
         let store = GameStore(directory: tempDir)
         store.syncDeck(from: log)
         let cardId = store.deck().first!.id
-        store.recordReview(cardId: cardId, player: .kid, result: .hit, on: "2026-07-04")
+        store.recordReview(cardId: cardId, result: .hit, on: "2026-07-04")
 
         store.deleteCard(cardId: cardId)
 
@@ -273,15 +271,14 @@ final class GameStoreTests: XCTestCase {
         let store = GameStore(directory: tempDir)
         store.syncDeck(from: log)
         let cardId = store.deck().first!.id
-        store.recordReview(cardId: cardId, player: .kid, result: .hit, on: "2026-07-04")
+        store.recordReview(cardId: cardId, result: .hit, on: "2026-07-04")
 
         store.deleteCard(cardId: cardId)
         makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
         store.syncDeck(from: log)
 
         let entry = store.deck().first!
-        XCTAssertEqual(entry.dadBox, 0)
-        XCTAssertEqual(entry.kidBox, 0)
+        XCTAssertEqual(entry.box, 0)
     }
 
     // MARK: - Ledger
@@ -332,7 +329,7 @@ final class GameStoreTests: XCTestCase {
 
     // MARK: - reviewedCardIds
 
-    func test_reviewedCardIds_filtersByPlayerAndDate() throws {
+    func test_reviewedCardIds_filtersByDate() throws {
         let log = LogStore(directory: tempDir)
         makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
         makeChosenLookup(log, heard: "dog", traditional: "狗", jyutping: "gau2")
@@ -358,9 +355,8 @@ final class GameStoreTests: XCTestCase {
             )
         }
 
-        XCTAssertEqual(store.reviewedCardIds(for: .kid, on: "2026-07-04"), [eatId])
-        XCTAssertEqual(store.reviewedCardIds(for: .dad, on: "2026-07-04"), [dogId])
-        XCTAssertEqual(store.reviewedCardIds(for: .kid, on: "2026-07-03"), [dogId])
+        XCTAssertEqual(store.reviewedCardIds(on: "2026-07-04"), [eatId], "the dad row is ignored")
+        XCTAssertEqual(store.reviewedCardIds(on: "2026-07-03"), [dogId])
     }
 
     // reviewed_at is UTC but the queried day is local. East of UTC, an
@@ -386,8 +382,8 @@ final class GameStoreTests: XCTestCase {
             )
         }
 
-        XCTAssertEqual(store.reviewedCardIds(for: .kid, on: "2026-07-04"), [eatId])
-        XCTAssertTrue(store.reviewedCardIds(for: .kid, on: "2026-07-03").isEmpty)
+        XCTAssertEqual(store.reviewedCardIds(on: "2026-07-04"), [eatId])
+        XCTAssertTrue(store.reviewedCardIds(on: "2026-07-03").isEmpty)
     }
 
     // MARK: - Runs
@@ -395,8 +391,8 @@ final class GameStoreTests: XCTestCase {
     private func makeRunState(enemyHP: Int = 7) -> RunState {
         RunState(
             floors: [RunState.Floor(kind: .fight, enemyName: "slime", maxHP: 7)],
-            floorIndex: 0, enemyHP: enemyHP, partyHP: 5, turn: .kid,
-            dealt: [:], kidDamageDealt: 0, extensionsTaken: 0
+            floorIndex: 0, enemyHP: enemyHP, partyHP: 5,
+            dealt: [], damageDealt: 0, extensionsTaken: 0
         )
     }
 
@@ -451,6 +447,34 @@ final class GameStoreTests: XCTestCase {
         XCTAssertEqual(finished, true)
     }
 
+    // MARK: - abandonRun
+
+    func test_abandonRun_deletesUnfinishedRowAndPaysNothing() {
+        let store = GameStore(directory: tempDir)
+        let id = store.startRun(on: "2026-07-04", state: makeRunState())!
+        let balanceBefore = store.balance()
+
+        store.abandonRun(id: id)
+
+        XCTAssertNil(store.todaysRun(on: "2026-07-04"), "abandoned run must not resume")
+        XCTAssertEqual(store.balance(), balanceBefore, "abandoning pays nothing")
+    }
+
+    // Same finished = 0 guard as saveRun/finishRun: a Run that already paid
+    // out is history, and abandon must not be able to erase it.
+    func test_abandonRun_cannotDeleteAFinishedRun() throws {
+        let store = GameStore(directory: tempDir)
+        let runId = store.startRun(on: "2026-07-04", state: makeRunState())!
+        store.finishRun(id: runId, state: makeRunState(enemyHP: 0))
+
+        store.abandonRun(id: runId)
+
+        let survivingRows = try rawGameQueue(in: tempDir).read { db in
+            try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM runs WHERE id = ?", arguments: [runId]) ?? 0
+        }
+        XCTAssertEqual(survivingRows, 1, "a finished run's paid history is never deleted")
+    }
+
     // MARK: - finishRun payout
 
     func test_finishRun_paysFinishAndBossBonusExactlyOnce() throws {
@@ -492,12 +516,12 @@ final class GameStoreTests: XCTestCase {
         let eatId = store.deck().first { $0.traditional == "食" }!.id
 
         // A hit pushes 食 to due 2026-07-05; 狗 stays at the 1970 epoch.
-        store.recordReview(cardId: eatId, player: .kid, result: .hit, on: "2026-07-04")
+        store.recordReview(cardId: eatId, result: .hit, on: "2026-07-04")
 
-        let one = store.nextCards(for: .kid, excluding: [], limit: 1)
+        let one = store.nextCards(excluding: [], limit: 1)
         XCTAssertEqual(one.map(\.traditional), ["狗"])
 
-        let two = store.nextCards(for: .kid, excluding: [], limit: 3)
+        let two = store.nextCards(excluding: [], limit: 3)
         XCTAssertEqual(two.map(\.traditional), ["狗", "食"])
     }
 
@@ -522,7 +546,7 @@ final class GameStoreTests: XCTestCase {
             try db.execute(sql: "UPDATE card_states SET box = 9 WHERE player = 'kid'")
         }
 
-        XCTAssertTrue(store.dueCards(for: .kid, on: "2026-07-04", excluding: []).isEmpty)
+        XCTAssertTrue(store.dueCards(on: "2026-07-04", excluding: []).isEmpty)
         XCTAssertTrue(store.deck().isEmpty)
         drainMainQueue()
         XCTAssertNotNil(store.lastError)
@@ -625,8 +649,115 @@ final class GameStoreTests: XCTestCase {
             (try Int.fetchOne(db, sql: "PRAGMA user_version") ?? 0,
              try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM runs WHERE run_date = '2026-07-04'") ?? 0)
         }
-        XCTAssertEqual(version, 2)
+        XCTAssertEqual(version, 3)
         XCTAssertEqual(rows, 2, "the v1 row survived the rebuild alongside the new one")
+    }
+
+    // A device db created at schema v2 still carries a dad row per card and
+    // whatever box progress either player had. Opening the store must be a
+    // fresh start: dad's rows gone, every remaining box reset to New.
+    func test_schemaV2_migratesToSinglePlayerFreshStart() throws {
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        try rawGameQueue(in: tempDir).write { db in
+            try db.execute(sql: """
+                CREATE TABLE cards (
+                  id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  traditional TEXT NOT NULL, jyutping TEXT NOT NULL, english TEXT NOT NULL,
+                  photo_filename TEXT, benched INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL,
+                  UNIQUE(traditional, jyutping)
+                )
+                """)
+            try db.execute(
+                sql: "INSERT INTO cards (id, traditional, jyutping, english, created_at) VALUES (1, ?, ?, ?, ?)",
+                arguments: ["食", "sik6", "eat", "2026-07-01"]
+            )
+            try db.execute(sql: """
+                CREATE TABLE card_states (
+                  card_id INTEGER NOT NULL REFERENCES cards(id),
+                  player TEXT NOT NULL CHECK (player IN ('dad','kid')),
+                  box INTEGER NOT NULL DEFAULT 0 CHECK (box BETWEEN 0 AND 3),
+                  due_on TEXT NOT NULL DEFAULT '1970-01-01',
+                  PRIMARY KEY (card_id, player)
+                )
+                """)
+            try db.execute(
+                sql: "INSERT INTO card_states (card_id, player, box, due_on) VALUES (1, 'dad', 2, '2026-07-08')"
+            )
+            try db.execute(
+                sql: "INSERT INTO card_states (card_id, player, box, due_on) VALUES (1, 'kid', 3, '2026-07-10')"
+            )
+            try db.execute(sql: "PRAGMA user_version = 2")
+        }
+
+        let store = GameStore(directory: tempDir)
+
+        let entry = store.deck().first!
+        XCTAssertEqual(entry.box, 0, "fresh start resets progress, dad's or kid's")
+        XCTAssertEqual(entry.dueOn, "1970-01-01")
+        let (version, dadRows) = try rawGameQueue(in: tempDir).read { db in
+            (try Int.fetchOne(db, sql: "PRAGMA user_version") ?? 0,
+             try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM card_states WHERE player = 'dad'") ?? 0)
+        }
+        XCTAssertEqual(version, 3)
+        XCTAssertEqual(dadRows, 0, "dad's rows are gone, not just ignored")
+    }
+
+    // A device still on schema v1 (it skipped the v2 release) jumps 1 -> 3 in
+    // one open. It must ALSO get the fresh start - dad's rows gone, boxes reset -
+    // not silently keep old progress because only the v1 block ran.
+    func test_schemaV1_migratesDirectlyToSinglePlayerFreshStart() throws {
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        try rawGameQueue(in: tempDir).write { db in
+            try db.execute(sql: """
+                CREATE TABLE cards (
+                  id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  traditional TEXT NOT NULL, jyutping TEXT NOT NULL, english TEXT NOT NULL,
+                  photo_filename TEXT, benched INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL,
+                  UNIQUE(traditional, jyutping)
+                )
+                """)
+            try db.execute(
+                sql: "INSERT INTO cards (id, traditional, jyutping, english, created_at) VALUES (1, ?, ?, ?, ?)",
+                arguments: ["食", "sik6", "eat", "2026-07-01"]
+            )
+            try db.execute(sql: """
+                CREATE TABLE card_states (
+                  card_id INTEGER NOT NULL REFERENCES cards(id),
+                  player TEXT NOT NULL CHECK (player IN ('dad','kid')),
+                  box INTEGER NOT NULL DEFAULT 0 CHECK (box BETWEEN 0 AND 3),
+                  due_on TEXT NOT NULL DEFAULT '1970-01-01',
+                  PRIMARY KEY (card_id, player)
+                )
+                """)
+            try db.execute(
+                sql: "INSERT INTO card_states (card_id, player, box, due_on) VALUES (1, 'dad', 2, '2026-07-08')"
+            )
+            try db.execute(
+                sql: "INSERT INTO card_states (card_id, player, box, due_on) VALUES (1, 'kid', 3, '2026-07-10')"
+            )
+            // v1's runs table still carries the run_date UNIQUE the v1 block sheds.
+            try db.execute(sql: """
+                CREATE TABLE runs (
+                  id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  run_date TEXT NOT NULL UNIQUE,
+                  state_json TEXT NOT NULL,
+                  finished INTEGER NOT NULL DEFAULT 0
+                )
+                """)
+            try db.execute(sql: "PRAGMA user_version = 1")
+        }
+
+        let store = GameStore(directory: tempDir)
+
+        let entry = store.deck().first!
+        XCTAssertEqual(entry.box, 0, "a v1 device that skipped v2 still gets the fresh start")
+        XCTAssertEqual(entry.dueOn, "1970-01-01")
+        let (version, dadRows) = try rawGameQueue(in: tempDir).read { db in
+            (try Int.fetchOne(db, sql: "PRAGMA user_version") ?? 0,
+             try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM card_states WHERE player = 'dad'") ?? 0)
+        }
+        XCTAssertEqual(version, 3)
+        XCTAssertEqual(dadRows, 0, "dad's rows are gone, not just ignored")
     }
 
     // Decodes fine but would trap floors[floorIndex] - same recovery as
@@ -671,7 +802,7 @@ final class GameStoreTests: XCTestCase {
     func test_recordReview_unknownCardReportsInsteadOfSilentNoOp() {
         let store = GameStore(directory: tempDir)
         // The false return is what stops BattleView advancing the fight.
-        XCTAssertFalse(store.recordReview(cardId: 999, player: .kid, result: .hit, on: "2026-07-04"))
+        XCTAssertFalse(store.recordReview(cardId: 999, result: .hit, on: "2026-07-04"))
         XCTAssertNotNil(store.lastError)
     }
 
