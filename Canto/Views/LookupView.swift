@@ -3,6 +3,7 @@ import UIKit
 
 struct LookupView: View {
     @State private var query = ""
+    @FocusState private var queryFieldFocused: Bool
     @State private var result: LookupResult?
     @State private var selectedSenseId: Int64?
     @State private var keptSenseId: Int64?
@@ -31,6 +32,7 @@ struct LookupView: View {
             VStack(spacing: 0) {
                 TextField("Type an English word", text: $query)
                     .textFieldStyle(GameTextFieldStyle())
+                    .focused($queryFieldFocused)
                     .padding(.horizontal)
                     .padding(.top, 8)
                     .onSubmit { runLookup(viaVoice: false) }
@@ -46,14 +48,20 @@ struct LookupView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(InnBackground())
+            // Tapping blank space (or the bottom menu) should dismiss the
+            // keyboard, not just move focus — a background tap catcher
+            // covers Spacer areas the TextField itself doesn't own.
+            .contentShape(Rectangle())
+            .onTapGesture { queryFieldFocused = false }
             .navigationTitle("Canto")
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItemGroup(placement: .bottomBar) {
                     NavigationLink {
                         TowerEntryView()
                     } label: {
                         Image(systemName: "shield.lefthalf.filled")
                     }
+                    .accessibilityLabel("Tower")
                     // Battle audio claims .playback; a still-running mic tap
                     // (.record) would be yanked out from under the engine.
                     .simultaneousGesture(TapGesture().onEnded {
@@ -61,16 +69,17 @@ struct LookupView: View {
                             speechListener.cancel()
                         }
                     })
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
+                    Spacer()
                     NavigationLink("History") {
                         HistoryView()
                     }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    NavigationLink("About") {
-                        AboutView()
+                    Spacer()
+                    NavigationLink {
+                        SettingsView()
+                    } label: {
+                        Image(systemName: "gearshape.fill")
                     }
+                    .accessibilityLabel("Settings")
                 }
             }
             .alert("Cantonese voice not installed", isPresented: $showVoiceUnavailableAlert) {

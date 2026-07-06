@@ -281,6 +281,70 @@ final class GameStoreTests: XCTestCase {
         XCTAssertEqual(entry.box, 0)
     }
 
+    // MARK: - resetEverything
+
+    func test_resetEverything_wipesDeckHistoryLedgerRunsAndPhotosButKeepsShopItems() throws {
+        let log = LogStore(directory: tempDir)
+        makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
+        let store = GameStore(directory: tempDir)
+        store.syncDeck(from: log)
+        let cardId = store.deck().first!.id
+        store.recordReview(cardId: cardId, result: .hit, on: "2026-07-04")
+        store.credit(10, reason: "run_finish")
+        store.addShopItem(name: "Ice cream", price: 20)
+        store.startRun(on: "2026-07-04", state: makeRunState())
+        let photos = CardPhotos(directory: tempDir)
+        let filename = photos.save(image: makeSmallImage(), cardId: cardId)!
+        store.setPhoto(cardId: cardId, filename: filename)
+
+        store.resetEverything(clearing: log)
+
+        XCTAssertTrue(store.deck().isEmpty)
+        XCTAssertEqual(try reviewCount(), 0)
+        XCTAssertEqual(store.balance(), 0)
+        XCTAssertNil(store.todaysRun(on: "2026-07-04"))
+        XCTAssertNil(photos.load(filename: filename))
+        XCTAssertTrue(log.recentLookups().isEmpty)
+        XCTAssertEqual(store.shopItems(includeArchived: true).count, 1, "shop_items survive a reset")
+    }
+
+    // The checkpoint reset is what stops syncDeck from re-importing the whole
+    // history back in right after a reset.
+    func test_resetEverything_resetsCheckpointSoSyncDeckOnlyImportsFutureLookups() {
+        let log = LogStore(directory: tempDir)
+        makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
+        let store = GameStore(directory: tempDir)
+        store.syncDeck(from: log)
+
+        store.resetEverything(clearing: log)
+        makeChosenLookup(log, heard: "dog", traditional: "狗", jyutping: "gau2")
+        store.syncDeck(from: log)
+
+        let deck = store.deck()
+        XCTAssertEqual(deck.count, 1)
+        XCTAssertEqual(deck[0].traditional, "狗")
+    }
+
+    // log.sqlite is cleared before game.sqlite is touched, so a log-clear
+    // failure must leave the deck/checkpoint alone rather than resetting
+    // game.sqlite and silently resurrecting history on the next sync.
+    func test_resetEverythingWhenLogClearFails_leavesGameDatabaseUntouchedAndSetsLastError() throws {
+        let unwritableLogDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("GameStoreTests-unwritable-log-\(UUID().uuidString)")
+        try "not a directory".write(to: unwritableLogDir, atomically: true, encoding: .utf8)
+        defer { try? FileManager.default.removeItem(at: unwritableLogDir) }
+        let unwritableLog = LogStore(directory: unwritableLogDir)
+        let log = LogStore(directory: tempDir)
+        makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
+        let store = GameStore(directory: tempDir)
+        store.syncDeck(from: log)
+
+        store.resetEverything(clearing: unwritableLog)
+
+        XCTAssertEqual(store.deck().count, 1, "game.sqlite must stay intact when the log clear fails")
+        XCTAssertEqual(store.lastError, "Couldn't reset — try again.")
+    }
+
     // MARK: - Ledger
 
     func test_balance_isSumOfLedgerAndCreditAdds() {

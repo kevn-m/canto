@@ -146,6 +146,18 @@ final class LogStore {
         }
     }
 
+    @discardableResult
+    func clearHistory() -> Bool {
+        guard let dbQueue else { return false }
+        do {
+            try dbQueue.write { db in try db.execute(sql: "DELETE FROM lookups") }
+            return true
+        } catch {
+            NSLog("LogStore.clearHistory failed: %@", String(describing: error))
+            return false
+        }
+    }
+
     // Feeds GameStore.syncDeck: lookups the player actually chose a sense
     // for, ascending so the checkpoint in game.sqlite's meta table can walk
     // forward from the last imported id.
