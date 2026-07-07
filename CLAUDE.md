@@ -81,6 +81,12 @@ install. Needs one-time setup — an App Store Connect API key, an app record, a
 - `scripts/supplement_from_deck.py` — drafts CC-Canto lines into `scripts/supplement.txt` for
   Deck cards the built dictionary can't rank in their word's top-5. Review the git diff, then
   rebuild with `build_dict.py`. `--selftest` runs its self-checks.
+- `scripts/art/rank_corpus.py` — ranks every drawable dictionary word into `art/sprite-todo.tsv`
+  (the ordered, 50-per-slice sprite worklist). Joins `english_index` to the vendored
+  `data/concreteness.txt`, gates to concrete words, scores by frequency + concreteness. Sits in
+  `scripts/art/` — grouped with the build tooling under `scripts/` (its inputs are `dict.sqlite`
+  + `data/`), not in the top-level `art/` asset tree. `--check` runs its self-checks. Shares
+  `clean()` with `build_dict.py` by import.
 - `data/` — the four dictionary sources:
   - `cccanto-webdist.txt` — CC-Canto (cantonese.org/download.html)
   - `cccedict-canto-readings.txt` — jyutping readings for CC-CEDICT entries, no glosses
