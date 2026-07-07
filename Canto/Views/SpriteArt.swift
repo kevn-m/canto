@@ -4,8 +4,36 @@ import SwiftUI
 // copied into Resources/Sprites). Card sprites are keyed by the card's
 // English word; enemies by Floor.enemyName.
 enum SpriteArt {
-    // Sprite names that don't equal the word they illustrate.
-    private static let cardAliases = ["eat": "eating"]
+    // Sprite names that don't equal the word they illustrate: plurals, synonyms,
+    // and words that resolve to an already-drawn concept (deduped at draw time).
+    private static let cardAliases = [
+        "alligator": "crocodile", "ape": "monkey", "automobile": "car", "bathroom": "toilet",
+        "bedroom": "room", "blouse": "shirt", "bonnet": "hat", "boot": "shoe",
+        "bunny": "rabbit", "cab": "car", "canoe": "boat", "cap": "hat",
+        "cash": "money", "cathedral": "church", "chamber": "room", "chapel": "church",
+        "chick": "chicken", "cobra": "snake", "cock": "chicken", "comics": "book",
+        "cop": "police", "cottage": "house", "crate": "box", "crib": "bed",
+        "dad": "father", "dentist": "doctor", "dogs": "dog", "dollar": "money",
+        "eat": "eating", "eyeball": "eye", "eyes": "eye", "flea": "bug",
+        "grandma": "grandmother", "granite": "rock", "grove": "tree", "handbag": "bag",
+        "handgun": "gun", "hen": "chicken", "infant": "baby", "inn": "hotel",
+        "jacket": "coat", "jeans": "pants", "jeep": "car", "jet": "plane",
+        "kids": "kid", "kitten": "cat", "lemonade": "drink", "lieutenant": "police",
+        "lunch": "food", "mama": "mother", "mansion": "house", "mattress": "bed",
+        "mom": "mother", "motel": "hotel", "mummy": "mother", "mustang": "horse",
+        "nickel": "money", "oak": "tree", "officer": "police", "papa": "father",
+        "physician": "doctor", "piglet": "pig", "plant": "tree", "policeman": "police",
+        "pony": "horse", "poodle": "dog", "pork": "meat", "prison": "jail",
+        "puppy": "dog", "purse": "bag", "python": "snake", "raincoat": "coat",
+        "rattlesnake": "snake", "restroom": "toilet", "sack": "bag", "sergeant": "police",
+        "shelter": "house", "sheriff": "police", "ship": "boat", "shotgun": "gun",
+        "sidewalk": "street", "sister": "girl", "soda": "drink", "son": "boy",
+        "steak": "meat", "streets": "street", "subway": "train", "sunrise": "sun",
+        "surgeon": "doctor", "sweatshirt": "shirt", "tables": "table", "taxi": "car",
+        "teacher": "professor", "telephone": "phone", "timer": "clock", "tooth": "teeth",
+        "trucks": "truck", "tuxedo": "suit", "university": "school", "wife": "woman",
+        "woods": "tree", "yacht": "boat",
+    ]
 
     static func cardImage(forEnglish english: String) -> UIImage? {
         let word = english.lowercased().trimmingCharacters(in: .whitespaces)
