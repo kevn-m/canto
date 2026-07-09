@@ -6174,14 +6174,16 @@
   }});
 
   S.push({ name: 'mast', draw(g) {
-    stroke(g, [[CX,58],[CX,10]], 2.2,1.5,P.brn);
-    tri(g, 33,13, 33,45, 52,34, P.crm);
-    tri(g, 30,16, 30,48, 12,38, P.lgy);
-    rect(g, 29,10,34,14,P.brn);
-    ellipse(g, CX,58, 15,3,P.brn);
-    eyes(g,CX,31,5);
-    smileArc(g,CX,37,2.4,1);
-    blush(g,24,35); blush(g,39,35);
+    ellipse(g, CX,56,23,4,P.sky);
+    tri(g, 12,46,52,46,43,56,P.brn);                  // boat hull
+    tri(g, 16,46,47,46,40,53,P.org);
+    stroke(g, [[CX,49],[CX,12]], 1.2,1.2,P.brn);       // thin support, not the subject
+    tri(g, 34,14, 34,43, 55,35, P.crm);                // bright mainsail
+    tri(g, 29,18, 29,45, 10,37, P.lgy);                // shaded sail
+    rect(g, 18,48,45,50,P.brn);
+    eyes(g,CX,49,5);
+    smileArc(g,CX,54,2.4,1);
+    blush(g,23,52); blush(g,41,52);
   }});
 
   S.push({ name: 'stereo', draw(g) {
@@ -6291,14 +6293,18 @@
   }});
 
   S.push({ name: 'clarinet', draw(g) {
-    stroke(g, [[40,9],[28,51]], 4,5,P.dgy);
-    stroke(g, [[40,9],[28,51]], 2.2,3,P.brn);
-    ellipse(g,25,55,10,5,P.dgy);
-    ellipse(g,39,9,5,3,P.dgy);
-    for (const [x,y] of [[36,20],[33,30],[30,40]]) disc(g,x,y,1.8,P.yel);
-    eyes(g,32,35,5);
-    smileArc(g,31,41,2,0.9);
-    blush(g,25,39); blush(g,38,39);
+    stroke(g, [[20,44],[31,37],[42,30],[54,23]], 5.5,3,P.dgy);
+    stroke(g, [[20,44],[31,37],[42,30],[54,23]], 3.2,1.8,P.brn);
+    ellipse(g,17,46,11,8,P.dgy);                       // wide flared bell
+    ellipse(g,17,46,7,4,P.brn);
+    tri(g, 51,20, 60,17, 58,24, P.dgy);                // sharp angled mouthpiece
+    tri(g, 52,21, 58,19, 56,23, P.brn);
+    for (const [x,y] of [[28,39],[34,35],[40,31],[46,28]]) disc(g,x,y,1.7,P.yel);
+    rect(g,29,41,43,42,P.lgy);                         // silver key rail
+    rect(g,30,34,33,39,P.dgy); rect(g,42,27,45,32,P.dgy); // joint bands
+    eyes(g,17,45,4.8);
+    smileArc(g,17,50,2.2,1);
+    blush(g,9,47); blush(g,25,47);
   }});
 
   S.push({ name: 'rag', draw(g) {
