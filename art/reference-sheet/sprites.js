@@ -6469,6 +6469,310 @@
     blush(g,17,44); blush(g,37,44);
   }});
 
+  S.push({ name: 'hippo', draw(g) {
+    disc(g,20,14,5,P.lav); disc(g,44,14,5,P.lav);
+    disc(g,20,14,2.4,P.pch); disc(g,44,14,2.4,P.pch);
+    ball(g,CX,48,13,9,P.lav,P.dgy);
+    ball(g,25,56,4,3,P.lav,P.dgy); ball(g,39,56,4,3,P.lav,P.dgy);
+    ball(g,CX,26,16,13,P.lav,P.dgy,P.crm);
+    ball(g,CX,35,14,8,P.pch,P.lav);
+    disc(g,27,33,1.4,P.dgy); disc(g,37,33,1.4,P.dgy);
+    eyes(g,CX,25,7);
+    smileArc(g,CX,39,3,1.2);
+    blush(g,20,34); blush(g,44,34);
+  }});
+
+  S.push({ name: 'vinegar', draw(g) {
+    rrect(g,23,10,41,17,2,P.brn);
+    rrect(g,20,16,44,55,6,P.org);
+    rrect(g,24,23,40,44,3,P.crm);
+    ellipse(g,CX,20,10,4,P.yel);
+    rect(g,26,11,38,13,P.dgy);
+    disc(g,24,50,3,P.brn); disc(g,40,50,3,P.brn);
+    eyes(g,CX,33,5);
+    smileArc(g,CX,39,2.4,1);
+    blush(g,24,37); blush(g,40,37);
+  }});
+
+  S.push({ name: 'dial', draw(g) {
+    disc(g,CX,34,22,P.lgy);
+    disc(g,CX,34,17,P.crm);
+    for (let a = 0; a < 12; a++) {
+      const th = a / 12 * Math.PI * 2;
+      disc(g,CX + Math.cos(th) * 14,34 + Math.sin(th) * 14,1.2,P.dgy);
+    }
+    stroke(g, [[CX,34],[40,24]], 1.4,0.8,P.red);
+    stroke(g, [[CX,34],[25,41]], 1.2,0.8,P.sky);
+    disc(g,CX,34,3,P.yel);
+    eyes(g,CX,33,5);
+    smileArc(g,CX,42,2.4,1);
+    blush(g,20,38); blush(g,44,38);
+  }});
+
+  S.push({ name: 'spray', draw(g) {
+    rrect(g,20,25,45,56,5,P.sky);
+    rrect(g,25,16,41,27,3,P.lgy);
+    rect(g,36,18,54,22,P.lgy);
+    tri(g,46,22,57,27,46,29,P.lgy);
+    rect(g,25,31,41,45,P.crm);
+    for (const [x,y] of [[55,19],[59,16],[58,24]]) disc(g,x,y,1.4,P.sky);
+    ellipse(g,32,52,8,3,P.lav);
+    eyes(g,32,38,5);
+    smileArc(g,32,44,2.4,1);
+    blush(g,23,42); blush(g,41,42);
+  }});
+
+  S.push({ name: 'feed', draw(g) {
+    ellipse(g,CX,49,24,9,P.red);
+    ellipse(g,CX,45,20,7,P.pch);
+    ellipse(g,CX,44,14,4,P.yel);
+    for (const [x,y] of [[22,39],[30,37],[39,38],[46,41]]) disc(g,x,y,2,P.org);
+    stroke(g, [[42,20],[52,12]], 2,1.2,P.lgy);
+    ellipse(g,53,11,5,3,P.lgy);
+    eyes(g,CX,46,5);
+    smileArc(g,CX,52,2.4,1);
+    blush(g,22,49); blush(g,42,49);
+  }});
+
+  S.push({ name: 'fishing', draw(g) {
+    ellipse(g,CX,56,26,4,P.sky);
+    stroke(g, [[14,14],[25,28],[35,39]], 1.2,0.8,P.brn);
+    stroke(g, [[35,39],[48,31],[51,43]], 0.7,0.5,P.lgy);
+    disc(g,51,45,2,P.red);
+    ball(g,28,42,13,8,P.sky,P.lav);
+    tri(g,13,42,23,36,23,48,P.sky);
+    tri(g,39,37,48,32,45,42,P.lav);
+    eyes(g,31,40,5);
+    smileArc(g,30,47,2.2,1);
+    blush(g,21,45); blush(g,38,45);
+  }});
+
+  S.push({ name: 'date', draw(g) {
+    rrect(g,14,13,50,55,4,P.crm);
+    rect(g,14,13,50,24,P.red);
+    rect(g,20,9,24,17,P.dgy); rect(g,40,9,44,17,P.dgy);
+    disc(g,28,36,6,P.pnk); disc(g,36,36,6,P.pnk);
+    tri(g,22,38,42,38,32,50,P.pnk);
+    eyes(g,CX,34,5);
+    smileArc(g,CX,43,2.4,1);
+    blush(g,21,39); blush(g,43,39);
+  }});
+
+  S.push({ name: 'snowball', draw(g) {
+    ball(g,CX,38,20,17,P.crm,P.lgy);
+    ellipse(g,22,29,5,3,P.sky); ellipse(g,43,48,6,3,P.sky);
+    disc(g,20,17,2,P.crm); disc(g,44,15,2,P.crm); disc(g,51,27,2,P.crm);
+    eyes(g,CX,36,7);
+    smileArc(g,CX,43,2.8,1.2);
+    blush(g,20,40); blush(g,44,40);
+  }});
+
+  S.push({ name: 'chimpanzee', draw(g) {
+    disc(g,15,25,6,P.dgy); disc(g,49,25,6,P.dgy);
+    disc(g,15,25,3,P.pch); disc(g,49,25,3,P.pch);
+    ball(g,CX,49,10,8,P.dgy,P.navy);
+    ball(g,24,56,4,3,P.dgy,P.navy); ball(g,40,56,4,3,P.dgy,P.navy);
+    ball(g,CX,25,15,13,P.dgy,P.navy);
+    disc(g,26,25,7,P.pch); disc(g,38,25,7,P.pch);
+    ellipse(g,CX,30,10,7,P.pch);
+    eyes(g,CX,25,6);
+    smileArc(g,CX,32,3,1);
+    blush(g,23,30); blush(g,41,30);
+  }});
+
+  S.push({ name: 'buffet', draw(g) {
+    rrect(g,10,43,54,56,3,P.brn);
+    rect(g,13,55,17,59,P.brn); rect(g,47,55,51,59,P.brn);
+    ellipse(g,22,39,12,5,P.lgy); ellipse(g,22,37,9,3,P.crm);
+    ball(g,22,34,5,4,P.org,P.brn,P.yel);
+    ellipse(g,42,38,11,5,P.lgy); ellipse(g,42,36,8,3,P.crm);
+    ball(g,42,33,4,4,P.lim,P.grn);
+    eyes(g,CX,47,5);
+    smileArc(g,CX,52,2.4,1);
+    blush(g,23,50); blush(g,41,50);
+  }});
+
+  S.push({ name: 'cricket', draw(g) {
+    stroke(g, [[21,39],[12,50]], 1.3,0.8,P.grn); stroke(g, [[43,39],[52,50]], 1.3,0.8,P.grn);
+    stroke(g, [[25,36],[17,28]], 1,0.6,P.grn); stroke(g, [[39,36],[47,28]], 1,0.6,P.grn);
+    ball(g,CX,39,16,9,P.lim,P.grn);
+    ball(g,CX,26,11,9,P.lim,P.grn,P.crm);
+    stroke(g, [[27,18],[22,9]], 0.8,0.4,P.grn); stroke(g, [[37,18],[43,9]], 0.8,0.4,P.grn);
+    eyes(g,CX,25,6);
+    smileArc(g,CX,31,2.4,1);
+    blush(g,23,29); blush(g,41,29);
+  }});
+
+  S.push({ name: 'shampoo', draw(g) {
+    rrect(g,20,20,44,56,6,P.sky);
+    rrect(g,25,12,39,21,3,P.lav);
+    rect(g,28,8,44,12,P.lav);
+    tri(g,42,12,52,15,42,18,P.lav);
+    rrect(g,24,29,40,44,3,P.crm);
+    stroke(g, [[27,36],[32,32],[37,36]], 1.1,1.1,P.sky);
+    ellipse(g,CX,52,9,3,P.lav);
+    eyes(g,CX,37,5);
+    smileArc(g,CX,43,2.4,1);
+    blush(g,23,41); blush(g,41,41);
+  }});
+
+  S.push({ name: 'bouquet', draw(g) {
+    for (const [x,y,c] of [[22,22,P.red],[32,18,P.pnk],[42,23,P.org],[27,29,P.yel],[38,30,P.red]]) {
+      disc(g,x,y,5,c); disc(g,x-3,y,2,P.crm); disc(g,x+3,y,2,P.crm);
+    }
+    stroke(g, [[23,33],[31,53]], 1.4,0.8,P.grn);
+    stroke(g, [[33,31],[31,53]], 1.4,0.8,P.grn);
+    stroke(g, [[42,34],[31,53]], 1.4,0.8,P.grn);
+    tri(g,18,40,46,40,CX,58,P.lgy);
+    rect(g,24,45,40,48,P.pnk);
+    eyes(g,CX,43,5);
+    smileArc(g,CX,49,2.2,1);
+    blush(g,24,47); blush(g,40,47);
+  }});
+
+  S.push({ name: 'necktie', draw(g) {
+    tri(g,24,10,40,10,CX,22,P.red);
+    tri(g,CX,20,18,52,46,52,P.red);
+    tri(g,CX,24,23,48,41,48,P.plum);
+    rect(g,27,25,37,27,P.yel); rect(g,25,36,39,38,P.yel);
+    ball(g,CX,54,9,4,P.red,P.plum);
+    eyes(g,CX,35,5);
+    smileArc(g,CX,43,2.4,1);
+    blush(g,24,39); blush(g,40,39);
+  }});
+
+  S.push({ name: 'ledge', draw(g) {
+    rrect(g,10,21,54,50,3,P.lgy);
+    rrect(g,15,26,49,45,2,P.sky);
+    rect(g,31,22,33,50,P.crm); rect(g,10,46,54,56,P.dgy);
+    rrect(g,23,37,41,47,2,P.brn);
+    ellipse(g,CX,32,5,9,P.lim); ellipse(g,26,34,4,7,P.grn); ellipse(g,38,34,4,7,P.grn);
+    eyes(g,CX,50,4.5);
+    smileArc(g,CX,54,2.2,0.8);
+    blush(g,23,52); blush(g,41,52);
+  }});
+
+  S.push({ name: 'pick', draw(g) {
+    tri(g,CX,10,12,50,52,50,P.sky);
+    ellipse(g,CX,43,20,9,P.sky);
+    tri(g,CX,16,20,47,44,47,P.lav);
+    ellipse(g,27,27,5,3,P.crm);
+    for (const y of [31,37,43]) stroke(g, [[20,y],[44,y]], 0.6,0.6,P.crm);
+    eyes(g,CX,34,6);
+    smileArc(g,CX,42,2.6,1);
+    blush(g,22,38); blush(g,42,38);
+  }});
+
+  S.push({ name: 'canteen', draw(g) {
+    rrect(g,10,24,54,55,3,P.brn);
+    rect(g,14,28,50,51,P.crm);
+    rect(g,17,24,23,55,P.lav); rect(g,41,24,47,55,P.lav);
+    rect(g,16,15,48,23,P.red);
+    rrect(g,20,8,44,17,4,P.yel);
+    ellipse(g,CX,52,13,3,P.dgy);
+    eyes(g,CX,37,6);
+    smileArc(g,CX,45,2.6,1);
+    blush(g,21,41); blush(g,43,41);
+  }});
+
+  S.push({ name: 'caviar', draw(g) {
+    rrect(g,16,22,48,54,5,P.navy);
+    ellipse(g,CX,22,16,6,P.lgy);
+    ellipse(g,CX,20,13,4,P.crm);
+    rrect(g,21,31,43,44,3,P.crm);
+    for (const [x,y,c] of [[25,35,P.navy],[31,37,P.dgy],[37,35,P.navy],[29,41,P.dgy],[40,40,P.navy]]) disc(g,x,y,1.4,c);
+    eyes(g,CX,47,5);
+    smileArc(g,CX,52,2.4,1);
+    blush(g,23,50); blush(g,41,50);
+  }});
+
+  S.push({ name: 'groom', draw(g) {
+    rrect(g,22,38,42,56,4,P.navy);
+    tri(g,23,39,31,52,31,39,P.crm); tri(g,41,39,33,52,33,39,P.crm);
+    rect(g,29,43,35,47,P.red);
+    ball(g,CX,26,12,11,P.pch,P.brn);
+    ellipse(g,CX,17,12,5,P.brn);
+    rect(g,23,11,41,16,P.navy); rect(g,26,5,38,12,P.navy);
+    eyes(g,CX,26,6);
+    smileArc(g,CX,32,2.4,1);
+    blush(g,23,30); blush(g,41,30);
+  }});
+
+  S.push({ name: 'cuff', draw(g) {
+    rrect(g,14,18,50,54,5,P.sky);
+    rrect(g,18,21,46,51,3,P.crm);
+    rect(g,31,21,33,51,P.lgy);
+    disc(g,28,30,2,P.yel); disc(g,28,40,2,P.yel);
+    disc(g,36,30,2,P.yel); disc(g,36,40,2,P.yel);
+    rect(g,12,47,52,56,P.lav);
+    eyes(g,CX,36,5);
+    smileArc(g,CX,44,2.4,1);
+    blush(g,22,40); blush(g,42,40);
+  }});
+
+  S.push({ name: 'fossil', draw(g) {
+    ball(g,CX,38,22,17,P.brn,P.plum,P.org);
+    stroke(g, [[21,40],[28,34],[36,34],[43,40]], 2.4,1.6,P.crm);
+    stroke(g, [[28,34],[25,27]], 1.2,0.7,P.crm);
+    stroke(g, [[36,34],[40,27]], 1.2,0.7,P.crm);
+    disc(g,24,27,2,P.crm); disc(g,40,27,2,P.crm);
+    ellipse(g,31,47,11,3,P.org);
+    eyes(g,CX,38,5);
+    smileArc(g,CX,45,2.4,1);
+    blush(g,22,42); blush(g,42,42);
+  }});
+
+  S.push({ name: 'slug', draw(g) {
+    ellipse(g,32,45,24,10,P.lim);
+    ellipse(g,21,39,11,10,P.lim);
+    ellipse(g,37,48,17,5,P.grn);
+    stroke(g, [[19,31],[15,20]], 0.9,0.4,P.grn); stroke(g, [[26,31],[31,20]], 0.9,0.4,P.grn);
+    disc(g,15,19,1.8,P.navy); disc(g,31,19,1.8,P.navy);
+    eyes(g,22,39,5);
+    smileArc(g,22,45,2.2,1);
+    blush(g,14,43); blush(g,30,43);
+  }});
+
+  S.push({ name: 'aquarium', draw(g) {
+    rrect(g,9,17,55,53,4,P.sky);
+    rect(g,12,45,52,53,P.brn);
+    ellipse(g,20,42,5,8,P.grn); ellipse(g,45,39,5,10,P.lim);
+    ball(g,34,34,10,6,P.org,P.brn);
+    tri(g,22,34,29,29,29,39,P.org);
+    disc(g,38,32,1.2,P.navy);
+    for (const [x,y] of [[18,25],[48,25],[25,30]]) disc(g,x,y,1.4,P.crm);
+    eyes(g,CX,47,5);
+    smileArc(g,CX,52,2.4,1);
+    blush(g,23,50); blush(g,41,50);
+  }});
+
+  S.push({ name: 'mistletoe', draw(g) {
+    stroke(g, [[CX,13],[CX,52]], 1.4,0.8,P.grn);
+    for (const [x,y,s] of [[24,24,-1],[40,24,1],[22,36,-1],[42,36,1],[27,46,-1],[37,46,1]]) {
+      ellipse(g,x,y,5,3,P.lim);
+      stroke(g, [[CX,y+2],[x,y]], 0.8,0.5,P.grn);
+    }
+    disc(g,29,31,2,P.crm); disc(g,35,31,2,P.crm); disc(g,32,39,2,P.crm);
+    rect(g,25,11,39,15,P.red);
+    eyes(g,CX,35,5);
+    smileArc(g,CX,43,2.3,1);
+    blush(g,23,39); blush(g,41,39);
+  }});
+
+  S.push({ name: 'propeller', draw(g) {
+    tri(g,28,29,21,7,39,10,P.lgy);
+    tri(g,35,29,57,36,49,51,P.lgy);
+    tri(g,31,36,7,45,16,53,P.lgy);
+    ellipse(g,30,11,10,4,P.lav);
+    ellipse(g,52,43,5,10,P.lav);
+    ellipse(g,13,49,9,5,P.lav);
+    disc(g,CX,32,8,P.yel);
+    disc(g,CX,32,4,P.org);
+    eyes(g,CX,30,4.5);
+    smileArc(g,CX,37,2.2,0.9);
+    blush(g,24,34); blush(g,40,34);
+  }});
+
   function renderGrid(name) {
     const item = S.find(s => s.name === name);
     const g = new Grid();

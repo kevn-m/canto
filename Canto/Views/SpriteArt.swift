@@ -32,7 +32,7 @@ enum SpriteArt {
         "saloon": "car", "sergeant": "police", "shelter": "house", "sheriff": "police",
         "ship": "boat", "shotgun": "gun", "sidewalk": "street", "singing": "singer",
         "sister": "girl", "slipper": "shoe", "soda": "drink", "son": "boy",
-        "steak": "meat", "streets": "street", "subway": "train", "sunrise": "sun",
+        "sailboat": "boat", "snails": "snail", "steak": "meat", "streets": "street", "subway": "train", "sunrise": "sun",
         "surgeon": "doctor", "sweatshirt": "shirt", "tables": "table", "taxi": "car",
         "teacher": "professor", "telephone": "phone", "textbook": "book", "timer": "clock",
         "tooth": "teeth", "trout": "salmon", "trucks": "truck", "tuxedo": "suit",
