@@ -73,6 +73,11 @@ final class SpriteArtTests: XCTestCase {
             "broccoli", "kangaroo", "seagull", "sculpture", "fireman", "pier", "curry",
             "goldfish", "parachute", "popsicle", "rainbow", "lizard", "checkers", "beaver",
             "scanner", "hamster", "holly", "lever", "squash",
+            // Sprite corpus slice 22 (gated; synonyms and shared concepts aliased).
+            "mast", "stereo", "walrus", "cappuccino", "harmonica", "heater", "weeds",
+            "rudder", "firewood", "pistachio", "clarinet", "rag", "puppet", "volcano",
+            "dishwasher", "saucer", "mosquito", "fig", "jellyfish", "tennis", "seaweed",
+            "carousel", "reef", "ink", "banjo",
         ]
         for name in names {
             XCTAssertNotNil(SpriteArt.image(named: name), "\(name).png missing from the app bundle")
@@ -106,6 +111,9 @@ final class SpriteArtTests: XCTestCase {
         XCTAssertNotNil(SpriteArt.cardImage(forEnglish: "rooster")) // -> chicken
         XCTAssertNotNil(SpriteArt.cardImage(forEnglish: "nightgown")) // -> pajamas
         XCTAssertNotNil(SpriteArt.cardImage(forEnglish: "trout")) // -> salmon
+        XCTAssertNotNil(SpriteArt.cardImage(forEnglish: "mommy")) // -> mother
+        XCTAssertNotNil(SpriteArt.cardImage(forEnglish: "chariot")) // -> car
+        XCTAssertNotNil(SpriteArt.cardImage(forEnglish: "barbecue")) // -> grill
     }
 
     // Every enemy any biome can put on a floor must resolve to a sprite -

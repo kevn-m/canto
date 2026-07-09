@@ -8,10 +8,11 @@ enum SpriteArt {
     // and words that resolve to an already-drawn concept (deduped at draw time).
     private static let cardAliases = [
         "alligator": "crocodile", "ape": "monkey", "automobile": "car", "baboon": "monkey",
-        "bathroom": "toilet",
+        "barbecue": "grill", "bathroom": "toilet",
         "bedroom": "room", "blouse": "shirt", "bonnet": "hat", "boot": "shoe",
         "bulldog": "dog", "bunny": "rabbit", "cab": "car", "canoe": "boat", "cap": "hat",
         "cash": "money", "cathedral": "church", "cedar": "tree", "chamber": "room", "chapel": "church",
+        "chariot": "car",
         "chick": "chicken", "cobra": "snake", "cock": "chicken", "comics": "book",
         "cop": "police", "cottage": "house", "crate": "box", "crib": "bed",
         "dad": "father", "dentist": "doctor", "dogs": "dog", "dollar": "money", "dragon": "boss-dragon",
@@ -21,7 +22,7 @@ enum SpriteArt {
         "jacket": "coat", "jeans": "pants", "jeep": "car", "jet": "plane",
         "kids": "kid", "kitten": "cat", "lemonade": "drink", "lieutenant": "police",
         "lunch": "food", "mama": "mother", "mansion": "house", "mattress": "bed",
-        "mom": "mother", "monastery": "church", "motel": "hotel", "mummy": "mother",
+        "mom": "mother", "mommy": "mother", "monastery": "church", "motel": "hotel", "mummy": "mother",
         "mustang": "horse", "nightgown": "pajamas",
         "nickel": "money", "oak": "tree", "officer": "police", "papa": "father",
         "physician": "doctor", "piglet": "pig", "plant": "tree", "policeman": "police",
