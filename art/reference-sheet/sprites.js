@@ -26487,6 +26487,566 @@ S.push({ name: 'wader', draw(g) {
     blush(g, 38, 16);
   }});
 
+
+S.push({ name: 'can', draw(g) {              // 罐 gun3 — drink can
+    rrect(g, 20, 16, 44, 54, 5, P.lav);                  // body shadow
+    rrect(g, 20, 15, 42, 52, 5, P.sky);                  // body
+    ellipse(g, 31, 15, 11, 3, P.crm);                    // top rim
+    disc(g, 31, 15, 2, P.dgy);                           // pull tab
+    rect(g, 21, 30, 41, 33, P.crm);                      // label band
+    eyes(g, CX, 40, 6);
+    smileArc(g, CX, 46, 2.8, 1.2);
+    blush(g, 22, 44); blush(g, 41, 44);
+  }});
+
+S.push({ name: 'kitchen', draw(g) {          // 廚房 cyu4 fong2 — stove
+    rrect(g, 12, 30, 52, 56, 3, P.dgy);                  // stove body
+    rect(g, 12, 30, 52, 34, P.lgy);                      // cooktop
+    disc(g, 22, 32, 4, P.navy); disc(g, 42, 32, 4, P.navy); // burners
+    rrect(g, 17, 40, 47, 54, 2, P.navy);                 // oven window
+    rrect(g, 20, 42, 44, 52, 2, P.org);                  // oven glow
+    ball(g, CX, 22, 8, 5, P.red, P.plum);                // pot
+    rect(g, 23, 16, 40, 18, P.dgy);                      // pot lid
+    eyes(g, CX, 46, 4);
+    smileArc(g, CX, 50, 2.2, 1);
+  }});
+
+S.push({ name: 'gold', draw(g) {             // 金 gam1 — gold bar
+    tri(g, 14, 34, 50, 34, 44, 26, P.yel);               // top face
+    tri(g, 14, 34, 44, 26, 20, 26, P.yel);
+    rect(g, 14, 34, 50, 50, P.org);                      // front face
+    rect(g, 14, 34, 50, 36, P.yel);                      // top edge
+    ellipse(g, 22, 30, 3, 1.4, P.crm);                   // shine
+    eyes(g, CX, 42, 5);
+    smileArc(g, CX, 47, 2.4, 1);
+    blush(g, 22, 45); blush(g, 41, 45);
+  }});
+
+S.push({ name: 'bank', draw(g) {             // 銀行 ngan4 hong4 — bank building
+    tri(g, 9, 24, 54, 24, CX, 11, P.red);                // pediment
+    rect(g, 12, 24, 51, 28, P.crm);                      // architrave
+    rect(g, 13, 28, 50, 53, P.lgy);                      // facade
+    for (const x of [17, 26, 35, 44]) rect(g, x, 30, x + 3, 51, P.crm); // columns
+    rect(g, 11, 53, 52, 57, P.dgy);                      // step
+    eyes(g, CX, 19, 4);
+    smileArc(g, CX, 22, 1.9, 0.8);
+  }});
+
+S.push({ name: 'restaurant', draw(g) {       // 餐廳 caan1 teng1 — plate setting
+    disc(g, CX, 36, 16, P.lgy);                          // plate shadow
+    disc(g, CX, 35, 15, P.crm);                          // plate
+    ellipse(g, CX, 35, 10, 9, P.lgy);                    // inner ring
+    ellipse(g, CX, 35, 9, 8, P.crm);
+    stroke(g, [[10, 22], [10, 48]], 1.4, 1.4, P.dgy);    // fork handle
+    for (const x of [8, 10, 12]) rect(g, x, 17, x, 24, P.dgy); // tines
+    stroke(g, [[53, 22], [53, 48]], 1.4, 1.4, P.dgy);    // knife handle
+    tri(g, 51, 17, 55, 17, 53, 30, P.lgy);               // blade
+    eyes(g, CX, 34, 5);
+    smileArc(g, CX, 39, 2.4, 1);
+    blush(g, 23, 37); blush(g, 40, 37);
+  }});
+
+S.push({ name: 'bike', draw(g) {             // 單車 daan1 ce1 — bicycle
+    disc(g, 18, 46, 10, P.navy); disc(g, 18, 46, 6, null); // rear wheel
+    disc(g, 46, 46, 10, P.navy); disc(g, 46, 46, 6, null); // front wheel
+    stroke(g, [[18, 46], [30, 30], [46, 46]], 1.4, 1.4, P.red); // frame
+    stroke(g, [[30, 30], [30, 46]], 1.4, 1.4, P.red);
+    stroke(g, [[30, 30], [24, 25]], 1.2, 1.2, P.red);    // seat post
+    rrect(g, 20, 23, 28, 26, 1, P.plum);                 // seat
+    stroke(g, [[46, 46], [48, 25]], 1.2, 1.2, P.dgy);    // fork
+    rect(g, 44, 23, 53, 25, P.dgy);                      // handlebar
+    disc(g, 30, 46, 2, P.lgy);                           // crank
+    eyes(g, 31, 39, 3);
+    smileArc(g, 31, 42, 1.5, 0.7);
+  }});
+
+S.push({ name: 'shower', draw(g) {           // 花灑 faa1 saa2 — showerhead
+    stroke(g, [[CX, 7], [CX, 15]], 1.6, 1.6, P.lgy);     // pipe
+    ellipse(g, CX, 20, 14, 6, P.dgy);                    // head shadow
+    ellipse(g, CX, 19, 13, 5, P.lgy);                    // head
+    for (const x of [20, 26, 31, 37, 43]) disc(g, x, 22, 1, P.navy); // nozzles
+    for (const x of [23, 31, 40]) stroke(g, [[x, 28], [x - 1, 42]], 1, 1, P.sky); // water
+    for (const x of [27, 36]) disc(g, x, 48, 1.6, P.sky); // drops
+    eyes(g, CX, 16, 4);
+    smileArc(g, CX, 19, 1.8, 0.7);
+    blush(g, 20, 18); blush(g, 43, 18);
+  }});
+
+S.push({ name: 'radio', draw(g) {            // 收音機 sau1 jam1 gei1 — radio
+    stroke(g, [[43, 20], [53, 7]], 1.2, 1.2, P.dgy);     // antenna
+    disc(g, 53, 7, 1.6, P.lgy);
+    rrect(g, 12, 20, 52, 52, 3, P.brn);                  // body shadow
+    rrect(g, 12, 20, 50, 50, 3, P.org);                  // body
+    disc(g, 22, 35, 8, P.navy);                          // speaker
+    for (let a = 0; a < 6; a++) { const t = a / 6 * 6.283; disc(g, 22 + Math.cos(t) * 4, 35 + Math.sin(t) * 4, 0.9, P.lgy); }
+    rrect(g, 35, 25, 47, 31, 1, P.crm);                  // tuner window
+    eyes(g, 40, 40, 3);
+    smileArc(g, 40, 43, 1.6, 0.7);
+    blush(g, 35, 42); blush(g, 46, 42);
+  }});
+
+S.push({ name: 'cream', draw(g) {            // 忌廉 gei6 lim1 — cream swirl
+    ellipse(g, CX, 50, 12, 4, P.lgy);                    // dish shadow
+    ellipse(g, CX, 49, 11, 3, P.crm);                    // dish
+    ball(g, CX, 42, 10, 5, P.crm, P.lgy);                // cream base
+    ball(g, CX, 34, 7, 5, P.crm, P.lgy);                 // swirl mid
+    ball(g, CX, 27, 4, 4, P.crm, P.lgy);                 // swirl top
+    disc(g, CX, 21, 2, P.crm);                           // tip
+    eyes(g, CX, 42, 5);
+    smileArc(g, CX, 47, 2.2, 1);
+    blush(g, 23, 45); blush(g, 40, 45);
+  }});
+
+S.push({ name: 'sugar', draw(g) {            // 糖 tong4 — sugar bowl
+    ellipse(g, CX, 30, 12, 5, P.crm);                    // heaped sugar
+    for (const p of [[26, 27], [31, 25], [37, 28], [29, 29], [34, 27]]) g.set(p[0], p[1], P.lgy); // grains
+    rrect(g, 18, 32, 45, 52, 3, P.lav);                  // bowl shadow
+    rrect(g, 18, 31, 43, 50, 3, P.sky);                  // bowl
+    rect(g, 18, 31, 43, 34, P.crm);                      // rim
+    eyes(g, CX, 42, 5);
+    smileArc(g, CX, 46, 2.4, 1);
+    blush(g, 23, 44); blush(g, 40, 44);
+  }});
+
+S.push({ name: 'sand', draw(g) {             // 沙 saa1 — sandcastle
+    rrect(g, 14, 34, 49, 54, 1, P.org);                  // castle body
+    rect(g, 14, 34, 49, 54, P.org);
+    for (const x of [15, 22, 29, 36, 43]) rect(g, x, 30, x + 3, 36, P.org); // battlements
+    rect(g, 27, 22, 36, 34, P.yel);                      // tower
+    tri(g, 26, 22, 37, 22, CX, 15, P.red);               // flag pole top
+    stroke(g, [[CX, 22], [CX, 14]], 0.8, 0.8, P.dgy);    // pole
+    tri(g, CX, 14, CX, 20, 40, 17, P.pnk);               // flag
+    ellipse(g, CX, 56, 18, 3, P.yel);                    // sand base
+    eyes(g, CX, 42, 5);
+    smileArc(g, CX, 47, 2.4, 1);
+    blush(g, 22, 45); blush(g, 41, 45);
+  }});
+
+S.push({ name: 'underwear', draw(g) {        // 內褲 noi6 fu3 — briefs
+    rrect(g, 15, 26, 48, 50, 6, P.sky);                  // brief body
+    rect(g, 15, 24, 48, 30, P.lav);                      // waistband
+    tri(g, 23, 51, 40, 51, CX, 40, null);                // leg notch cut
+    eyes(g, CX, 34, 5);
+    smileArc(g, CX, 38, 2, 0.9);
+    blush(g, 22, 36); blush(g, 41, 36);
+  }});
+
+S.push({ name: 'theater', draw(g) {          // 劇場 kek6 coeng4 — stage curtains
+    rect(g, 10, 12, 54, 16, P.yel);                      // valance
+    for (const x of [14, 22, 30, 38, 46]) tri(g, x, 16, x + 8, 16, x + 4, 20, P.org); // scallop
+    rrect(g, 10, 16, 24, 54, 3, P.red);                  // left curtain
+    rrect(g, 40, 16, 54, 54, 3, P.red);                  // right curtain
+    for (const x of [13, 17, 21]) rect(g, x, 18, x, 52, P.plum); // folds L
+    for (const x of [43, 47, 51]) rect(g, x, 18, x, 52, P.plum); // folds R
+    disc(g, CX, 30, 4, P.yel);                           // spotlight star
+    for (let a = 0; a < 8; a++) { const t = a / 8 * 6.283; disc(g, CX + Math.cos(t) * 7, 30 + Math.sin(t) * 7, 1, P.yel); }
+    eyes(g, CX, 40, 5);
+    smileArc(g, CX, 45, 2.2, 1);
+    blush(g, 25, 43); blush(g, 38, 43);
+  }});
+
+S.push({ name: 'pool', draw(g) {             // 游泳池 jau4 wing6 ci4 — swimming pool
+    rrect(g, 10, 26, 54, 54, 4, P.lgy);                  // pool deck
+    rrect(g, 14, 30, 50, 50, 3, P.sky);                  // water
+    for (const y of [35, 41, 47]) for (let x = 16; x < 49; x += 6) g.set(x, y, P.crm); // ripples
+    rect(g, 44, 22, 46, 32, P.lgy);                      // ladder rails
+    rect(g, 48, 22, 50, 32, P.lgy);
+    for (const y of [26, 30]) rect(g, 44, y, 50, y, P.lgy);
+    eyes(g, 28, 40, 5);
+    smileArc(g, 28, 45, 2.2, 1);
+    blush(g, 20, 43); blush(g, 36, 43);
+  }});
+
+S.push({ name: 'dirt', draw(g) {             // 泥 nai4 — mound of dirt
+    ellipse(g, CX, 48, 20, 8, P.brn);                    // mound shadow
+    ball(g, CX, 44, 18, 9, P.brn, P.plum);               // mound
+    for (const p of [[22, 40], [30, 37], [38, 41], [26, 44], [40, 46]]) disc(g, p[0], p[1], 1.2, P.dgy); // clods
+    eyes(g, CX, 44, 6);
+    smileArc(g, CX, 49, 2.6, 1.1);
+    blush(g, 21, 47); blush(g, 42, 47);
+  }});
+
+S.push({ name: 'butter', draw(g) {           // 牛油 ngau4 jau4 — stick of butter
+    tri(g, 14, 34, 50, 34, 46, 27, P.crm);               // top face
+    tri(g, 14, 34, 46, 27, 18, 27, P.crm);
+    rect(g, 14, 34, 50, 50, P.yel);                      // front
+    rect(g, 14, 34, 50, 36, P.crm);                      // top edge
+    rect(g, 18, 34, 46, 50, P.yel);                      // wrapper gap
+    rect(g, 24, 38, 40, 46, P.crm);                      // paper label
+    eyes(g, CX, 42, 5);
+    smileArc(g, CX, 47, 2.2, 0.9);
+    blush(g, 22, 45); blush(g, 41, 45);
+  }});
+
+S.push({ name: 'cotton', draw(g) {           // 棉花 min4 faa1 — cotton boll
+    stroke(g, [[CX, 54], [CX, 40]], 1.2, 1.2, P.brn);    // stem
+    ball(g, 24, 34, 7, 6, P.crm, P.lgy);                 // fluff
+    ball(g, 40, 34, 7, 6, P.crm, P.lgy);
+    ball(g, CX, 28, 8, 7, P.crm, P.lgy);
+    ball(g, CX, 38, 8, 6, P.crm, P.lgy);
+    for (const p of [[24, 40], [40, 40], [26, 30], [38, 30]]) tri(g, p[0] - 3, p[1] + 4, p[0] + 3, p[1] + 4, p[0], p[1] + 8, P.brn); // husk
+    eyes(g, CX, 33, 5);
+    smileArc(g, CX, 38, 2.2, 0.9);
+    blush(g, 22, 36); blush(g, 41, 36);
+  }});
+
+S.push({ name: 'salt', draw(g) {             // 鹽 jim4 — salt shaker
+    ellipse(g, CX, 18, 8, 5, P.lgy);                     // dome cap
+    rect(g, 24, 18, 40, 22, P.dgy);                      // cap band
+    for (const p of [[29, 15], [34, 14], [31, 16]]) g.set(p[0], p[1], P.navy); // holes
+    rrect(g, 22, 22, 42, 54, 4, P.lav);                  // glass shadow
+    rrect(g, 22, 22, 40, 52, 4, P.crm);                  // glass
+    ellipse(g, CX, 44, 8, 6, P.lgy);                     // salt inside
+    eyes(g, CX, 36, 5);
+    smileArc(g, CX, 41, 2.2, 0.9);
+    blush(g, 24, 39); blush(g, 39, 39);
+  }});
+
+S.push({ name: 'pin', draw(g) {              // 圖釘 tou4 deng1 — push pin
+    ball(g, CX, 26, 14, 11, P.red, P.plum);              // pin head
+    ellipse(g, 26, 21, 4, 3, P.pnk);                     // shine
+    rect(g, 29, 36, 34, 40, P.lgy);                      // collar
+    tri(g, 29, 40, 34, 40, CX, 56, P.lgy);               // needle
+    eyes(g, CX, 25, 5);
+    smileArc(g, CX, 30, 2.4, 1);
+    blush(g, 21, 28); blush(g, 42, 28);
+  }});
+
+S.push({ name: 'steel', draw(g) {            // 鋼 gong3 — steel I-beam
+    rect(g, 14, 18, 50, 24, P.lgy);                      // top flange
+    rect(g, 14, 44, 50, 50, P.lgy);                      // bottom flange
+    rect(g, 27, 24, 37, 44, P.lgy);                      // web
+    rect(g, 14, 18, 50, 20, P.crm);                      // top highlight
+    rect(g, 27, 24, 29, 44, P.crm);                      // web highlight
+    rect(g, 14, 22, 50, 24, P.dgy);                      // top shadow
+    rect(g, 14, 48, 50, 50, P.dgy);                      // bottom shadow
+    eyes(g, CX, 32, 4);
+    smileArc(g, CX, 36, 1.9, 0.8);
+    blush(g, 25, 34); blush(g, 38, 34);
+  }});
+
+S.push({ name: 'elevator', draw(g) {         // 升降機 sing1 gong3 gei1 — elevator
+    rrect(g, 12, 12, 52, 56, 2, P.dgy);                  // frame
+    rrect(g, 15, 15, 51, 54, 1, P.lgy);                  // shaft
+    rect(g, 15, 15, 32, 54, P.sky);                      // left door
+    rect(g, 32, 15, 51, 54, P.sky);                      // right door
+    rect(g, 31, 15, 33, 54, P.dgy);                      // door seam
+    tri(g, 24, 26, 30, 26, 27, 20, P.crm);               // up arrow
+    tri(g, 36, 30, 42, 30, 39, 36, P.crm);               // down arrow
+    eyes(g, 23, 42, 3);
+    smileArc(g, 23, 45, 1.6, 0.7);
+  }});
+
+S.push({ name: 'board', draw(g) {            // 板 baan2 — wooden board
+    tri(g, 12, 40, 52, 22, 52, 26, P.brn);               // plank slab
+    rect(g, 12, 40, 52, 44, P.brn);
+    tri(g, 12, 40, 12, 44, 52, 26, P.brn);
+    tri(g, 12, 40, 52, 22, 12, 36, P.org);               // top face
+    stroke(g, [[16, 36], [48, 22]], 0.7, 0.7, P.brn);    // grain
+    stroke(g, [[16, 40], [48, 26]], 0.7, 0.7, P.brn);
+    eyes(g, 30, 34, 4);
+    smileArc(g, 30, 38, 1.9, 0.8);
+    blush(g, 22, 36); blush(g, 38, 36);
+  }});
+
+S.push({ name: 'fat', draw(g) {              // 油 jau4 — oil bottle
+    rrect(g, 22, 20, 42, 54, 4, P.brn);                  // bottle shadow
+    rrect(g, 22, 20, 40, 52, 4, P.org);                  // bottle
+    rect(g, 28, 12, 36, 20, P.dgy);                      // neck/cap
+    ellipse(g, CX, 40, 8, 10, P.yel);                    // oil inside
+    ellipse(g, 27, 34, 2, 3, P.crm);                     // shine
+    eyes(g, CX, 38, 5);
+    smileArc(g, CX, 43, 2.2, 0.9);
+    blush(g, 24, 41); blush(g, 39, 41);
+  }});
+
+S.push({ name: 'pocket', draw(g) {           // 袋 doi2 — jeans pocket
+    rrect(g, 14, 16, 50, 56, 3, P.sky);                  // denim
+    rect(g, 14, 16, 50, 56, P.sky);
+    tri(g, 20, 24, 44, 24, CX, 40, P.lav);               // pocket flap
+    rect(g, 20, 20, 44, 24, P.lav);                      // pocket top
+    stroke(g, [[20, 21], [20, 24], [CX, 40], [44, 24], [44, 21]], 0.7, 0.7, P.yel); // stitching
+    disc(g, CX, 26, 1.6, P.yel);                         // rivet
+    eyes(g, CX, 28, 4);
+    smileArc(g, CX, 32, 1.9, 0.8);
+    blush(g, 24, 30); blush(g, 39, 30);
+  }});
+
+S.push({ name: 'tunnel', draw(g) {           // 隧道 seoi6 dou6 — tunnel
+    ball(g, CX, 40, 22, 20, P.grn, P.plum);              // hillside
+    ellipse(g, CX, 46, 13, 15, P.navy);                  // tunnel mouth
+    ellipse(g, CX, 47, 10, 12, P.dgy);                   // inner dark
+    rect(g, 18, 54, 45, 58, P.lgy);                      // road
+    for (const x of [24, 31, 38]) rect(g, x, 55, x + 2, 56, P.yel); // road dashes
+    eyes(g, CX, 30, 5);
+    smileArc(g, CX, 35, 2.2, 0.9);
+    blush(g, 20, 33); blush(g, 43, 33);
+  }});
+
+S.push({ name: 'mud', draw(g) {              // 泥漿 nai4 zoeng1 — mud puddle
+    ellipse(g, CX, 44, 22, 10, P.brn);                   // puddle
+    ellipse(g, CX, 42, 20, 8, P.plum);                   // depth
+    ellipse(g, 26, 41, 6, 3, P.brn);                     // sheen
+    for (const p of [[20, 34], [30, 32], [42, 35]]) disc(g, p[0], p[1], 1.6, P.brn); // splats
+    for (const p of [[20, 34], [30, 32], [42, 35]]) disc(g, p[0], p[1] - 3, 1, P.brn);
+    eyes(g, CX, 43, 5);
+    smileArc(g, CX, 47, 2.2, 0.9);
+    blush(g, 21, 45); blush(g, 42, 45);
+  }});
+
+S.push({ name: 'wax', draw(g) {              // 蠟 laap6 — candle
+    ball(g, CX, 12, 3, 5, P.org, P.red);                 // flame
+    disc(g, CX, 11, 1.6, P.yel);                         // flame core
+    stroke(g, [[CX, 16], [CX, 19]], 0.6, 0.6, P.dgy);    // wick
+    rrect(g, 24, 20, 40, 54, 3, P.lav);                  // candle shadow
+    rrect(g, 24, 19, 38, 52, 3, P.crm);                  // candle
+    stroke(g, [[28, 20], [27, 30]], 1, 1.6, P.crm);      // wax drip
+    ellipse(g, 27, 31, 2, 2.4, P.lgy);
+    eyes(g, CX, 34, 5);
+    smileArc(g, CX, 39, 2.2, 0.9);
+    blush(g, 25, 37); blush(g, 39, 37);
+  }});
+
+S.push({ name: 'statue', draw(g) {           // 雕像 diu1 zoeng6 — statue
+    rect(g, 16, 50, 48, 57, P.dgy);                      // pedestal
+    rect(g, 18, 46, 46, 50, P.lgy);                      // plinth top
+    ball(g, CX, 38, 8, 7, P.lgy, P.dgy);                 // body
+    ball(g, CX, 26, 6, 7, P.lgy, P.dgy);                 // head
+    ball(g, 20, 38, 3, 5, P.lgy, P.dgy);                 // arm
+    ball(g, 43, 34, 3, 5, P.lgy, P.dgy);                 // raised arm
+    eyes(g, CX, 26, 4);
+    smileArc(g, CX, 30, 1.8, 0.8);
+    blush(g, 25, 28); blush(g, 38, 28);
+  }});
+
+S.push({ name: 'swamp', draw(g) {            // 沼澤 ziu2 zaak6 — swamp
+    ellipse(g, CX, 48, 24, 8, P.grn);                    // murky water
+    ellipse(g, CX, 46, 22, 6, P.plum);
+    ellipse(g, 22, 46, 6, 2.4, P.lim);                   // lily pad
+    ellipse(g, 40, 47, 5, 2.2, P.lim);
+    for (const x of [26, 31, 37]) stroke(g, [[x, 46], [x + 1, 26]], 1, 0.6, P.grn); // reeds
+    for (const x of [26, 31, 37]) ball(g, x + 1, 24, 1.6, 3, P.brn, P.plum); // cattail
+    eyes(g, CX, 45, 4);
+    smileArc(g, CX, 49, 1.9, 0.8);
+    blush(g, 24, 47); blush(g, 39, 47);
+  }});
+
+S.push({ name: 'ashes', draw(g) {            // 灰 fui1 — pile of ashes
+    ellipse(g, CX, 50, 20, 6, P.dgy);                    // ash base
+    ball(g, CX, 45, 17, 8, P.lgy, P.dgy);                // ash mound
+    for (const p of [[24, 42], [32, 39], [39, 43]]) disc(g, p[0], p[1], 1.4, P.crm); // flecks
+    disc(g, 36, 47, 1.6, P.org);                         // ember
+    disc(g, 27, 48, 1.2, P.red);                         // ember
+    eyes(g, CX, 45, 5);
+    smileArc(g, CX, 49, 2.2, 0.9);
+    blush(g, 22, 47); blush(g, 41, 47);
+  }});
+
+S.push({ name: 'cable', draw(g) {            // 電線 din6 sin3 — plug & cord
+    stroke(g, [[24, 46], [40, 42], [46, 30], [38, 22], [28, 26]], 2.8, 2.6, P.navy); // cord outline
+    stroke(g, [[24, 46], [40, 42], [46, 30], [38, 22], [28, 26]], 1.6, 1.4, P.org);  // cord
+    rrect(g, 12, 40, 26, 54, 3, P.brn);                  // plug body shadow
+    rrect(g, 12, 39, 24, 52, 3, P.lgy);                  // plug body
+    rect(g, 7, 42, 12, 44, P.dgy); rect(g, 7, 47, 12, 49, P.dgy); // prongs
+    eyes(g, 18, 44, 3);
+    smileArc(g, 18, 47, 1.5, 0.7);
+    blush(g, 13, 46); blush(g, 23, 46);
+  }});
+
+S.push({ name: 'sponge', draw(g) {           // 海綿 hoi2 min4 — sponge
+    rrect(g, 14, 26, 50, 44, 2, P.org);                  // scrub layer
+    rrect(g, 14, 32, 50, 52, 2, P.yel);                  // sponge shadow
+    rrect(g, 14, 32, 48, 50, 2, P.lim);                  // sponge
+    for (const p of [[20, 40], [30, 44], [40, 41], [26, 47], [44, 46]]) disc(g, p[0], p[1], 1.4, P.grn); // pores
+    eyes(g, CX, 38, 5);
+    smileArc(g, CX, 43, 2.2, 0.9);
+    blush(g, 22, 41); blush(g, 41, 41);
+  }});
+
+S.push({ name: 'dough', draw(g) {            // 麵團 min6 tyun4 — dough & rolling pin
+    ellipse(g, CX, 50, 20, 4, P.brn);                    // board
+    ball(g, CX, 44, 16, 8, P.crm, P.lgy);                // dough lump
+    for (const p of [[24, 42], [38, 45], [31, 40]]) disc(g, p[0], p[1], 1, P.lgy); // flour
+    rrect(g, 16, 24, 48, 32, 4, P.org);                  // rolling pin
+    rect(g, 10, 26, 16, 30, P.brn);                      // handle L
+    rect(g, 48, 26, 54, 30, P.brn);                      // handle R
+    eyes(g, CX, 44, 5);
+    smileArc(g, CX, 48, 2.2, 0.9);
+    blush(g, 23, 46); blush(g, 40, 46);
+  }});
+
+S.push({ name: 'leather', draw(g) {          // 皮 pei2 — folded leather
+    tri(g, 14, 44, 50, 44, 46, 36, P.brn);               // top fold face
+    tri(g, 14, 44, 46, 36, 18, 36, P.brn);
+    rect(g, 14, 44, 50, 52, P.plum);                     // front stack
+    rect(g, 14, 44, 50, 46, P.brn);                      // fold edge
+    rect(g, 14, 48, 50, 50, P.brn);                      // fold edge
+    for (const p of [[22, 40], [30, 39], [38, 41]]) g.set(p[0], p[1], P.org); // grain speckle
+    eyes(g, CX, 40, 5);
+    smileArc(g, CX, 44, 2.2, 0.9);
+    blush(g, 22, 42); blush(g, 41, 42);
+  }});
+
+S.push({ name: 'jelly', draw(g) {            // 啫喱 ze1 lei2 — jelly
+    ellipse(g, CX, 52, 16, 4, P.lgy);                    // plate
+    ball(g, CX, 40, 15, 12, P.pnk, P.plum);              // jelly dome
+    ellipse(g, 25, 32, 4, 3, P.crm);                     // shine
+    ellipse(g, CX, 28, 8, 3, P.red);                     // top ring
+    eyes(g, CX, 42, 5);
+    smileArc(g, CX, 47, 2.4, 1);
+    blush(g, 21, 44); blush(g, 42, 44);
+  }});
+
+S.push({ name: 'sauce', draw(g) {            // 汁 zap1 — sauce bottle
+    rrect(g, 22, 22, 42, 54, 5, P.plum);                 // bottle shadow
+    rrect(g, 22, 22, 40, 52, 5, P.red);                  // bottle
+    rect(g, 27, 12, 37, 18, P.crm);                      // cap
+    tri(g, 29, 18, 35, 18, CX, 22, P.crm);               // nozzle
+    ellipse(g, 27, 34, 2, 4, P.pnk);                     // shine
+    disc(g, CX, 12, 3, P.red);                           // drip on tip
+    eyes(g, CX, 38, 5);
+    smileArc(g, CX, 43, 2.2, 0.9);
+    blush(g, 24, 41); blush(g, 39, 41);
+  }});
+
+S.push({ name: 'mustard', draw(g) {          // 芥 gaai3 — mustard bottle
+    rrect(g, 22, 22, 42, 54, 5, P.org);                  // bottle shadow
+    rrect(g, 22, 22, 40, 52, 5, P.yel);                  // bottle
+    rect(g, 27, 12, 37, 18, P.crm);                      // cap
+    tri(g, 29, 18, 35, 18, CX, 22, P.crm);               // nozzle
+    ellipse(g, 27, 34, 2, 4, P.crm);                     // shine
+    disc(g, CX, 12, 3, P.yel);                           // drip
+    eyes(g, CX, 38, 5);
+    smileArc(g, CX, 43, 2.2, 0.9);
+    blush(g, 24, 41); blush(g, 39, 41);
+  }});
+
+S.push({ name: 'curtain', draw(g) {          // 窗簾 coeng1 lim2 — window curtain
+    rect(g, 12, 12, 52, 15, P.dgy);                      // rod
+    disc(g, 12, 13, 2, P.lgy); disc(g, 52, 13, 2, P.lgy); // finials
+    for (let i = 0; i < 5; i++) {                        // left drape scallops
+      ball(g, 16 + i * 3, 40, 3, 20, i % 2 ? P.sky : P.lav, P.lav);
+    }
+    for (let i = 0; i < 5; i++) {                        // right drape
+      ball(g, 34 + i * 3, 40, 3, 20, i % 2 ? P.sky : P.lav, P.lav);
+    }
+    rect(g, 14, 15, 50, 18, P.sky);                      // header
+    eyes(g, CX, 30, 5);
+    smileArc(g, CX, 35, 2.2, 0.9);
+    blush(g, 24, 33); blush(g, 39, 33);
+  }});
+
+S.push({ name: 'trailer', draw(g) {          // 拖架 to1 gaa2 — caravan trailer
+    rrect(g, 12, 24, 50, 46, 5, P.crm);                  // body shadow
+    rrect(g, 12, 23, 48, 44, 5, P.lgy);                  // caravan body
+    rrect(g, 16, 28, 30, 38, 1, P.sky);                  // window
+    rect(g, 34, 30, 44, 40, P.org);                      // door
+    stroke(g, [[48, 40], [58, 40]], 1.4, 1.4, P.dgy);    // hitch
+    disc(g, 22, 47, 5, P.navy); disc(g, 22, 47, 2, P.lgy); // wheel
+    disc(g, 40, 47, 5, P.navy); disc(g, 40, 47, 2, P.lgy);
+    eyes(g, CX, 34, 4);
+    smileArc(g, CX, 38, 1.9, 0.8);
+  }});
+
+S.push({ name: 'handkerchief', draw(g) {     // 手帕 sau2 paak3 — handkerchief
+    tri(g, 14, 30, 50, 30, CX, 52, P.crm);               // folded square (diamond)
+    tri(g, 14, 30, CX, 12, 50, 30, P.crm);
+    tri(g, 14, 30, CX, 12, 50, 30, P.lgy);               // top face lighter... (overwrite)
+    tri(g, 14, 30, CX, 8, 50, 30, P.crm);
+    tri(g, 14, 30, 50, 30, CX, 52, P.crm);
+    stroke(g, [[18, 30], [CX, 12], [46, 30], [CX, 48], [18, 30]], 0.7, 0.7, P.pnk); // border
+    disc(g, CX, 30, 2, P.pnk);                           // motif
+    eyes(g, CX, 30, 4);
+    smileArc(g, CX, 35, 1.9, 0.8);
+    blush(g, 24, 33); blush(g, 39, 33);
+  }});
+
+S.push({ name: 'lid', draw(g) {              // 蓋 goi3 — pot lid
+    ellipse(g, CX, 42, 22, 7, P.dgy);                    // rim shadow
+    ellipse(g, CX, 40, 21, 6, P.lgy);                    // rim
+    ellipse(g, CX, 38, 20, 9, P.dgy);                    // dome shadow
+    ellipse(g, CX, 36, 19, 8, P.lgy);                    // dome
+    ellipse(g, 24, 30, 4, 2, P.crm);                     // shine
+    rect(g, 28, 20, 35, 24, P.brn);                      // knob stem
+    disc(g, CX, 20, 4, P.org);                           // knob
+    eyes(g, CX, 37, 5);
+    smileArc(g, CX, 41, 2.2, 0.9);
+    blush(g, 23, 39); blush(g, 40, 39);
+  }});
+
+S.push({ name: 'tobacco', draw(g) {          // 菸草 jin1 cou2 — tobacco leaves
+    stroke(g, [[CX, 56], [CX, 30]], 1.4, 1, P.brn);      // stem
+    ball(g, 22, 34, 8, 12, P.grn, P.plum);               // left leaf
+    ball(g, 42, 34, 8, 12, P.grn, P.plum);               // right leaf
+    ball(g, CX, 26, 8, 12, P.lim, P.grn);                // top leaf
+    stroke(g, [[22, 44], [22, 24]], 0.7, 0.7, P.lim);    // veins
+    stroke(g, [[42, 44], [42, 24]], 0.7, 0.7, P.lim);
+    stroke(g, [[CX, 36], [CX, 16]], 0.7, 0.7, P.grn);
+    eyes(g, CX, 30, 4);
+    smileArc(g, CX, 34, 1.9, 0.8);
+    blush(g, 25, 32); blush(g, 38, 32);
+  }});
+
+S.push({ name: 'rug', draw(g) {              // 地氈 dei6 zin1 — rug
+    tri(g, 8, 44, 56, 44, 48, 30, P.red);                // rug top face
+    tri(g, 8, 44, 48, 30, 16, 30, P.red);
+    rect(g, 8, 44, 56, 48, P.plum);                      // front edge
+    tri(g, 12, 40, 44, 33, 44, 36, P.org);               // inner border
+    stroke(g, [[16, 40], [44, 33]], 0.7, 0.7, P.yel);    // stripe
+    for (const x of [8, 12, 16, 20]) rect(g, x, 48, x + 1, 51, P.crm); // fringe L
+    for (const x of [44, 48, 52, 56]) rect(g, x, 48, x + 1, 51, P.crm); // fringe R
+    eyes(g, 30, 38, 4);
+    smileArc(g, 30, 42, 1.9, 0.8);
+    blush(g, 22, 40); blush(g, 38, 40);
+  }});
+
+S.push({ name: 'cement', draw(g) {           // 英泥 jing1 nai4 — cement bag
+    rrect(g, 18, 20, 46, 54, 3, P.dgy);                  // bag shadow
+    rrect(g, 18, 19, 44, 52, 3, P.lgy);                  // bag
+    rect(g, 22, 14, 40, 22, P.lgy);                      // folded top
+    rect(g, 22, 14, 40, 16, P.dgy);                      // crease
+    rect(g, 24, 30, 38, 40, P.crm);                      // label patch
+    for (const p of [[20, 46], [42, 44]]) disc(g, p[0], p[1], 1.2, P.crm); // dust
+    eyes(g, CX, 44, 5);
+    smileArc(g, CX, 48, 2.2, 0.9);
+    blush(g, 23, 46); blush(g, 40, 46);
+  }});
+
+S.push({ name: 'saddle', draw(g) {           // 馬鞍 maa5 on1 — saddle
+    ball(g, CX, 36, 20, 11, P.brn, P.plum);              // seat mass
+    ellipse(g, CX, 30, 18, 6, P.org);                    // seat top
+    tri(g, 8, 40, 20, 32, 20, 46, P.brn);                // front skirt
+    tri(g, 56, 40, 44, 32, 44, 46, P.brn);               // rear skirt
+    ball(g, CX, 26, 4, 4, P.org, P.brn);                 // pommel
+    stroke(g, [[16, 44], [48, 44]], 0.8, 0.8, P.yel);    // trim stitch
+    eyes(g, CX, 34, 5);
+    smileArc(g, CX, 39, 2.2, 0.9);
+    blush(g, 22, 37); blush(g, 41, 37);
+  }});
+
+S.push({ name: 'pudding', draw(g) {          // 布甸 bou3 din1 — pudding
+    ellipse(g, CX, 52, 15, 4, P.lgy);                    // plate
+    ellipse(g, CX, 46, 15, 9, P.org);                    // pudding base
+    ball(g, CX, 40, 14, 10, P.yel, P.org);               // custard dome
+    ellipse(g, CX, 32, 11, 5, P.brn);                    // caramel top
+    disc(g, 24, 33, 1.4, P.crm);                         // shine
+    eyes(g, CX, 44, 5);
+    smileArc(g, CX, 49, 2.4, 1);
+    blush(g, 21, 46); blush(g, 42, 46);
+  }});
+
+S.push({ name: 'cloth', draw(g) {            // 布 bou3 — folded cloth
+    tri(g, 14, 40, 50, 40, 46, 32, P.lav);               // top fold
+    tri(g, 14, 40, 46, 32, 18, 32, P.lav);
+    rect(g, 14, 40, 50, 52, P.sky);                      // front stack
+    rect(g, 14, 40, 50, 42, P.lav);                      // fold edge
+    rect(g, 14, 46, 50, 48, P.lav);                      // fold edge
+    stroke(g, [[18, 36], [46, 36]], 0.6, 0.6, P.crm);    // stripe
+    eyes(g, CX, 46, 5);
+    smileArc(g, CX, 50, 2.2, 0.9);
+    blush(g, 22, 48); blush(g, 41, 48);
+  }});
+
   function renderGrid(name) {
     const item = S.find(s => s.name === name);
     const g = new Grid();

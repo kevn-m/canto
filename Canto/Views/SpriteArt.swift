@@ -199,6 +199,8 @@ enum SpriteArt {
         "twitter": "bird", "tycoon": "businessman", "ventriloquism": "ventriloquist",
         "waterfowl": "duck", "womenfolk": "woman", "woodland": "rainforest",
         "wordsmith": "author", "wrangler": "cowboy",
+        // Plain batch 01 (plain-01.tsv).
+        "diner": "restaurant", "panties": "underwear", "tin": "can",
     ]
 
     static func cardImage(forEnglish english: String) -> UIImage? {
