@@ -511,6 +511,19 @@ final class GameStoreTests: XCTestCase {
         XCTAssertEqual(finished, true)
     }
 
+    func test_finishedRunDates_onlyIncludesFinishedRunsAndDedupsSameDate() {
+        let store = GameStore(directory: tempDir)
+        let unfinished = store.startRun(on: "2026-07-05", state: makeRunState())!
+        _ = unfinished
+
+        let first = store.startRun(on: "2026-07-04", state: makeRunState())!
+        store.finishRun(id: first, state: makeRunState(enemyHP: 0))
+        let second = store.startRun(on: "2026-07-04", state: makeRunState())!
+        store.finishRun(id: second, state: makeRunState(enemyHP: 0))
+
+        XCTAssertEqual(store.finishedRunDates(), ["2026-07-04"])
+    }
+
     // MARK: - abandonRun
 
     func test_abandonRun_deletesUnfinishedRowAndPaysNothing() {

@@ -76,13 +76,14 @@ struct ErrorBanner: View {
 struct TowerEntryView: View {
     @ObservedObject private var gameStore = GameStore.shared
     @State private var deckSize = 0
+    @State private var streak = 0
 
     var body: some View {
         Group {
             if deckSize < Balance.deckUnlockSize {
                 TowerLockedView(deckSize: deckSize)
             } else {
-                TowerView()
+                TowerView(onRunFinished: refreshStreak)
             }
         }
         // No title: the hallway backdrop is the label (Kevin's show-don't-
@@ -91,6 +92,16 @@ struct TowerEntryView: View {
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            // Only from day 2 onward - a "1" every single day is noise.
+            if streak >= 2 {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "flame.fill")
+                            .foregroundStyle(.orange)
+                        Text("\(streak)")
+                    }
+                }
+            }
             ToolbarItem(placement: .navigationBarTrailing) {
                 NavigationLink {
                     DeckView()
@@ -111,9 +122,13 @@ struct TowerEntryView: View {
             // towards the unlock the moment this screen opens.
             gameStore.syncDeck(from: LogStore.shared)
             deckSize = gameStore.deckSize()
+            refreshStreak()
         }
     }
 
+    private func refreshStreak() {
+        streak = StreakEngine.length(dates: gameStore.finishedRunDates(), today: ReviewEngine.todayString())
+    }
 }
 
 // The tower before it's earned: the dungeon backdrop sealed behind a gold

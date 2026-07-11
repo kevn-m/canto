@@ -196,6 +196,10 @@ struct BiomePickerView: View {
 // optional extension door at the end. Runs repeat freely - an unfinished run
 // resumes, a finished one just means the next tap starts a new climb.
 struct TowerView: View {
+    // The summary is a phase, not a push, so TowerEntryView never re-appears
+    // after a climb - it needs telling that the streak may have grown.
+    var onRunFinished: () -> Void = {}
+
     private enum Phase {
         case loading, notStarted, fighting, doorOffer, finished(BattleEngine.Outcome), corrupt
     }
@@ -304,6 +308,7 @@ struct TowerView: View {
                 phase = .doorOffer
             case .runFinished(let finalOutcome):
                 gameStore.finishRun(id: run.id, state: resumedState)
+                onRunFinished()
                 runState = resumedState
                 phase = .finished(finalOutcome)
             }
@@ -358,6 +363,7 @@ struct TowerView: View {
             phase = .doorOffer
         case .runFinished(let finalOutcome):
             gameStore.finishRun(id: runId, state: runState)
+            onRunFinished()
             playFinishSounds(for: finalOutcome)
             phase = .finished(finalOutcome)
         }
@@ -371,6 +377,7 @@ struct TowerView: View {
     private func declineDoor() {
         guard let runId else { return }
         gameStore.finishRun(id: runId, state: runState)
+        onRunFinished()
         playFinishSounds(for: .victory)
         phase = .finished(.victory)
     }

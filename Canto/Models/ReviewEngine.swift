@@ -59,7 +59,9 @@ struct ReviewEngine {
         return formatter
     }()
 
-    private static func addDays(_ days: Int, to dateString: String) -> String {
+    // Internal so StreakEngine walks days on this same calendar/formatter
+    // instead of building a second notion of a day.
+    static func addDays(_ days: Int, to dateString: String) -> String {
         guard let date = dateFormatter.date(from: dateString),
               let newDate = dateFormatter.calendar.date(byAdding: .day, value: days, to: date) else {
             assertionFailure("ReviewEngine.addDays got an unparsable date: \(dateString)")

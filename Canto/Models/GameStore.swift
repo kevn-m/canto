@@ -327,6 +327,16 @@ final class GameStore: ObservableObject {
         }
     }
 
+    // Split like fetchBalance/balance: finishRun awards streak badges from
+    // inside its own open transaction, and re-entering dbQueue there deadlocks.
+    private func fetchFinishedRunDates(_ db: Database) throws -> Set<String> {
+        Set(try String.fetchAll(db, sql: "SELECT DISTINCT run_date FROM runs WHERE finished = 1"))
+    }
+
+    func finishedRunDates() -> Set<String> {
+        readValue(default: []) { db in try self.fetchFinishedRunDates(db) }
+    }
+
     // Refuses only while TODAY's Run is unfinished — a Run abandoned on a past
     // day is unresumable, so it must not block deletion forever. Guard, photo
     // read and cascade share one transaction, so a refused or failed write
