@@ -347,6 +347,12 @@ final class SpriteArtTests: XCTestCase {
             "malt", "miniskirt", "nylon", "pacemaker", "pellet", "pink", "platinum",
             "putty", "saline", "saltwater", "seasoning", "serum", "sheepskin", "silt",
             "snakeskin", "sod", "steroids", "sulfur", "topsoil", "waistband", "yeast",
+            // Plain batch 05 (plain-05.tsv).
+            "acrylic", "buttonhole", "coolant", "cornstarch", "ethanol", "fluoride",
+            "frankincense", "graphite", "helium", "indigo", "lacquer", "newsprint",
+            "oxygen", "pigment", "pigtail", "polyester", "refugee", "rind", "runaway",
+            "sackcloth", "sharkskin", "snuff", "stationery", "suede", "sweetener",
+            "tiller", "tortoiseshell", "tramp", "whey", "wrapping",
         ]
         for name in names {
             XCTAssertNotNil(SpriteArt.image(named: name), "\(name).png missing from the app bundle")

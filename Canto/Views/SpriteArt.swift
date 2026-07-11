@@ -209,6 +209,9 @@ enum SpriteArt {
         "algae": "seaweed", "brassiere": "bra", "chemical": "chemicals", "cinder": "ashes",
         "hump": "camel", "petrol": "gasoline", "suds": "foam", "tarmac": "asphalt",
         "turf": "sod",
+        // Plain batch 05 (plain-05.tsv).
+        "antifreeze": "coolant", "caffeine": "coffee", "diesel": "gasoline", "glucose": "sugar",
+        "lactose": "milk", "lambskin": "sheepskin", "seawater": "saltwater",
     ]
 
     static func cardImage(forEnglish english: String) -> UIImage? {
