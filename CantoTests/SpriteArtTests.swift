@@ -456,4 +456,26 @@ final class SpriteArtTests: XCTestCase {
         }
         XCTAssertNil(SpriteArt.enemyImage(for: "kraken"), "unknown enemies fall back to the SF Symbol")
     }
+
+    // Every badge the catalogue can award must resolve to a sprite - this is
+    // what keeps a new badge from shipping with a missing PNG (a grey SF
+    // Symbol on the shelf instead of real art).
+    func test_badgeImage_mapsEveryCatalogueBadgeToASprite() {
+        for id in BadgeEngine.all {
+            XCTAssertNotNil(SpriteArt.badgeImage(id: id), "\(id) has no sprite")
+        }
+    }
+
+    // Every gear item the shop sells must resolve to a sprite - same
+    // reasoning as the badge shelf, for hats and companions.
+    func test_gearImage_mapsEveryCatalogueItemToASprite() {
+        for item in GearCatalog.all {
+            XCTAssertNotNil(SpriteArt.gearImage(id: item.id), "\(item.id) has no sprite")
+        }
+    }
+
+    func test_streakFlameAndShelfTrophy_areBundled() {
+        XCTAssertNotNil(SpriteArt.image(named: "streak-flame"))
+        XCTAssertNotNil(SpriteArt.image(named: "shelf-trophy"))
+    }
 }

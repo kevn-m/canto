@@ -288,10 +288,12 @@ enum SpriteArt {
         image(named: "player-kid")
     }
 
-    // Gear sprites ship in Slice 6; nil until then, so every gear view
-    // must fall back to an SF Symbol (see GearSpriteView).
     static func gearImage(id: String) -> UIImage? {
         image(named: id)
+    }
+
+    static func badgeImage(id: String) -> UIImage? {
+        image(named: "badge-\(id)")
     }
 
     // Tries the bundle root and the Sprites subdirectory: XcodeGen flattens
@@ -331,6 +333,28 @@ struct EnemySpriteView: View {
         case "bat": return "bird.fill"
         case "dragon": return "flame.fill"
         default: return "ladybug.fill"
+        }
+    }
+}
+
+// One badge sprite, or the SF Symbol stand-in for a badge id the catalogue
+// grew before its art shipped. Shared by the shelf and the run-summary pop-in.
+struct BadgeSpriteView: View {
+    let id: String
+    var size: CGFloat = 40
+
+    var body: some View {
+        if let sprite = SpriteArt.badgeImage(id: id) {
+            Image(uiImage: sprite)
+                .resizable()
+                .interpolation(.none)
+                .scaledToFit()
+                .frame(width: size, height: size)
+        } else {
+            Image(systemName: "rosette")
+                .font(.system(size: size * 0.6))
+                .foregroundStyle(GameTheme.gold)
+                .frame(width: size, height: size)
         }
     }
 }

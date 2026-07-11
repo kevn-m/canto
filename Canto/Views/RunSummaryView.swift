@@ -99,8 +99,7 @@ struct RunSummaryView: View {
 }
 
 // One newly earned badge, popping in with a spring after its stagger delay
-// so several badges don't all slam in at once. Sprite art ships in Slice 6;
-// SF Symbol stands in until then.
+// so several badges don't all slam in at once.
 private struct BadgePopView: View {
     let badgeId: String
     let delay: Double
@@ -108,9 +107,7 @@ private struct BadgePopView: View {
     @State private var visible = false
 
     var body: some View {
-        Image(systemName: "rosette")
-            .font(.system(size: 40))
-            .foregroundStyle(GameTheme.gold)
+        BadgeSpriteView(id: badgeId, size: 40)
             .shadow(color: GameTheme.gold.opacity(0.6), radius: 8)
             .scaleEffect(visible ? 1 : 0.01)
             .opacity(visible ? 1 : 0)

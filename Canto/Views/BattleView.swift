@@ -96,8 +96,16 @@ struct TowerEntryView: View {
             if streak >= 2 {
                 ToolbarItem(placement: .navigationBarLeading) {
                     HStack(spacing: 4) {
-                        Image(systemName: "flame.fill")
-                            .foregroundStyle(.orange)
+                        if let flame = SpriteArt.image(named: "streak-flame") {
+                            Image(uiImage: flame)
+                                .resizable()
+                                .interpolation(.none)
+                                .scaledToFit()
+                                .frame(width: 20, height: 20)
+                        } else {
+                            Image(systemName: "flame.fill")
+                                .foregroundStyle(.orange)
+                        }
                         Text("\(streak)")
                     }
                 }
@@ -120,7 +128,15 @@ struct TowerEntryView: View {
                 NavigationLink {
                     BadgesView()
                 } label: {
-                    Image(systemName: "trophy.fill")
+                    if let trophy = SpriteArt.image(named: "shelf-trophy") {
+                        Image(uiImage: trophy)
+                            .resizable()
+                            .interpolation(.none)
+                            .scaledToFit()
+                            .frame(width: 22, height: 22)
+                    } else {
+                        Image(systemName: "trophy.fill")
+                    }
                 }
             }
         }

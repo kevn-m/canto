@@ -31083,6 +31083,279 @@ S.push({ name: 'stoma', draw(g) {            // 氣孔 hei3 hung2
     ring(g, 40, 26, 7, 6);
   }});
 
+/* Reward-system batch — 16 achievement medals, 6 hero gear, 2 UI icons.
+   Medals share one frame (medal()) so they read as a shelf set; the emblem
+   inside each is what tells them apart. Hats/pals are worn by or stand beside
+   player-kid — check that sprite before drawing these. */
+function medal(g, rimBase, rimShadow, rimHi) {
+  rect(g, 24, 0, 28, 20, P.plum); rect(g, 24, 0, 27, 20, P.red);   // left ribbon strap
+  rect(g, 35, 0, 39, 20, P.plum); rect(g, 36, 0, 39, 20, P.red);   // right ribbon strap
+  ball(g, CX, 37, 20, 20, rimBase, rimShadow, rimHi);              // rim
+  disc(g, CX, 37, 15, P.crm);                                      // face plate
+}
+function star5(g, cx, cy, R, r, c) {
+  for (let k = 0; k < 5; k++) {
+    const a = -Math.PI / 2 + k * 2 * Math.PI / 5;
+    tri(g, cx + R * Math.cos(a), cy + R * Math.sin(a),
+      cx + r * Math.cos(a - 0.7), cy + r * Math.sin(a - 0.7),
+      cx + r * Math.cos(a + 0.7), cy + r * Math.sin(a + 0.7), c);
+  }
+  disc(g, cx, cy, r * 0.6, c);
+}
+
+S.push({ name: 'badge-first-run', draw(g) {          // first climb finished — checkered finish flag
+  medal(g, P.yel, P.org, P.crm);
+  stroke(g, [[24, 38], [24, 19]], 1.3, 1.1, P.dgy);   // pole (shortened so it clears the eyes below)
+  rect(g, 24, 19, 40, 31, P.crm);                     // flag
+  clipTo(g, [P.crm], () => {
+    rect(g, 24, 19, 28, 23, P.navy); rect(g, 32, 19, 36, 23, P.navy);
+    rect(g, 28, 23, 32, 27, P.navy); rect(g, 36, 23, 40, 27, P.navy);
+    rect(g, 24, 27, 28, 31, P.navy); rect(g, 32, 27, 36, 31, P.navy);
+  });
+  eyes(g, CX, 46, 5);
+  smileArc(g, CX, 50, 2, 0.9);
+}});
+
+S.push({ name: 'badge-first-victory', draw(g) {      // first win
+  medal(g, P.yel, P.org, P.crm);
+  stroke(g, [[22, 33], [28, 40], [42, 22]], 2.6, 2.6, P.grn); // big checkmark
+  eyes(g, CX, 46, 5);
+  smileArc(g, CX, 50, 2, 0.9);
+}});
+
+S.push({ name: 'badge-boss-tower', draw(g) {         // beat the dragon
+  medal(g, P.yel, P.org, P.crm);
+  tri(g, 23, 27, 29, 29, 25, 15, P.dgy);               // horns (dark grey, not orange: orange vanished against the gold rim)
+  tri(g, 40, 27, 34, 29, 38, 15, P.dgy);
+  ball(g, CX, 36, 14, 13, P.red, P.plum);              // head, filled bigger
+  tri(g, 28, 25, 35, 25, CX, 17, P.plum);              // dorsal ridge between the horns — dragon read beyond horns alone
+  ball(g, CX, 43, 6, 4, P.pch);                        // muzzle
+  g.set(28, 41, P.plum); g.set(35, 41, P.plum);        // nostrils
+  eyes(g, CX, 35, 6);
+  smileArc(g, CX, 44, 2.4, 1);
+}});
+
+S.push({ name: 'badge-boss-forest', draw(g) {        // beat the wolf
+  medal(g, P.yel, P.org, P.crm);
+  tri(g, 23, 25, 30, 21, 25, 14, P.dgy);              // ears
+  tri(g, 40, 25, 33, 21, 38, 14, P.dgy);
+  ball(g, CX, 35, 12, 11, P.dgy, P.lav);              // head
+  ellipse(g, CX, 40, 5.5, 3.6, P.lgy);                // muzzle
+  eyes(g, CX, 34, 6);
+  smileArc(g, CX, 41, 2.2, 1);
+}});
+
+S.push({ name: 'badge-boss-desert', draw(g) {        // beat the mummy
+  medal(g, P.yel, P.org, P.crm);
+  ball(g, CX, 37, 13, 12, P.crm, P.lgy);              // wrapped head
+  clipTo(g, [P.crm], () => {                          // bandage stripes
+    rect(g, 19, 28, 44, 29, P.lgy);
+    rect(g, 19, 33, 44, 34, P.lgy);
+    rect(g, 19, 42, 44, 43, P.lgy);
+  });
+  rect(g, 23, 34, 40, 40, P.dgy);                      // eye gap in the wrap
+  eyes(g, CX, 37, 6);
+  stroke(g, [[41, 25], [46, 22], [47, 17]], 1.1, 0.8, P.crm); // loose bandage end
+  smileArc(g, CX, 44, 2.2, 1);
+}});
+
+S.push({ name: 'badge-hits-50', draw(g) {            // 50 lifetime correct answers — bronze
+  medal(g, P.brn, P.plum, null);
+  star5(g, CX, 30, 9, 4, P.yel);
+  eyes(g, CX, 45, 5);
+  smileArc(g, CX, 49, 2, 0.9);
+}});
+
+S.push({ name: 'badge-hits-250', draw(g) {           // 250 lifetime correct answers — gold, three stars
+  medal(g, P.yel, P.org, P.crm);
+  star5(g, CX, 23, 6, 2.6, P.yel);
+  star5(g, 20, 35, 5, 2.2, P.yel);
+  star5(g, 43, 35, 5, 2.2, P.yel);
+  eyes(g, CX, 46, 5);
+  smileArc(g, CX, 50, 2, 0.9);
+}});
+
+S.push({ name: 'badge-mastered-5', draw(g) {         // 5 cards mastered
+  medal(g, P.yel, P.org, P.crm);
+  rrect(g, 21, 21, 42, 39, 2, P.lav);                 // card shadow
+  rrect(g, 21, 19, 40, 37, 2, P.sky);                 // card face
+  rect(g, 25, 24, 36, 25, P.crm);                     // text line
+  stroke(g, [[25, 32], [29, 36], [37, 26]], 1.8, 1.8, P.grn); // check
+  eyes(g, CX, 46, 5);
+  smileArc(g, CX, 50, 2, 0.9);
+}});
+
+S.push({ name: 'badge-mastered-15', draw(g) {        // 15 cards mastered
+  medal(g, P.yel, P.org, P.crm);
+  rrect(g, 20, 27, 38, 37, 2, P.lav); rrect(g, 20, 25, 36, 35, 2, P.sky);     // back card (shrunk, seated above the eyes)
+  rrect(g, 24, 22, 42, 32, 2, P.lav); rrect(g, 24, 20, 40, 30, 2, P.sky);    // top card
+  rect(g, 27, 24, 37, 25, P.crm);
+  stroke(g, [[27, 26], [30, 28], [38, 21]], 1.5, 1.5, P.grn);  // check on top card
+  eyes(g, CX, 47, 5);
+  smileArc(g, CX, 51, 2, 0.9);
+}});
+
+S.push({ name: 'badge-deck-25', draw(g) {            // 25 words collected
+  medal(g, P.yel, P.org, P.crm);
+  rrect(g, 20, 22, 43, 42, 2, P.brn);                 // book shadow
+  rrect(g, 20, 20, 41, 40, 2, P.sky);                 // cover
+  rect(g, 29, 20, 30, 40, P.lav);                     // spine
+  eyes(g, CX, 46, 5);
+  smileArc(g, CX, 50, 2, 0.9);
+}});
+
+S.push({ name: 'badge-deck-50', draw(g) {            // 50 words collected — two books, not one
+  medal(g, P.yel, P.org, P.crm);
+  rrect(g, 27, 27, 47, 37, 2, P.brn); rrect(g, 27, 25, 45, 35, 2, P.org);   // back book (shrunk, seated above the eyes)
+  rect(g, 35.5, 25, 36.5, 35, P.brn);
+  rrect(g, 16, 19, 34, 29, 2, P.lav); rrect(g, 16, 17, 32, 27, 2, P.sky);   // front book
+  rect(g, 23.5, 17, 24.5, 27, P.lav);
+  eyes(g, CX, 46, 5);
+  smileArc(g, CX, 50, 2, 0.9);
+}});
+
+S.push({ name: 'badge-streak-3', draw(g) {           // 3-day streak — bronze, small flame
+  medal(g, P.brn, P.plum, null);
+  tri(g, 27, 30, 33, 32, 30, 20, P.org);               // flame tip
+  ball(g, CX, 36, 6.5, 8.5, P.org, P.brn);            // flame body
+  ball(g, CX, 39, 3.6, 4.8, P.yel, P.org);            // inner flame
+  eyes(g, CX, 46, 5);
+  smileArc(g, CX, 50, 2, 0.9);
+}});
+
+S.push({ name: 'badge-streak-7', draw(g) {           // 7-day streak — silver, bigger flame
+  medal(g, P.lgy, P.lav, P.crm);
+  tri(g, 25, 27, 32, 30, 28, 16, P.org);               // flame tip
+  ball(g, CX, 34, 7.5, 10, P.org, P.brn);             // flame body
+  ball(g, CX, 38, 4.4, 5.8, P.yel, P.org);            // inner flame
+  eyes(g, CX, 46, 5);
+  smileArc(g, CX, 50, 2, 0.9);
+}});
+
+S.push({ name: 'badge-streak-14', draw(g) {          // 14-day streak — gold
+  medal(g, P.yel, P.org, P.crm);
+  tri(g, 24, 20, 30, 23, 27, 11, P.red);              // flame tip (lifted, clears the eyes)
+  ball(g, CX, 29, 9, 11, P.red, P.plum);              // outer flame
+  ball(g, CX, 32, 6, 7, P.org, P.red);                // mid flame
+  ball(g, CX, 35, 3.5, 4.5, P.yel, P.org);            // inner flame
+  eyes(g, CX, 46, 5);
+  smileArc(g, CX, 50, 2, 0.9);
+}});
+
+S.push({ name: 'badge-streak-30', draw(g) {          // 30-day streak — biggest, hottest, sparking: an obvious step above -14
+  medal(g, P.yel, P.org, P.crm);
+  tri(g, 21, 18, 29, 23, 24, 7, P.red); tri(g, 42, 18, 34, 23, 39, 7, P.red); // twin flame tips, taller than -14's single tip
+  ball(g, CX, 27, 11, 13, P.red, P.plum);             // outer flame, bigger than -14's
+  ball(g, CX, 30, 7.5, 8.5, P.org, P.red);            // mid flame
+  ball(g, CX, 34, 4.5, 5.5, P.yel, P.org);            // inner flame
+  disc(g, CX, 32, 1.3, P.crm);                        // white-hot core
+  disc(g, 17, 27, 1.3, P.yel); disc(g, 46, 29, 1.2, P.yel); disc(g, 20, 41, 1, P.yel); disc(g, 43, 42, 1, P.yel); // four sparks, not two
+  eyes(g, CX, 46, 5);
+  smileArc(g, CX, 50, 2, 0.9);
+}});
+
+S.push({ name: 'badge-rich-100', draw(g) {           // wallet reached 100 CantoBux
+  medal(g, P.yel, P.org, P.crm);
+  ball(g, CX, 32, 12, 12, P.yel, P.org, P.crm);       // coin
+  disc(g, CX, 32, 8, P.org);
+  disc(g, CX, 32, 6.5, P.yel);
+  eyes(g, CX, 46, 5);
+  smileArc(g, CX, 50, 2, 0.9);
+}});
+
+S.push({ name: 'hat-cap', draw(g) {                  // baseball cap, alone (composited on hero)
+  // The bill CONTRASTS with the crown rather than shading it. A grey-blue bill
+  // below-right of a blue dome is exactly where a drop shadow sits, and reads
+  // as one - two passes died that way. Red says "cap" on sight.
+  ellipse(g, CX + 9, 36, 15, 4.5, P.navy);            // bill underlay, so it keeps its own edge against the crown
+  ellipse(g, CX + 9, 36, 14, 3.4, P.red);
+  ball(g, CX - 2, 27, 14, 12, P.sky, P.lav);          // crown on top, capping the bill's back half
+  disc(g, CX - 2, 16, 2, P.crm);                      // button
+}});
+
+S.push({ name: 'hat-crown', draw(g) {                // king's crown, alone
+  tri(g, 12.5, 34, 20, 34, 16, 20, P.yel);            // points
+  tri(g, 20, 34, 28, 34, 24, 14, P.yel);
+  tri(g, 28, 34, 36, 34, 32, 14, P.yel);
+  tri(g, 36, 34, 44, 34, 40, 20, P.yel);
+  rect(g, 12.5, 34, 44, 42, P.org);                   // band
+  disc(g, 20, 26, 2, P.red); disc(g, CX, 21, 2.2, P.sky); disc(g, 36, 26, 2, P.red); // jewels
+}});
+
+S.push({ name: 'hat-wizard', draw(g) {               // wizard hat, alone
+  ellipse(g, CX, 41, 17, 4.5, P.lav);                 // brim shadow
+  ellipse(g, CX, 39, 16, 4, P.plum);                  // brim
+  tri(g, 18, 41, 45, 41, 34, 6, P.plum);              // cone
+  tri(g, 18, 41, 40, 41, 30, 10, P.lav);              // shade side
+  disc(g, 26, 27, 1.6, P.yel); disc(g, 33, 19, 1.4, P.yel); disc(g, 24, 34, 1.2, P.yel); // stars
+}});
+
+S.push({ name: 'pal-cat', draw(g) {                  // tiny companion cat, cuter/rounder than 'cat'
+  tri(g, 20, 20, 28, 20, 22, 10, P.lgy); tri(g, 44, 20, 36, 20, 42, 10, P.lgy); // ears
+  tri(g, 22, 18, 26, 18, 23, 12, P.pnk); tri(g, 42, 18, 38, 18, 41, 12, P.pnk);
+  ball(g, CX, 48, 11, 9, P.lgy, P.lav);               // round body
+  ball(g, 24, 56, 4, 3, P.lgy, P.lav); ball(g, 39, 56, 4, 3, P.lgy, P.lav);
+  ball(g, CX, 30, 15, 13, P.lgy, P.lav);              // big round head
+  ball(g, CX, 34, 5, 3.6, P.crm);                     // muzzle
+  ellipse(g, CX, 32.5, 1.6, 1.2, P.pnk);               // nose
+  eyes(g, CX, 29, 8);                                 // extra-wide eyes for cuteness
+  smileArc(g, CX, 36, 2, 0.9);
+  blush(g, CX - 13, 33); blush(g, CX + 13, 33);
+}});
+
+S.push({ name: 'pal-dog', draw(g) {                  // tiny companion dog, cuter/rounder than 'dog'
+  stroke(g, [[42, 52], [47, 50], [49, 45]], 1.6, 1.2, P.brn); // tail
+  ball(g, CX, 48, 11, 9, P.brn, P.plum);              // round body
+  ball(g, 24, 56, 4, 3, P.brn, P.plum); ball(g, 39, 56, 4, 3, P.brn, P.plum);
+  ball(g, CX, 30, 15, 13, P.brn, P.plum);             // big round head
+  ball(g, 18, 33, 3.6, 7, P.brn, P.plum);             // floppy ears
+  ball(g, 45, 33, 3.6, 7, P.brn, P.plum);
+  ball(g, CX, 35, 6, 4.4, P.crm, P.lgy);              // muzzle
+  ellipse(g, CX, 32.5, 1.8, 1.3, P.navy);             // nose
+  eyes(g, CX, 29, 8);
+  smileArc(g, CX, 36, 2, 0.9);
+  blush(g, CX - 13, 33); blush(g, CX + 13, 33);
+}});
+
+S.push({ name: 'pal-dragonling', draw(g) {           // tiny companion baby dragon, green (distinct from red boss-dragon)
+  tri(g, 15, 26, 24, 22, 21, 38, P.lim);              // small wings
+  tri(g, 48, 26, 39, 22, 42, 38, P.lim);
+  tri(g, 25, 16, 29, 18, 26, 10, P.yel);              // tiny horns
+  tri(g, 38, 16, 34, 18, 37, 10, P.yel);
+  stroke(g, [[41, 52], [46, 49], [48, 44]], 1.6, 1.2, P.lim); // tail
+  ball(g, CX, 49, 10, 8, P.lim, P.grn);               // round body
+  ball(g, 25, 56, 3.6, 2.6, P.lim, P.grn); ball(g, 38, 56, 3.6, 2.6, P.lim, P.grn);
+  ball(g, CX, 30, 15, 13, P.lim, P.grn);              // big round head
+  ball(g, CX, 35, 5.5, 3.8, P.pch);                   // muzzle
+  eyes(g, CX, 29, 8);
+  smileArc(g, CX, 36, 2, 0.9);
+  blush(g, CX - 13, 33); blush(g, CX + 13, 33);
+}});
+
+S.push({ name: 'streak-flame', draw(g) {             // UI: day-count flame icon
+  tri(g, 24, 22, 31, 28, 28, 10, P.red);              // flame tips
+  tri(g, 40, 24, 34, 28, 37, 12, P.red);
+  ball(g, CX, 36, 15, 20, P.red, P.plum);             // outer flame
+  ball(g, CX, 40, 10, 14, P.org, P.red);              // mid flame
+  ball(g, CX, 44, 6, 9, P.yel, P.org);                // inner flame
+  eyes(g, CX, 38, 6);
+  smileArc(g, CX, 44, 3, 1.2);
+  blush(g, CX - 11, 42); blush(g, CX + 11, 42);
+}});
+
+S.push({ name: 'shelf-trophy', draw(g) {             // UI: opens the badge shelf
+  stroke(g, [[18, 20], [12, 28], [18, 36]], 2, 2, P.brn); // handles
+  stroke(g, [[45, 20], [51, 28], [45, 36]], 2, 2, P.brn);
+  ball(g, CX, 26, 16, 14, P.yel, P.org);              // cup bowl
+  ellipse(g, CX, 16, 14, 4, P.org);                   // rim
+  rect(g, 28, 40, 35, 48, P.org);                     // stem
+  rrect(g, 22, 48, 41, 54, 2, P.brn);                 // base
+  rect(g, 25, 54, 38, 58, P.dgy);                     // plinth
+  eyes(g, CX, 24, 7);
+  smileArc(g, CX, 31, 3, 1.3);
+  blush(g, 18, 28); blush(g, 45, 28);
+}});
+
   function renderGrid(name) {
     const item = S.find(s => s.name === name);
     const g = new Grid();

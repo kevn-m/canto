@@ -1,10 +1,9 @@
 import SwiftUI
 
-// The trophy shelf: every catalogue badge, always - earned ones lit gold,
-// unearned ones dark silhouettes of the same icon. A kid who can't read the
-// count still sees exactly which sockets are still empty (Kevin's
-// show-don't-label rule). Real per-badge sprites land in Slice 6; `rosette`
-// stands in for all of them, same as RunSummaryView's BadgePopView.
+// The trophy shelf: every catalogue badge, always - earned ones lit full
+// colour, unearned ones dark silhouettes of the same sprite. A kid who can't
+// read the count still sees exactly which sockets are still empty (Kevin's
+// show-don't-label rule).
 struct BadgesView: View {
     @ObservedObject private var gameStore = GameStore.shared
     @State private var earned: Set<String>
@@ -62,7 +61,7 @@ struct BadgeShelf: View {
     var body: some View {
         LazyVGrid(columns: columns, spacing: 26) {
             ForEach(BadgeEngine.all, id: \.self) { id in
-                BadgeSlotView(earned: earned.contains(id))
+                BadgeSlotView(id: id, earned: earned.contains(id))
             }
         }
         .padding(24)
@@ -74,24 +73,20 @@ struct BadgeShelf: View {
     }
 }
 
-// One socket on the shelf. Earned: a gold-gradient disc, full-colour icon.
-// Unearned: a dark disc, the same icon dimmed and desaturated - a silhouette
-// of what's still to come, not a blank.
+// One socket on the shelf. Earned: full-colour sprite, no disc fill behind
+// it (the badge art carries its own gold rim, which fought a gold-gradient
+// socket). Unearned: a dark disc, the same sprite dimmed and desaturated -
+// a silhouette of what's still to come, not a blank.
 private struct BadgeSlotView: View {
+    let id: String
     let earned: Bool
 
     var body: some View {
         ZStack {
             Circle()
-                .fill(
-                    earned
-                        ? AnyShapeStyle(LinearGradient(colors: [GameTheme.yellow, GameTheme.gold], startPoint: .top, endPoint: .bottom))
-                        : AnyShapeStyle(GameTheme.deepNavy)
-                )
-                .overlay(Circle().strokeBorder(.black.opacity(0.35), lineWidth: 2))
-            Image(systemName: "rosette")
-                .font(.system(size: 26))
-                .foregroundStyle(earned ? GameTheme.navy : GameTheme.cream)
+                .fill(earned ? AnyShapeStyle(.clear) : AnyShapeStyle(GameTheme.deepNavy))
+                .overlay(Circle().strokeBorder(.black.opacity(0.35), lineWidth: earned ? 0 : 2))
+            BadgeSpriteView(id: id, size: 52)
                 .opacity(earned ? 1 : 0.25)
                 .grayscale(earned ? 0 : 1)
         }
