@@ -246,6 +246,18 @@ enum SpriteArt {
         "ogre": "troll", "painkiller": "pill", "saber": "sword", "scythe": "sickle",
         "smuggler": "thief", "terrorist": "thief", "vermouth": "alcohol", "villain": "thief",
         "warhead": "missile", "warlord": "soldier", "winery": "wine",
+        // Flag batch 04 (flag-04.tsv).
+        "amphetamine": "stimulant", "analgesic": "pill", "anesthetic": "stimulant",
+        "antidepressant": "medication", "archery": "bow", "armored": "truck",
+        "arsenal": "sword", "battleaxe": "axe", "blowpipe": "pipe", "bludgeon": "club",
+        "chopping": "cleaver", "codeine": "medication", "destroyer": "boat", "drunkard": "beer",
+        "duel": "sword", "flagship": "boat", "hacker": "thief", "hangover": "alcohol",
+        "highball": "cocktail", "intoxicated": "beer", "madman": "troll", "minesweeper": "boat",
+        "munitions": "missile", "narcotic": "cocaine", "nitroglycerine": "grenade",
+        "obsidian": "rock", "poacher": "thief", "rockslide": "landslide",
+        "scratcher": "lottery", "semiautomatic": "gun", "snare": "net", "snorting": "cocaine",
+        "snuffbox": "snuff", "spiked": "club", "sprite": "drink", "vaporizer": "cigarette",
+        "weaponry": "sword", "whittle": "chisel", "windstorm": "cloud",
     ]
 
     static func cardImage(forEnglish english: String) -> UIImage? {

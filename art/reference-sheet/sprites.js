@@ -29822,6 +29822,80 @@ S.push({ name: 'horsewhip', draw(g) {        // 馬鞭 maa5 bin1 — whip
     blush(g, 15, 49); blush(g, 23, 49);
   }});
 
+
+S.push({ name: 'unicorn', draw(g) {          // 獨角獸 duk6 gok3 sau3 — unicorn
+    ball(g, 24, 54, 3.4, 3, P.crm, P.lgy); ball(g, 40, 54, 3.4, 3, P.crm, P.lgy); // legs/hooves
+    ball(g, CX, 44, 12, 9, P.crm, P.lgy);                // body
+    stroke(g, [[42, 42], [52, 50], [50, 56]], 2, 1, P.pnk); // tail
+    ball(g, 22, 28, 9, 9, P.crm, P.lgy);                 // head
+    tri(g, 18, 20, 24, 20, 21, 12, P.crm);               // ear
+    tri(g, 20, 18, 26, 6, 23, 20, P.yel);                // spiral horn
+    stroke(g, [[20, 16], [24, 12]], 0.5, 0.5, P.org);    // horn twist
+    stroke(g, [[28, 22], [38, 30], [34, 42]], 3, 2, P.pnk); // mane
+    stroke(g, [[29, 20], [37, 28]], 1.4, 1, P.sky);      // mane streak
+    eyes(g, 22, 29, 5);
+    smileArc(g, 20, 34, 1.6, 0.7);
+    blush(g, 16, 32); blush(g, 28, 32);
+  }});
+
+S.push({ name: 'grille', draw(g) {           // 窗花 coeng1 faa1 — grille
+    rrect(g, 12, 12, 52, 54, 2, P.brn);                  // frame
+    rect(g, 16, 16, 48, 50, P.navy);                     // window opening
+    rect(g, 30, 16, 34, 50, P.sky);                      // vertical bar
+    rect(g, 16, 31, 48, 35, P.sky);                      // horizontal bar
+    for (const c of [[23,24],[41,24],[23,42],[41,42]]) { for (let a = 0; a < 8; a++) { const t = a/8*6.283; g.set(Math.round(c[0] + Math.cos(t)*4), Math.round(c[1] + Math.sin(t)*4), P.sky); } } // scroll rings
+    eyes(g, 32, 33, 3);
+    smileArc(g, 32, 36, 1.3, 0.6);
+    blush(g, 27, 35); blush(g, 37, 35);
+  }});
+
+S.push({ name: 'blaster', draw(g) {          // 水槍 seoi2 coeng1 — water blaster
+    rrect(g, 14, 26, 40, 40, 3, P.org);                  // body
+    rrect(g, 30, 18, 48, 30, 4, P.sky);                  // water tank
+    for (let x = 32; x < 47; x += 3) g.set(x, 24, P.crm); // water level
+    rect(g, 40, 30, 44, 34, P.red);                      // barrel base
+    rect(g, 44, 31, 54, 33, P.lgy);                      // nozzle
+    rect(g, 20, 40, 26, 52, P.org);                      // grip
+    tri(g, 26, 34, 30, 34, 28, 40, P.red);               // trigger
+    ball(g, 57, 32, 2.4, 2.4, P.sky, P.lav, P.crm);      // water squirt
+    eyes(g, 22, 32, 4);
+    smileArc(g, 22, 35, 1.6, 0.7);
+    blush(g, 17, 34); blush(g, 27, 34);
+  }});
+
+S.push({ name: 'barbed', draw(g) {           // 有刺鐵絲 jau5 ci3 tit3 si1 — barbed wire
+    stroke(g, [[6, 24], [20, 20], [34, 24], [48, 20], [58, 24]], 1.2, 1.2, P.lgy); // wire top
+    stroke(g, [[6, 42], [20, 46], [34, 42], [48, 46], [58, 42]], 1.2, 1.2, P.lgy); // wire bottom
+    for (const p of [[16,22],[30,24],[44,22]]) { stroke(g, [[p[0]-4, p[1]-4], [p[0]+4, p[1]+4]], 0.8, 0.8, P.dgy); stroke(g, [[p[0]-4, p[1]+4], [p[0]+4, p[1]-4]], 0.8, 0.8, P.dgy); } // top barbs
+    for (const p of [[16,44],[30,42],[44,44]]) { stroke(g, [[p[0]-4, p[1]-4], [p[0]+4, p[1]+4]], 0.8, 0.8, P.dgy); stroke(g, [[p[0]-4, p[1]+4], [p[0]+4, p[1]-4]], 0.8, 0.8, P.dgy); } // bottom barbs
+    eyes(g, CX, 34, 4);
+    smileArc(g, CX, 37, 1.6, 0.7);
+    blush(g, 24, 35); blush(g, 39, 35);
+  }});
+
+S.push({ name: 'flail', draw(g) {            // 連枷 lin4 gaa1 — flail
+    rrect(g, 14, 40, 22, 56, 3, P.brn);                  // handle
+    rect(g, 14, 40, 22, 43, P.org);                      // grip highlight
+    for (let i = 0; i < 4; i++) disc(g, 22 + i*4, 38 - i*4, 1.4, P.lgy); // chain links
+    ball(g, 42, 22, 9, 9, P.dgy, P.navy);                // spiked ball
+    for (let a = 0; a < 8; a++) { const t = a/8*6.283; tri(g, 42 + Math.cos(t)*8, 22 + Math.sin(t)*8, 42 + Math.cos(t+0.3)*8, 22 + Math.sin(t+0.3)*8, 42 + Math.cos(t+0.15)*13, 22 + Math.sin(t+0.15)*13, P.lgy); } // spikes
+    ball(g, 42, 22, 6, 6, P.dgy, P.navy);
+    eyes(g, 42, 22, 4);
+    smileArc(g, 42, 26, 1.4, 0.6);
+  }});
+
+S.push({ name: 'breathalyzer', draw(g) {     // 呼氣測醉器 fu1 hei3 caak1 zeoi3 hei3 — breathalyzer
+    rrect(g, 20, 24, 42, 54, 3, P.navy);                 // device body
+    rrect(g, 23, 28, 39, 38, 1, P.lim);                  // readout screen
+    for (let x = 25; x < 38; x += 3) rect(g, x, 32, x + 1, 34, P.grn); // reading bars
+    disc(g, 27, 46, 2, P.red); disc(g, 35, 46, 2, P.lgy); // buttons
+    rect(g, 40, 16, 52, 22, P.sky);                      // mouthpiece tube
+    ellipse(g, 52, 19, 2, 4, P.lav);                     // mouthpiece end
+    eyes(g, 31, 48, 3);
+    smileArc(g, 31, 51, 1.4, 0.6);
+    blush(g, 25, 50); blush(g, 37, 50);
+  }});
+
   function renderGrid(name) {
     const item = S.find(s => s.name === name);
     const g = new Grid();
