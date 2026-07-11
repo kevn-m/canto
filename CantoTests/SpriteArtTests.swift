@@ -8,6 +8,7 @@ final class SpriteArtTests: XCTestCase {
         let names = [
             "bear", "coffee", "crocodile", "dolphin", "eating", "elephant",
             "giraffe", "lion", "monkey", "tiger",
+            "player-kid",
             "enemy-slime", "enemy-bat", "boss-dragon",
             "enemy-mushroom", "enemy-snail", "boss-wolf",
             "enemy-cactus", "enemy-scorpion", "boss-mummy",
@@ -439,6 +440,10 @@ final class SpriteArtTests: XCTestCase {
         XCTAssertNotNil(SpriteArt.cardImage(forEnglish: "barbecue")) // -> grill
         XCTAssertNotNil(SpriteArt.cardImage(forEnglish: "snails")) // -> snail
         XCTAssertNotNil(SpriteArt.cardImage(forEnglish: "sailboat")) // -> boat
+    }
+
+    func test_heroImage_loadsFromTheBundle() {
+        XCTAssertNotNil(SpriteArt.heroImage())
     }
 
     // Every enemy any biome can put on a floor must resolve to a sprite -

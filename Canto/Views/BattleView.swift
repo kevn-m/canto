@@ -237,10 +237,17 @@ struct BattleView: View {
             }
 
             abandonButton
-            enemyView
+
+            Spacer(minLength: 0)
+
+            HStack(alignment: .bottom) {
+                heroView
+                Spacer()
+                enemyView
+            }
             hpBars
 
-            Spacer()
+            Spacer(minLength: 0)
 
             handView
         }
@@ -306,6 +313,22 @@ struct BattleView: View {
 
     private var currentFloor: RunState.Floor { runState.floors[runState.floorIndex] }
 
+    private var heroView: some View {
+        ZStack(alignment: .bottom) {
+            // Ground shadow anchors the hero to the same "stage" as the enemy.
+            Ellipse()
+                .fill(.black.opacity(0.35))
+                .frame(width: heroSize * 0.8, height: 18)
+                .blur(radius: 3)
+            HeroSpriteView(size: heroSize)
+                // A slow breathing bob so the hero feels alive between turns.
+                .phaseAnimator([0.0, -6.0]) { view, offset in
+                    view.offset(y: offset)
+                } animation: { _ in .easeInOut(duration: 1.2) }
+                .modifier(ShakeEffect(animatableData: CGFloat(partyShakes)))
+        }
+    }
+
     private var enemyView: some View {
         VStack(spacing: 4) {
             Text(currentFloor.enemyName.capitalized)
@@ -358,7 +381,11 @@ struct BattleView: View {
         }
     }
 
-    private var enemySize: CGFloat { currentFloor.kind == .boss ? 180 : 145 }
+    private var enemySize: CGFloat { currentFloor.kind == .boss ? 210 : 170 }
+
+    // Smaller than the enemy on purpose - the tower should look like it
+    // outmatches the kid.
+    private var heroSize: CGFloat { 130 }
 
     private var hpBars: some View {
         VStack(spacing: 10) {

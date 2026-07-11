@@ -284,6 +284,10 @@ enum SpriteArt {
         return image(named: isBoss ? "boss-\(enemyName)" : "enemy-\(enemyName)")
     }
 
+    static func heroImage() -> UIImage? {
+        image(named: "player-kid")
+    }
+
     // Tries the bundle root and the Sprites subdirectory: XcodeGen flattens
     // resource groups today, but a folder reference would nest them.
     static func image(named name: String) -> UIImage? {
@@ -321,6 +325,27 @@ struct EnemySpriteView: View {
         case "bat": return "bird.fill"
         case "dragon": return "flame.fill"
         default: return "ladybug.fill"
+        }
+    }
+}
+
+// The hero sprite scaled up with hard pixel edges, or the SF Symbol
+// stand-in if the sprite hasn't shipped yet.
+struct HeroSpriteView: View {
+    var size: CGFloat = 96
+
+    var body: some View {
+        if let sprite = SpriteArt.heroImage() {
+            Image(uiImage: sprite)
+                .resizable()
+                .interpolation(.none)
+                .scaledToFit()
+                .frame(width: size, height: size)
+        } else {
+            Image(systemName: "person.fill")
+                .font(.system(size: size * 0.7))
+                .foregroundStyle(.blue)
+                .frame(width: size, height: size)
         }
     }
 }
