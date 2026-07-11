@@ -381,6 +381,12 @@ final class SpriteArtTests: XCTestCase {
             "nose", "pelvis", "rib", "saliva", "scalp", "shoulder", "skull", "spit",
             "stomach", "sweat", "tattoo", "thigh", "throat", "tongue", "urine", "wing",
             "wound", "wrist",
+            // anatomy-02.
+            "antennae", "aorta", "armpit", "artery", "barefoot", "biceps", "bladder",
+            "blister", "cuticle", "diarrhea", "drool", "earlobe", "eyebrow", "eyelash",
+            "eyelid", "femur", "forearm", "freckles", "headquarters", "hip", "jawbone",
+            "marrow", "navel", "nostril", "plankton", "rump", "snout", "spleen", "stitch",
+            "tummy", "udder", "wart",
         ]
         for name in names {
             XCTAssertNotNil(SpriteArt.image(named: name), "\(name).png missing from the app bundle")

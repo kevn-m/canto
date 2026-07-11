@@ -258,6 +258,8 @@ enum SpriteArt {
         "scratcher": "lottery", "semiautomatic": "gun", "snare": "net", "snorting": "cocaine",
         "snuffbox": "snuff", "spiked": "club", "sprite": "drink", "vaporizer": "cigarette",
         "weaponry": "sword", "whittle": "chisel", "windstorm": "cloud",
+        // anatomy-02.
+        "bowel": "tummy", "brains": "brain", "gut": "stomach", "jaws": "jaw", "tumor": "wart",
     ]
 
     static func cardImage(forEnglish english: String) -> UIImage? {
