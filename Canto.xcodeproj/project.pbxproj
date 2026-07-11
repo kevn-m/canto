@@ -1450,6 +1450,7 @@
 		9C4822A57148160FAC416F46 /* megaphone.png in Resources */ = {isa = PBXBuildFile; fileRef = AAA9C98E28C1C44061005009 /* megaphone.png */; };
 		9C7886D30F51696BF9D628C4 /* supermarket.png in Resources */ = {isa = PBXBuildFile; fileRef = 4891A29660AC80DDF8713471 /* supermarket.png */; };
 		9C7DD2FD614A8F4BB93A3924 /* landmine.png in Resources */ = {isa = PBXBuildFile; fileRef = B5B2E090609AF94AFA49F115 /* landmine.png */; };
+		9C9246800234BE8CE1FA0660 /* BadgesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 393F4F5E0E275958554819CA /* BadgesView.swift */; };
 		9CD39884D06C123EA2753699 /* shrine.png in Resources */ = {isa = PBXBuildFile; fileRef = 2913FDE6BFA9A3AF3380D5EE /* shrine.png */; };
 		9CDDF6A67CD18B2D22A9B5D8 /* corsage.png in Resources */ = {isa = PBXBuildFile; fileRef = 0210C3B7824637EC8EE602D2 /* corsage.png */; };
 		9CE158BD9019A919DE5FC9BE /* pilothouse.png in Resources */ = {isa = PBXBuildFile; fileRef = 22683FA46495E752036DC3BE /* pilothouse.png */; };
@@ -3031,6 +3032,7 @@
 		3918F9E51D0A651CC6B58974 /* seasoning.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = seasoning.png; sourceTree = "<group>"; };
 		3919F82603BE988518927957 /* wheelchair.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = wheelchair.png; sourceTree = "<group>"; };
 		391F651419B5FC159D40F2DF /* seagull.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = seagull.png; sourceTree = "<group>"; };
+		393F4F5E0E275958554819CA /* BadgesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgesView.swift; sourceTree = "<group>"; };
 		395384D923C789EAF5E4F36B /* dachshund.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dachshund.png; sourceTree = "<group>"; };
 		39821A0008000B7B326859BC /* leek.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = leek.png; sourceTree = "<group>"; };
 		39BD79A15D0E300F2252EAD6 /* token.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = token.png; sourceTree = "<group>"; };
@@ -4959,6 +4961,7 @@
 		2A206BE175F12AE7E56E98A7 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				393F4F5E0E275958554819CA /* BadgesView.swift */,
 				51BC4C3491C15749FE543B01 /* BattleView.swift */,
 				84CA9D806C07C1BF39769FE6 /* CameraPicker.swift */,
 				41C28FAE8CA06799AE9CA520 /* CardPlayView.swift */,
@@ -9991,6 +9994,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F1F34A24DF7ED5DCE1ED23A0 /* BadgeEngine.swift in Sources */,
+				9C9246800234BE8CE1FA0660 /* BadgesView.swift in Sources */,
 				36C3E1A43553EC08B18FC5DD /* Balance.swift in Sources */,
 				76FC3009093342A985C06CDF /* BattleView.swift in Sources */,
 				E21AEB5C4916F98A92F94020 /* CameraPicker.swift in Sources */,

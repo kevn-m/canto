@@ -391,6 +391,15 @@ final class GameStore: ObservableObject {
         Set(try String.fetchAll(db, sql: "SELECT badge_id FROM badges"))
     }
 
+    // Read-only, called from BadgesView - never from inside finishRun's open
+    // transaction (see earnedBadgeIds for that path).
+    func earnedBadges() -> [(id: String, earnedAt: String)] {
+        readValue(default: []) { db in
+            let rows = try Row.fetchAll(db, sql: "SELECT badge_id, earned_at FROM badges ORDER BY earned_at")
+            return rows.map { (id: $0["badge_id"], earnedAt: $0["earned_at"]) }
+        }
+    }
+
     // Refuses only while TODAY's Run is unfinished — a Run abandoned on a past
     // day is unresumable, so it must not block deletion forever. Guard, photo
     // read and cascade share one transaction, so a refused or failed write

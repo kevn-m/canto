@@ -546,6 +546,21 @@ final class GameStoreTests: XCTestCase {
         XCTAssertEqual(store.finishedRunDates(), ["2026-07-04"])
     }
 
+    func test_earnedBadges_returnsWhatFinishRunAwardedInOrder() {
+        let store = GameStore(directory: tempDir)
+        let runId = store.startRun(on: "2026-07-04", state: makeRunState())!
+
+        let newBadges = store.finishRun(id: runId, state: makeRunState(enemyHP: 0))
+
+        XCTAssertEqual(Set(store.earnedBadges().map(\.id)), Set(newBadges))
+    }
+
+    func test_earnedBadges_isEmptyOnAFreshDatabase() {
+        let store = GameStore(directory: tempDir)
+
+        XCTAssertEqual(store.earnedBadges().count, 0)
+    }
+
     // MARK: - abandonRun
 
     func test_abandonRun_deletesUnfinishedRowAndPaysNothing() {

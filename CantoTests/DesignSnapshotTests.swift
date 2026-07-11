@@ -21,9 +21,11 @@ final class DesignSnapshotTests: XCTestCase {
         CardRecord(id: 3, traditional: "大象", jyutping: "daai6 zoeng6", english: "elephant", box: 2, dueOn: "2026-01-01"),
     ]
 
-    private func snapshot(_ name: String, @ViewBuilder content: () -> some View) {
+    // width defaults to an iPhone 17; pass 375 to check an SE-class phone,
+    // where a grid that fits at 393 can still overlap.
+    private func snapshot(_ name: String, width: CGFloat = 393, @ViewBuilder content: () -> some View) {
         let view = content()
-            .frame(width: 393, height: 760)
+            .frame(width: width, height: 760)
             .environment(\.colorScheme, .dark)
         let renderer = ImageRenderer(content: view)
         render(name, renderer)
@@ -263,6 +265,33 @@ final class DesignSnapshotTests: XCTestCase {
             RunSummaryView(state: state, outcome: .victory, newBadges: ["first-run", "first-victory", "streak-3"])
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(DungeonBackground())
+        }
+    }
+
+    private static let mixedEarned: Set<String> = [
+        "first-run", "first-victory", "boss-tower", "streak-3", "hits-50",
+    ]
+
+    // The bare shelf, not BadgesView: ImageRenderer lays its ScrollView out as
+    // a sliver. Mixed earned/unearned so the lit-vs-silhouette contrast shows -
+    // all-earned or all-unearned would hide it.
+    func test_badgesShelfRendersMixedEarnedState() {
+        snapshot("badges-shelf") {
+            ZStack {
+                InnBackground()
+                BadgeShelf(earned: Self.mixedEarned).padding()
+            }
+        }
+    }
+
+    // The narrowest phone still sold: the sockets have ~60pt of column here,
+    // so a fixed-width socket overlaps its neighbour. Render it and look.
+    func test_badgesShelfRendersOnASmallPhone() {
+        snapshot("badges-shelf-small", width: 375) {
+            ZStack {
+                InnBackground()
+                BadgeShelf(earned: Self.mixedEarned).padding()
+            }
         }
     }
 }

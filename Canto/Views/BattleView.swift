@@ -116,6 +116,13 @@ struct TowerEntryView: View {
                     Image(systemName: "cart.fill")
                 }
             }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                NavigationLink {
+                    BadgesView()
+                } label: {
+                    Image(systemName: "trophy.fill")
+                }
+            }
         }
         .onAppear {
             // Sync before measuring, so the word just looked up counts
