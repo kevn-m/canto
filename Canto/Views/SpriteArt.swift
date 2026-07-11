@@ -203,6 +203,8 @@ enum SpriteArt {
         "diner": "restaurant", "panties": "underwear", "tin": "can",
         // Plain batch 02 (plain-02.tsv).
         "aspirin": "pill", "diaper": "pampers",
+        // Plain batch 03 (plain-03.tsv).
+        "cashmere": "sweater", "satin": "silk",
     ]
 
     static func cardImage(forEnglish english: String) -> UIImage? {

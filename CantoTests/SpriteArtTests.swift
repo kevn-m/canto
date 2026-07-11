@@ -330,6 +330,14 @@ final class SpriteArtTests: XCTestCase {
             "leash", "mat", "mayonnaise", "medication", "menu", "napkin", "oatmeal",
             "pantyhose", "pill", "pod", "pole", "shaft", "silk", "silver", "timber",
             "videotape", "yogurt",
+            // Plain batch 03 (plain-03.tsv).
+            "aluminum", "artist", "asphalt", "barbershop", "beetle", "beggar", "bra",
+            "cabbage", "canister", "cardinal", "cologne", "crumb", "dumpster", "ferret",
+            "garter", "giant", "gravel", "hairdresser", "hatch", "kerosene", "latex",
+            "lighter", "linen", "marker", "nod", "pollen", "poster", "quicksand",
+            "racetrack", "raisin", "roller", "runway", "rye", "sawdust", "shawl",
+            "shuttle", "spa", "spandex", "stuffing", "tailor", "tar", "titanium", "tofu",
+            "vanilla", "velvet", "waterfall",
         ]
         for name in names {
             XCTAssertNotNil(SpriteArt.image(named: name), "\(name).png missing from the app bundle")
