@@ -29135,6 +29135,50 @@ S.push({ name: 'stimulant', draw(g) {        // 興奮劑 hing1 fan5 zai1 — st
     smileArc(g, 29, 48, 1.4, 0.6);
   }});
 
+
+S.push({ name: 'soundproofing', draw(g) {    // 隔音 gaak3 jam1 — soundproofing foam
+    rrect(g, 12, 20, 52, 52, 2, P.lav);                  // panel base
+    for (let r = 0; r < 4; r++) for (let c = 0; c < 6; c++) { const x = 16 + c*6, y = 25 + r*7; tri(g, x-3, y+3, x+3, y+3, x, y-2, P.lgy); tri(g, x-3, y+3, x, y-2, x-1, y+1, P.crm); } // foam wedges
+    stroke(g, [[6, 14], [11, 11]], 1, 1, P.sky); stroke(g, [[5, 19], [10, 17]], 1, 1, P.sky); // muted sound
+    eyes(g, CX, 40, 4);
+    smileArc(g, CX, 44, 1.8, 0.8);
+    blush(g, 22, 42); blush(g, 41, 42);
+  }});
+
+S.push({ name: 'zigzag', draw(g) {           // 鋸齒形 goe3 ci2 jing4 — zigzag
+    stroke(g, [[10, 24], [22, 42], [31, 24], [42, 42], [54, 24]], 4, 4, P.plum); // zigzag shadow
+    stroke(g, [[10, 22], [22, 40], [31, 22], [42, 40], [54, 22]], 3, 3, P.yel);  // zigzag band
+    eyes(g, 22, 33, 3);
+    smileArc(g, 22, 36, 1.4, 0.6);
+    blush(g, 17, 35); blush(g, 27, 35);
+  }});
+
+S.push({ name: 'polystyrene', draw(g) {      // 發泡膠 faat3 pou5 gaau1 — styrofoam
+    tri(g, 14, 40, 50, 40, 46, 30, P.lgy);               // top face
+    tri(g, 14, 40, 46, 30, 18, 30, P.lgy);
+    rect(g, 14, 40, 50, 52, P.crm);                      // front (white foam)
+    rect(g, 14, 40, 50, 42, P.lgy);                      // edge
+    for (const p of [[20,45],[28,47],[36,45],[44,48],[24,50],[40,50]]) disc(g, p[0], p[1], 1.4, P.lgy); // bubble dimples
+    for (const p of [[47,54],[51,52],[49,56]]) disc(g, p[0], p[1], 1.2, P.crm); // loose beads
+    eyes(g, CX, 46, 5);
+    smileArc(g, CX, 50, 2.2, 0.9);
+    blush(g, 22, 48); blush(g, 41, 48);
+  }});
+
+S.push({ name: 'sepia', draw(g) {            // 墨汁 mak6 zap1 — sepia ink
+    ellipse(g, 42, 50, 15, 5, P.brn);                    // ink splash pool
+    ellipse(g, 42, 49, 11, 3, P.plum);
+    tri(g, 20, 50, 40, 50, 38, 34, P.brn);               // inkwell
+    tri(g, 20, 50, 38, 34, 22, 34, P.brn);
+    rect(g, 20, 48, 40, 50, P.brn);
+    ellipse(g, 30, 34, 9, 3, P.plum);                    // ink surface
+    rect(g, 26, 28, 34, 34, P.dgy);                      // neck
+    disc(g, 54, 44, 2, P.brn); disc(g, 50, 55, 1.4, P.brn); // droplets
+    eyes(g, 30, 42, 4);
+    smileArc(g, 30, 45, 1.7, 0.8);
+    blush(g, 24, 44); blush(g, 37, 44);
+  }});
+
   function renderGrid(name) {
     const item = S.find(s => s.name === name);
     const g = new Grid();
