@@ -1,6 +1,6 @@
 import SwiftUI
 
-// Gear-primary shop (ADR 0021, superseding the original Treats|Gear plan):
+// Gear-primary shop (ADR 0024, superseding the original Treats|Gear plan):
 // every player sees the cosmetic gear grid by default, and dad's real-world
 // Treats only appear once "Family rewards" is switched on in Settings.
 // Buying auto-equips, so the hero preview above always shows what just
@@ -199,6 +199,9 @@ private struct GearCardView: View {
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 6)
+        // Fill the grid column so every card is the same size - otherwise
+        // the card hugs its button and "Unequip" stretches wider than "Buy".
+        .frame(maxWidth: .infinity)
         .cardFrame(selected: equipped)
     }
 }

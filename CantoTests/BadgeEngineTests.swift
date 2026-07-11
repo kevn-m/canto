@@ -89,6 +89,16 @@ final class BadgeEngineTests: XCTestCase {
     // and forgetting the other fails here. Comparing `all` to a hand-typed list
     // (above) can't do that - the same slip fools both lists. Slice 6's sprite
     // test iterates `all`, so a drifted id ships a badge with no art.
+    // The detail card prints name(id) and goal(id) verbatim, so a badge the
+    // switches don't know shows its raw id (name's default) or nothing
+    // (goal's default) on screen.
+    func test_everyCatalogueIdHasANameAndAGoal() {
+        for id in BadgeEngine.all {
+            XCTAssertNotEqual(BadgeEngine.name(id), id, "\(id) has no display name")
+            XCTAssertFalse(BadgeEngine.goal(id).isEmpty, "\(id) has no goal text")
+        }
+    }
+
     func test_all_listsEveryIdEligibleCanAward() {
         let maxed = stats(
             finishedRuns: .max, victories: .max, lifetimeHits: .max,

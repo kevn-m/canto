@@ -95,19 +95,7 @@ struct TowerEntryView: View {
             // Only from day 2 onward - a "1" every single day is noise.
             if streak >= 2 {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    HStack(spacing: 4) {
-                        if let flame = SpriteArt.image(named: "streak-flame") {
-                            Image(uiImage: flame)
-                                .resizable()
-                                .interpolation(.none)
-                                .scaledToFit()
-                                .frame(width: 20, height: 20)
-                        } else {
-                            Image(systemName: "flame.fill")
-                                .foregroundStyle(.orange)
-                        }
-                        Text("\(streak)")
-                    }
+                    StreakFlameChip(streak: streak)
                 }
             }
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -151,6 +139,40 @@ struct TowerEntryView: View {
 
     private func refreshStreak() {
         streak = StreakEngine.length(dates: gameStore.finishedRunDates(), today: ReviewEngine.todayString())
+    }
+}
+
+// The streak as a HUD ornament: the count sits ON the flame like a
+// notification badge, and hit testing is off, so it can't read as one more
+// toolbar button next to the deck/shop/trophy ones (which all are).
+struct StreakFlameChip: View {
+    let streak: Int
+
+    var body: some View {
+        // Negative spacing tucks the capsule under the flame's trailing edge;
+        // a longer count grows AWAY from the flame, never over it.
+        HStack(alignment: .bottom, spacing: -7) {
+            if let flame = SpriteArt.image(named: "streak-flame") {
+                Image(uiImage: flame)
+                    .resizable()
+                    .interpolation(.none)
+                    .scaledToFit()
+                    .frame(width: 30, height: 30)
+            } else {
+                Image(systemName: "flame.fill")
+                    .font(.system(size: 26))
+                    .foregroundStyle(.orange)
+            }
+            Text("\(streak)")
+                .font(GameTheme.title(12))
+                .foregroundStyle(GameTheme.navy)
+                .padding(.horizontal, 5)
+                .padding(.vertical, 1)
+                .background(Capsule().fill(GameTheme.gold))
+                .overlay(Capsule().strokeBorder(GameTheme.deepNavy, lineWidth: 1.5))
+                .offset(y: -1)
+        }
+        .allowsHitTesting(false)
     }
 }
 

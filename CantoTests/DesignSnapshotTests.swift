@@ -295,6 +295,39 @@ final class DesignSnapshotTests: XCTestCase {
         }
     }
 
+    // A tapped socket: the detail card pinned above the shelf, the selected
+    // socket ringed. One earned and one unearned selection, so both faces of
+    // the card get looked at.
+    func test_badgeDetailCardRendersForEarnedAndUnearned() {
+        snapshot("badges-detail") {
+            ZStack {
+                InnBackground()
+                VStack(spacing: 16) {
+                    BadgeDetailCard(id: "streak-7", earned: true)
+                    BadgeDetailCard(id: "boss-desert", earned: false)
+                    BadgeShelf(earned: Self.mixedEarned, selected: "streak-7")
+                }
+                .padding()
+            }
+        }
+    }
+
+    // The streak ornament at toolbar scale: the count must read as a badge
+    // ON the flame, not as one more tappable toolbar button.
+    func test_streakFlameChipRenders() {
+        snapshot("streak-chip") {
+            ZStack {
+                DungeonBackground()
+                HStack(spacing: 24) {
+                    StreakFlameChip(streak: 2)
+                    StreakFlameChip(streak: 14)
+                    StreakFlameChip(streak: 365)
+                }
+            }
+            .frame(height: 120)
+        }
+    }
+
     // Bare GearShelf, not ShopView: ImageRenderer lays its ScrollView out as
     // a sliver (the same trap as BadgeShelf above). A mix of owned/equipped/
     // unowned/unaffordable so every card state shows in one render.
