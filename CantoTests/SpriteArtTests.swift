@@ -359,6 +359,11 @@ final class SpriteArtTests: XCTestCase {
             "spearhead", "stimulant", "talc", "veneer",
             // Plain batch 07 (plain-07.tsv).
             "polystyrene", "sepia", "soundproofing", "zigzag",
+            // Flag batch 01 (flag-01.tsv).
+            "alcohol", "arrow", "axe", "bar", "bartender", "beer", "bow", "cannon",
+            "champagne", "cigar", "cigarette", "cocaine", "cocktail", "dagger",
+            "detonator", "grenade", "keg", "missile", "pipe", "slingshot", "sword",
+            "thief", "tomb", "wine",
         ]
         for name in names {
             XCTAssertNotNil(SpriteArt.image(named: name), "\(name).png missing from the app bundle")

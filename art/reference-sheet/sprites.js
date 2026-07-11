@@ -29179,6 +29179,297 @@ S.push({ name: 'sepia', draw(g) {            // 墨汁 mak6 zap1 — sepia ink
     blush(g, 24, 44); blush(g, 37, 44);
   }});
 
+
+S.push({ name: 'beer', draw(g) {             // 啤酒 be1 zau2 — beer mug
+    ball(g, CX, 18, 12, 5, P.crm, P.lgy);                // foam head
+    for (const p of [[24,15],[38,15],[31,13]]) disc(g, p[0], p[1], 2, P.crm); // foam blobs
+    rrect(g, 20, 22, 42, 54, 3, P.org);                  // mug beer
+    rect(g, 20, 22, 42, 24, P.crm);                      // foam line
+    ellipse(g, 25, 34, 2, 5, P.yel);                     // shine
+    for (const p of [[30,40],[36,46],[28,48]]) disc(g, p[0], p[1], 1, P.yel); // bubbles
+    rrect(g, 40, 30, 50, 46, 4, P.org); ellipse(g, 45, 38, 3, 5, null); // handle
+    eyes(g, 30, 38, 5);
+    smileArc(g, 30, 43, 2.2, 0.9);
+    blush(g, 23, 41); blush(g, 37, 41);
+  }});
+
+S.push({ name: 'wine', draw(g) {             // 酒 zau2 — wine glass
+    ball(g, CX, 26, 11, 12, P.crm, P.lgy);               // glass bowl
+    ellipse(g, CX, 30, 8, 8, P.red);                     // red wine
+    ellipse(g, CX, 22, 8, 3, P.plum);                    // wine surface
+    ellipse(g, 26, 24, 2, 4, P.crm);                     // shine
+    rect(g, 30, 36, 33, 52, P.lgy);                      // stem
+    ellipse(g, CX, 54, 9, 3, P.lgy);                     // base
+    eyes(g, CX, 30, 5);
+    smileArc(g, CX, 35, 2.2, 0.9);
+    blush(g, 22, 33); blush(g, 41, 33);
+  }});
+
+S.push({ name: 'champagne', draw(g) {        // 香檳 hoeng1 ban1 — champagne
+    disc(g, CX, 8, 3, P.brn);                            // cork flying
+    for (const p of [[24,16],[40,14],[31,12]]) disc(g, p[0], p[1], 1, P.crm); // fizz
+    ellipse(g, CX, 18, 6, 3, P.yel);                     // gold foil neck
+    rrect(g, 26, 20, 38, 54, 3, P.grn);                  // bottle
+    rect(g, 27, 22, 37, 26, P.yel);                      // foil
+    rect(g, 28, 34, 36, 46, P.crm);                      // label
+    ellipse(g, 29, 40, 1.6, 4, P.lim);                   // shine
+    eyes(g, 31, 40, 4);
+    smileArc(g, 31, 44, 1.6, 0.7);
+    blush(g, 27, 42); blush(g, 36, 42);
+  }});
+
+S.push({ name: 'cocktail', draw(g) {         // 雞尾酒 gai1 mei5 zau2 — cocktail
+    tri(g, 16, 24, 48, 24, CX, 40, P.pnk);               // glass bowl (V)
+    tri(g, 20, 26, 44, 26, CX, 38, P.red);               // drink
+    rect(g, 30, 40, 33, 52, P.lgy);                      // stem
+    ellipse(g, CX, 54, 8, 3, P.lgy);                     // base
+    stroke(g, [[40, 10], [36, 28]], 0.8, 0.8, P.brn);    // pick
+    disc(g, 40, 10, 2, P.grn);                           // olive
+    stroke(g, [[22, 12], [26, 24]], 0.8, 0.6, P.yel);    // umbrella stick
+    tri(g, 16, 12, 30, 12, 23, 6, P.org);                // umbrella
+    eyes(g, CX, 30, 4);
+    smileArc(g, CX, 34, 1.7, 0.8);
+    blush(g, 24, 32); blush(g, 39, 32);
+  }});
+
+S.push({ name: 'alcohol', draw(g) {          // 酒 zau2 — liquor bottle
+    rect(g, 28, 10, 35, 22, P.dgy);                      // neck
+    rect(g, 28, 8, 35, 12, P.brn);                       // cap
+    rrect(g, 20, 22, 44, 54, 4, P.brn);                  // bottle
+    rect(g, 24, 30, 40, 46, P.crm);                      // label
+    ellipse(g, 30, 38, 3, 4, P.red);                     // emblem
+    ellipse(g, 24, 30, 2, 6, P.org);                     // shine
+    eyes(g, 31, 48, 3);
+    smileArc(g, 31, 51, 1.5, 0.7);
+    blush(g, 26, 50); blush(g, 37, 50);
+  }});
+
+S.push({ name: 'bar', draw(g) {              // 酒吧 zau2 baa1 — bar
+    rect(g, 8, 14, 56, 34, P.brn);                       // back shelf
+    for (const x of [16, 24, 32, 40, 48]) { rrect(g, x, 18, x + 4, 32, 1, x%3?P.grn:P.red); } // bottles
+    rrect(g, 10, 38, 54, 56, 2, P.org);                  // bar counter
+    rect(g, 10, 38, 54, 41, P.yel);                      // counter top
+    rrect(g, 40, 30, 47, 40, 1, P.sky);                  // a glass on bar
+    eyes(g, 24, 46, 4);
+    smileArc(g, 24, 50, 1.8, 0.8);
+    blush(g, 18, 48); blush(g, 31, 48);
+  }});
+
+S.push({ name: 'bartender', draw(g) {        // 調酒師 tiu4 zau2 si1 — bartender
+    ball(g, 26, 58, 3.6, 2.4, P.navy, P.navy); ball(g, 38, 58, 3.6, 2.4, P.navy, P.navy); // feet
+    ball(g, CX, 49, 9, 7.5, P.crm, P.lgy);               // white shirt
+    rect(g, 30, 42, 33, 52, P.navy);                     // vest/tie line
+    tri(g, 28, 42, 35, 42, 31.5, 47, P.red);             // bowtie
+    ball(g, 46, 42, 3.4, 4, P.lgy, P.dgy);               // shaker
+    ball(g, 18, 48, 3, 2.6, P.pch, P.brn);               // hand
+    ball(g, CX, 24, 12, 12, P.pch, P.brn);               // head
+    ellipse(g, CX, 15, 11, 5, P.dgy);                    // hair
+    eyes(g, CX, 25, 6);
+    smileArc(g, CX, 31, 2.6, 1.2);
+    blush(g, CX - 9, 29); blush(g, CX + 9, 29);
+  }});
+
+S.push({ name: 'keg', draw(g) {              // 啤酒桶 be1 zau2 tung2 — keg
+    ellipse(g, CX, 18, 12, 3, P.lgy);                    // top
+    ball(g, CX, 36, 15, 18, P.lgy, P.dgy);               // metal barrel
+    rect(g, 16, 26, 47, 29, P.crm); rect(g, 16, 44, 47, 47, P.crm); // bands
+    rect(g, 42, 40, 52, 44, P.dgy);                      // tap spout
+    disc(g, 52, 42, 2, P.org);                           // tap handle
+    ellipse(g, 24, 30, 3, 6, P.crm);                     // shine
+    eyes(g, CX, 36, 5);
+    smileArc(g, CX, 41, 2.2, 0.9);
+    blush(g, 21, 39); blush(g, 42, 39);
+  }});
+
+S.push({ name: 'cigarette', draw(g) {        // 香煙 hoeng1 jin1 — cigarette
+    for (const x of [40, 44]) stroke(g, [[x, 20], [x + 3, 10], [x, 4]], 0.8, 0.5, P.lgy); // smoke
+    stroke(g, [[14, 48], [44, 22]], 3, 3, P.crm);        // cigarette body
+    stroke(g, [[14, 48], [22, 42]], 3, 3, P.org);        // filter
+    ball(g, 45, 21, 2.6, 2.6, P.red, P.plum);            // glowing tip
+    disc(g, 45, 21, 1, P.yel);
+    eyes(g, 28, 38, 4);
+    smileArc(g, 28, 41, 1.6, 0.7);
+    blush(g, 22, 40); blush(g, 34, 37);
+  }});
+
+S.push({ name: 'cigar', draw(g) {            // 雪茄 syut3 ke1 — cigar
+    for (const x of [42, 46]) stroke(g, [[x, 18], [x + 3, 8], [x, 3]], 0.8, 0.5, P.lgy); // smoke
+    stroke(g, [[14, 48], [46, 20]], 4.5, 4.5, P.brn);    // cigar body
+    stroke(g, [[16, 46], [22, 41]], 4.5, 4.5, P.dgy);    // mouth end
+    rect(g, 30, 30, 36, 38, P.red);                      // band
+    ball(g, 47, 19, 3, 3, P.org, P.red);                 // glowing tip
+    disc(g, 47, 19, 1.2, P.yel);
+    eyes(g, 28, 36, 4);
+    smileArc(g, 28, 39, 1.6, 0.7);
+    blush(g, 22, 38); blush(g, 34, 35);
+  }});
+
+S.push({ name: 'pipe', draw(g) {             // 煙斗 jin1 dau2 — pipe
+    for (const x of [22, 26] ) stroke(g, [[x, 26], [x + 3, 14], [x, 8]], 0.8, 0.5, P.lgy); // smoke
+    ball(g, 24, 34, 8, 8, P.brn, P.plum);                // bowl
+    disc(g, 24, 32, 5, P.dgy);                           // bowl opening
+    disc(g, 24, 33, 3, P.org);                           // ember
+    stroke(g, [[30, 40], [50, 44], [54, 40]], 2.4, 2, P.brn); // stem
+    ellipse(g, 20, 32, 2, 3, P.org);                     // shine
+    eyes(g, 24, 36, 4);
+    smileArc(g, 24, 39, 1.6, 0.7);
+    blush(g, 18, 38); blush(g, 30, 38);
+  }});
+
+S.push({ name: 'cocaine', draw(g) {          // 可卡因 ho2 kaat1 jan1 — cocaine
+    ellipse(g, CX, 46, 15, 8, P.lgy);                    // baggie shadow
+    rrect(g, 18, 24, 44, 50, 3, P.sky);                  // clear baggie
+    ellipse(g, CX, 42, 11, 6, P.crm);                    // white powder
+    for (const p of [[26,40],[36,40],[31,44]]) disc(g, p[0], p[1], 1.4, P.lgy); // powder texture
+    rect(g, 24, 22, 40, 26, P.lav);                      // tied top
+    disc(g, 31, 22, 2, P.dgy);                           // tie
+    eyes(g, CX, 42, 4);
+    smileArc(g, CX, 46, 1.7, 0.8);
+    blush(g, 23, 44); blush(g, 40, 44);
+  }});
+
+S.push({ name: 'sword', draw(g) {            // 劍 gim3 — sword
+    stroke(g, [[CX, 8], [CX, 42]], 3, 2, P.lgy);         // blade
+    stroke(g, [[CX, 8], [CX, 42]], 1, 0.6, P.crm);       // blade shine
+    rect(g, 22, 42, 42, 46, P.yel);                      // crossguard
+    rect(g, 29, 46, 34, 54, P.brn);                      // grip
+    disc(g, CX, 55, 3, P.yel);                           // pommel
+    tri(g, CX - 2, 6, CX + 2, 6, CX, 3, P.lgy);          // tip
+    eyes(g, CX, 30, 4);
+    smileArc(g, CX, 34, 1.6, 0.7);
+    blush(g, 25, 32); blush(g, 38, 32);
+  }});
+
+S.push({ name: 'arrow', draw(g) {            // 箭 zin3 — arrow
+    stroke(g, [[14, 50], [46, 18]], 1.4, 1.4, P.brn);    // shaft
+    tri(g, 40, 24, 54, 10, 48, 26, P.lgy);               // arrowhead
+    tri(g, 44, 18, 52, 12, 50, 22, P.crm);
+    tri(g, 12, 52, 20, 44, 22, 54, P.red);               // fletching
+    tri(g, 14, 54, 22, 46, 26, 56, P.org);
+    eyes(g, 30, 36, 3);
+    smileArc(g, 30, 39, 1.4, 0.6);
+    blush(g, 25, 38); blush(g, 35, 34);
+  }});
+
+S.push({ name: 'missile', draw(g) {          // 導彈 dou6 daan6 — missile
+    tri(g, 26, 14, 38, 14, CX, 4, P.red);                // nose cone
+    rrect(g, 26, 14, 38, 46, 3, P.lgy);                  // body
+    rect(g, 28, 22, 36, 26, P.red);                      // stripe
+    tri(g, 26, 40, 20, 50, 26, 48, P.dgy);               // fin L
+    tri(g, 38, 40, 44, 50, 38, 48, P.dgy);               // fin R
+    ball(g, CX, 52, 4, 6, P.org, P.red);                 // flame
+    disc(g, CX, 54, 2, P.yel);
+    eyes(g, CX, 26, 4);
+    smileArc(g, CX, 30, 1.6, 0.7);
+    blush(g, 27, 28); blush(g, 36, 28);
+  }});
+
+S.push({ name: 'axe', draw(g) {              // 斧 fu2 — axe
+    stroke(g, [[30, 54], [34, 14]], 2.4, 2.4, P.brn);    // handle
+    tri(g, 34, 12, 50, 16, 34, 30, P.lgy);               // axe head
+    tri(g, 34, 14, 46, 17, 34, 26, P.crm);               // blade shine
+    ellipse(g, 34, 20, 3, 6, P.dgy);                     // head socket
+    eyes(g, 24, 40, 4);
+    smileArc(g, 24, 43, 1.6, 0.7);
+    blush(g, 19, 42); blush(g, 30, 42);
+  }});
+
+S.push({ name: 'dagger', draw(g) {           // 匕首 bei6 sau2 — dagger
+    tri(g, 28, 40, 35, 40, CX, 8, P.lgy);                // blade
+    stroke(g, [[CX, 10], [CX, 38]], 0.7, 0.5, P.crm);    // blade midline
+    rect(g, 24, 40, 40, 44, P.yel);                      // guard
+    rrect(g, 29, 44, 34, 54, 1, P.plum);                 // grip
+    disc(g, CX, 55, 2.4, P.red);                         // pommel jewel
+    eyes(g, CX, 30, 3);
+    smileArc(g, CX, 33, 1.3, 0.6);
+  }});
+
+S.push({ name: 'bow', draw(g) {              // 弓 gung1 — bow (archery)
+    stroke(g, [[40, 8], [22, 20], [18, 34], [22, 48], [40, 58]], 3, 3, P.brn); // bow limb
+    stroke(g, [[40, 8], [40, 58]], 0.7, 0.7, P.crm);     // string
+    stroke(g, [[16, 33], [46, 33]], 1, 1, P.org);        // nocked arrow shaft
+    tri(g, 44, 30, 52, 33, 44, 36, P.lgy);               // arrowhead
+    tri(g, 14, 30, 18, 33, 14, 36, P.red);               // fletch
+    eyes(g, 30, 26, 3);
+    smileArc(g, 30, 29, 1.3, 0.6);
+    blush(g, 25, 28); blush(g, 35, 28);
+  }});
+
+S.push({ name: 'cannon', draw(g) {           // 炮 paau3 — cannon
+    disc(g, 20, 48, 8, P.brn); disc(g, 20, 48, 4, P.org); // wheel
+    stroke(g, [[18, 44], [46, 22]], 7, 6, P.dgy);        // barrel
+    disc(g, 46, 22, 6, P.navy);                          // muzzle
+    disc(g, 46, 22, 3.5, P.dgy);                         // bore
+    ball(g, 12, 30, 5, 5, P.navy, P.navy);               // cannonball
+    eyes(g, 26, 40, 4);
+    smileArc(g, 26, 43, 1.6, 0.7);
+    blush(g, 20, 42); blush(g, 32, 40);
+  }});
+
+S.push({ name: 'grenade', draw(g) {          // 手榴彈 sau2 lau4 daan6 — grenade
+    rect(g, 28, 10, 36, 16, P.dgy);                      // fuse cap
+    disc(g, 42, 12, 3, P.lgy); disc(g, 42, 12, 1.4, null); // pull ring
+    stroke(g, [[36, 13], [40, 12]], 0.8, 0.8, P.lgy);    // ring link
+    ball(g, CX, 38, 14, 15, P.grn, P.plum, P.lim);       // body
+    clipTo(g, [P.grn, P.lim], () => {
+      for (let x = 20; x < 44; x += 5) stroke(g, [[x, 24], [x + 6, 52]], 0.7, 0.7, P.plum); // pineapple grid
+      for (let y = 28; y < 52; y += 5) stroke(g, [[18, y], [46, y + 3]], 0.7, 0.7, P.plum);
+    });
+    eyes(g, CX, 36, 5);
+    smileArc(g, CX, 41, 2.2, 0.9);
+    blush(g, 21, 39); blush(g, 42, 39);
+  }});
+
+S.push({ name: 'detonator', draw(g) {        // 引爆器 jan5 baau3 hei3 — detonator
+    rect(g, 30, 12, 34, 30, P.red);                      // T-plunger shaft
+    rect(g, 22, 10, 42, 14, P.red);                      // T-handle
+    rrect(g, 16, 30, 48, 52, 3, P.brn);                  // box
+    rect(g, 16, 30, 48, 33, P.org);                      // box top
+    disc(g, 24, 44, 2, P.yel); disc(g, 40, 44, 2, P.lgy); // dials
+    eyes(g, CX, 42, 4);
+    smileArc(g, CX, 46, 1.8, 0.8);
+    blush(g, 22, 44); blush(g, 41, 44);
+  }});
+
+S.push({ name: 'slingshot', draw(g) {        // 彈弓 daan6 gung1 — slingshot
+    stroke(g, [[CX, 54], [CX, 34]], 2.6, 2.6, P.brn);    // handle
+    stroke(g, [[CX, 34], [20, 16]], 2.4, 2.4, P.brn);    // fork L
+    stroke(g, [[CX, 34], [44, 16]], 2.4, 2.4, P.brn);    // fork R
+    stroke(g, [[20, 16], [30, 26]], 0.8, 0.8, P.red);    // band L
+    stroke(g, [[44, 16], [34, 26]], 0.8, 0.8, P.red);    // band R
+    rrect(g, 29, 24, 35, 30, 1, P.dgy);                  // pouch
+    eyes(g, CX, 44, 4);
+    smileArc(g, CX, 47, 1.6, 0.7);
+    blush(g, 25, 46); blush(g, 38, 46);
+  }});
+
+S.push({ name: 'tomb', draw(g) {             // 墳墓 fan4 mou6 — tomb
+    ellipse(g, CX, 54, 22, 5, P.grn);                    // grass mound
+    rrect(g, 18, 16, 46, 52, 8, P.dgy);                  // headstone shadow
+    rrect(g, 18, 15, 44, 50, 8, P.lgy);                  // headstone
+    rect(g, 30, 22, 33, 34, P.dgy);                      // cross vert
+    rect(g, 26, 26, 37, 29, P.dgy);                      // cross horiz
+    disc(g, 46, 50, 3, P.red); disc(g, 44, 47, 2.4, P.pnk); // flower
+    eyes(g, 24, 42, 4);
+    smileArc(g, 24, 45, 1.6, 0.7);
+    blush(g, 19, 44); blush(g, 30, 44);
+  }});
+
+S.push({ name: 'thief', draw(g) {            // 小偷 siu2 tau1 — thief (robber)
+    ball(g, 24, 58, 3.6, 2.4, P.dgy, P.navy); ball(g, 36, 58, 3.6, 2.4, P.dgy, P.navy); // feet
+    ball(g, 28, 49, 9, 7.5, P.dgy, P.navy);              // striped shirt
+    rect(g, 20, 46, 37, 48, P.crm); rect(g, 20, 50, 37, 52, P.crm); // stripes
+    ball(g, 46, 44, 6, 6, P.brn, P.plum);                // loot sack
+    stroke(g, [[42, 40], [48, 40]], 0.8, 0.8, P.dgy);    // sack tie
+    ball(g, 20, 46, 3, 2.6, P.pch, P.brn);               // hand
+    ball(g, 28, 24, 12, 12, P.pch, P.brn);               // head
+    ellipse(g, 28, 16, 11, 5, P.navy);                   // beanie
+    rect(g, 17, 23, 39, 28, P.navy);                     // eye mask
+    eye(g, 24, 25, 2.4); eye(g, 32, 25, 2.4);
+    smileArc(g, 28, 31, 2.4, 1.1);
+    blush(g, 19, 29); blush(g, 37, 29);
+  }});
+
   function renderGrid(name) {
     const item = S.find(s => s.name === name);
     const g = new Grid();

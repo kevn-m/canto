@@ -221,6 +221,13 @@ enum SpriteArt {
         "leavening": "yeast", "marinade": "sauce", "methanol": "ethanol", "moleskin": "suede",
         "refrigerant": "coolant", "saccharin": "sweetener", "stratus": "cloud",
         "thickener": "cornstarch", "wadding": "cotton",
+        // Flag batch 01 (flag-01.tsv).
+        "ax": "axe", "booze": "alcohol", "bourbon": "alcohol", "brandy": "alcohol",
+        "cider": "beer", "flood": "floodwater", "gin": "alcohol", "gunfire": "gun",
+        "margarita": "cocktail", "martini": "cocktail", "pub": "bar", "rum": "alcohol",
+        "sherry": "alcohol", "tequila": "alcohol", "tombstone": "tomb", "torpedo": "missile",
+        "valium": "pill", "vodka": "alcohol", "weapon": "sword", "whiskey": "alcohol",
+        "whisky": "alcohol",
     ]
 
     static func cardImage(forEnglish english: String) -> UIImage? {
