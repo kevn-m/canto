@@ -263,6 +263,15 @@ enum SpriteArt {
         // anatomy-03.
         "abdominal": "tummy", "bile": "gallbladder", "cranium": "skull", "pus": "blister",
         "vomiting": "diarrhea",
+        // anatomy-04 to 06.
+        "bacterium": "bacteria", "barefooted": "barefoot", "bellyache": "tummy",
+        "cerebrum": "brain", "flank": "wing", "jawed": "jaw", "mafia": "thief",
+        "mucous": "mucus", "nasal": "nostril", "nodule": "wart", "overbite": "bucktooth",
+        "patella": "kneecap", "pelvic": "pelvis", "regiment": "soldier",
+        "secretariat": "headquarters", "shaven": "bald", "slobber": "drool",
+        "snaggletooth": "bucktooth", "soles": "barefoot", "spinal": "vertebra",
+        "swollen": "swelling", "trachea": "airway", "umbilical": "navel", "underarm": "armpit",
+        "underbelly": "tummy",
     ]
 
     static func cardImage(forEnglish english: String) -> UIImage? {
