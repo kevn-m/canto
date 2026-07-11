@@ -11,4 +11,5 @@ enum Balance {
     static let runFinishPay = 10
     static let bossBonusPay = 5
     static let extensionPay = 2
+    static let badgePay = 5
 }

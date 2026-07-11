@@ -7,7 +7,7 @@ final class SFXPlayer {
     static let shared = SFXPlayer()
 
     enum Effect: String, CaseIterable {
-        case hit, whiff, flip, victory, defeat, coin
+        case hit, whiff, flip, victory, defeat, coin, badge
         case enemyDown = "enemy-down"
     }
 

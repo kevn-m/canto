@@ -255,4 +255,14 @@ final class DesignSnapshotTests: XCTestCase {
                 .background(DungeonBackground())
         }
     }
+
+    func test_runSummaryWithNewBadgesRenders() {
+        var state = TowerEngine.makeFreshRun()
+        state.damageDealt = 9
+        snapshot("summary-badges") {
+            RunSummaryView(state: state, outcome: .victory, newBadges: ["first-run", "first-victory", "streak-3"])
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(DungeonBackground())
+        }
+    }
 }

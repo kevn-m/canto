@@ -154,9 +154,21 @@ final class GameStore: ObservableObject {
             try db.execute(sql: "DELETE FROM card_states WHERE player = 'dad'")
             try db.execute(sql: "UPDATE card_states SET box = 0, due_on = '1970-01-01'")
         }
+        try db.execute(sql: """
+            CREATE TABLE IF NOT EXISTS badges (
+              badge_id TEXT PRIMARY KEY,
+              earned_at TEXT NOT NULL
+            )
+            """)
+        try db.execute(sql: """
+            CREATE TABLE IF NOT EXISTS gear (
+              gear_id TEXT PRIMARY KEY,
+              acquired_at TEXT NOT NULL
+            )
+            """)
         // Schema version stamp so a future release can migrate a
         // populated device db instead of no-op'ing on IF NOT EXISTS.
-        try db.execute(sql: "PRAGMA user_version = 3")
+        try db.execute(sql: "PRAGMA user_version = 4")
     }
 
     func clearError() {
@@ -337,6 +349,48 @@ final class GameStore: ObservableObject {
         readValue(default: []) { db in try self.fetchFinishedRunDates(db) }
     }
 
+    // Database-scoped: called from inside finishRun's open transaction, so
+    // it must never go through readValue/dbQueue.read (GRDB isn't reentrant).
+    private func badgeStats(_ db: Database, finishing state: RunState) throws -> BadgeStats {
+        let finishedRuns = try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM runs WHERE finished = 1") ?? 0
+        let victories = try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM bux_ledger WHERE reason = 'boss_bonus'") ?? 0
+        let lifetimeHits = try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM reviews WHERE result = 'hit'") ?? 0
+        let masteredCount = try Int.fetchOne(
+            db, sql: "SELECT COUNT(*) FROM card_states WHERE box = 3 AND player = 'kid'") ?? 0
+        let deckSize = try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM cards WHERE benched = 0") ?? 0
+        let streak = StreakEngine.length(dates: try self.fetchFinishedRunDates(db), today: ReviewEngine.todayString())
+
+        let amounts = try Int.fetchAll(db, sql: "SELECT amount FROM bux_ledger ORDER BY id")
+        var running = 0, walletEverReached = 0
+        for amount in amounts {
+            running += amount
+            walletEverReached = max(walletEverReached, running)
+        }
+
+        // Forward-only (see BadgeEngine doc comment): only THIS finishing
+        // run's boss counts, never historical state_json.
+        let bossBeaten: String?
+        if state.partyHP > 0, let bossFloor = state.floors.first(where: { $0.kind == .boss }) {
+            switch Biome.containing(enemyName: bossFloor.enemyName) {
+            case .tower: bossBeaten = "tower"
+            case .forest: bossBeaten = "forest"
+            case .desert: bossBeaten = "desert"
+            }
+        } else {
+            bossBeaten = nil
+        }
+
+        return BadgeStats(
+            finishedRuns: finishedRuns, victories: victories, bossBeaten: bossBeaten,
+            lifetimeHits: lifetimeHits, masteredCount: masteredCount, deckSize: deckSize,
+            streak: streak, walletEverReached: walletEverReached
+        )
+    }
+
+    private func earnedBadgeIds(_ db: Database) throws -> Set<String> {
+        Set(try String.fetchAll(db, sql: "SELECT badge_id FROM badges"))
+    }
+
     // Refuses only while TODAY's Run is unfinished — a Run abandoned on a past
     // day is unresumable, so it must not block deletion forever. Guard, photo
     // read and cascade share one transaction, so a refused or failed write
@@ -380,7 +434,10 @@ final class GameStore: ObservableObject {
         let filenames: [String] = writeValue(default: []) { db in
             let names = try String.fetchAll(
                 db, sql: "SELECT photo_filename FROM cards WHERE photo_filename IS NOT NULL")
-            for table in ["reviews", "card_states", "cards", "bux_ledger", "runs"] {
+            // badges and gear go too: the ledger is wiped, so leaving them would
+            // mean a re-earned badge pays nothing (it's still "earned") and gear
+            // bought with the old wallet stays free.
+            for table in ["reviews", "card_states", "cards", "bux_ledger", "runs", "badges", "gear"] {
                 try db.execute(sql: "DELETE FROM \(table)")
             }
             try db.execute(
@@ -527,31 +584,47 @@ final class GameStore: ObservableObject {
         }
     }
 
-    // False means the run is still marked unfinished on disk - TowerView's
-    // load path re-finishes an ended-but-unfinished run, so this self-heals.
-    // The WHERE finished = 0 guard makes that self-heal safe to call twice:
-    // a run that's already finished is left untouched and pays nothing.
+    // Newly earned badge ids - [] on the already-finished path (self-heal
+    // callers ignore it) and [] on failure. TowerView's load path re-finishes
+    // an ended-but-unfinished run, so this self-heals. The WHERE finished = 0
+    // guard makes that self-heal (and badge award) safe to call twice: a run
+    // that's already finished is left untouched and pays nothing.
     @discardableResult
-    func finishRun(id: Int64, state: RunState) -> Bool {
-        writeValue(default: false) { db in
+    func finishRun(id: Int64, state: RunState) -> [String] {
+        writeValue(default: []) { db in
             let json = try self.encodeStateJSON(state)
             try db.execute(
                 sql: "UPDATE runs SET state_json = ?, finished = 1 WHERE id = ? AND finished = 0",
                 arguments: [json, id]
             )
-            if db.changesCount > 0 {
-                let payout = state.payoutBreakdown()
-                let createdAt = ISO8601DateFormatter().string(from: Date())
-                for (amount, reason) in [
-                    (payout.finish, "run_finish"), (payout.bossBonus, "boss_bonus"), (payout.extensions, "extension"),
-                ] where amount != 0 {
-                    try db.execute(
-                        sql: "INSERT INTO bux_ledger (amount, reason, created_at) VALUES (?, ?, ?)",
-                        arguments: [amount, reason, createdAt]
-                    )
-                }
+            guard db.changesCount > 0 else { return [] }
+
+            let createdAt = ISO8601DateFormatter().string(from: Date())
+            let payout = state.payoutBreakdown()
+            for (amount, reason) in [
+                (payout.finish, "run_finish"), (payout.bossBonus, "boss_bonus"), (payout.extensions, "extension"),
+            ] where amount != 0 {
+                try db.execute(
+                    sql: "INSERT INTO bux_ledger (amount, reason, created_at) VALUES (?, ?, ?)",
+                    arguments: [amount, reason, createdAt]
+                )
             }
-            return true
+
+            // Same transaction as the payout above: badges and their credit
+            // inherit the changesCount > 0 double-pay guard.
+            let stats = try self.badgeStats(db, finishing: state)
+            let newBadges = try BadgeEngine.eligible(stats).subtracting(self.earnedBadgeIds(db)).sorted()
+            for badgeId in newBadges {
+                try db.execute(
+                    sql: "INSERT INTO badges (badge_id, earned_at) VALUES (?, ?)",
+                    arguments: [badgeId, createdAt]
+                )
+                try db.execute(
+                    sql: "INSERT INTO bux_ledger (amount, reason, created_at) VALUES (?, ?, ?)",
+                    arguments: [Balance.badgePay, "badge:\(badgeId)", createdAt]
+                )
+            }
+            return newBadges
         }
     }
 

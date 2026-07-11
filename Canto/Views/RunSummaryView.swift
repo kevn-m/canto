@@ -7,6 +7,7 @@ import SwiftUI
 struct RunSummaryView: View {
     let state: RunState
     let outcome: BattleEngine.Outcome
+    var newBadges: [String] = []
 
     // Defeat happens mid-floor, so the current floor wasn't cleared.
     private var floorsClimbed: Int {
@@ -46,6 +47,10 @@ struct RunSummaryView: View {
 
             payoutView
 
+            if !newBadges.isEmpty {
+                badgesView
+            }
+
             Text("Come back tomorrow!")
                 .font(GameTheme.title(18))
                 .foregroundStyle(GameTheme.cream.opacity(0.6))
@@ -79,5 +84,43 @@ struct RunSummaryView: View {
             Image(systemName: icon).font(.title2).foregroundStyle(GameTheme.gold)
             Text("\(value)").font(GameTheme.title(22)).foregroundStyle(GameTheme.cream)
         }
+    }
+
+    // Its own visual row, not folded into the payout text: a badge is an
+    // achievement, not a bux line item.
+    private var badgesView: some View {
+        HStack(spacing: 14) {
+            ForEach(Array(newBadges.enumerated()), id: \.offset) { index, badgeId in
+                BadgePopView(badgeId: badgeId, delay: Double(index) * 0.4)
+            }
+        }
+        .padding(.vertical, 4)
+    }
+}
+
+// One newly earned badge, popping in with a spring after its stagger delay
+// so several badges don't all slam in at once. Sprite art ships in Slice 6;
+// SF Symbol stands in until then.
+private struct BadgePopView: View {
+    let badgeId: String
+    let delay: Double
+
+    @State private var visible = false
+
+    var body: some View {
+        Image(systemName: "rosette")
+            .font(.system(size: 40))
+            .foregroundStyle(GameTheme.gold)
+            .shadow(color: GameTheme.gold.opacity(0.6), radius: 8)
+            .scaleEffect(visible ? 1 : 0.01)
+            .opacity(visible ? 1 : 0)
+            // The stagger is the animation's own delay, not a slept Task:
+            // onAppear flips the state at once (so a static render shows the
+            // badge), and only the spring is deferred.
+            .onAppear {
+                withAnimation(.spring(response: 0.4, dampingFraction: 0.55).delay(delay)) {
+                    visible = true
+                }
+            }
     }
 }

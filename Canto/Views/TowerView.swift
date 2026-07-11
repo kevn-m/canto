@@ -201,7 +201,7 @@ struct TowerView: View {
     var onRunFinished: () -> Void = {}
 
     private enum Phase {
-        case loading, notStarted, fighting, doorOffer, finished(BattleEngine.Outcome), corrupt
+        case loading, notStarted, fighting, doorOffer, finished(BattleEngine.Outcome, newBadges: [String]), corrupt
     }
 
     @Environment(\.scenePhase) private var scenePhase
@@ -234,9 +234,9 @@ struct TowerView: View {
                     .id(runState.floorIndex)
             case .doorOffer:
                 doorView
-            case .finished(let outcome):
+            case .finished(let outcome, let newBadges):
                 VStack(spacing: 24) {
-                    RunSummaryView(state: runState, outcome: outcome)
+                    RunSummaryView(state: runState, outcome: outcome, newBadges: newBadges)
                     // Back to the start screen, not straight into a run:
                     // the next climb's biome is picked there.
                     Button("Climb again") { phase = .notStarted }
@@ -307,10 +307,12 @@ struct TowerView: View {
                 runState = resumedState
                 phase = .doorOffer
             case .runFinished(let finalOutcome):
+                // A summary reloaded on a later open stays quiet - new badges
+                // still get paid and stored, they just don't pop here.
                 gameStore.finishRun(id: run.id, state: resumedState)
                 onRunFinished()
                 runState = resumedState
-                phase = .finished(finalOutcome)
+                phase = .finished(finalOutcome, newBadges: [])
             }
             return
         }
@@ -362,10 +364,10 @@ struct TowerView: View {
         case .offerDoor:
             phase = .doorOffer
         case .runFinished(let finalOutcome):
-            gameStore.finishRun(id: runId, state: runState)
+            let newBadges = gameStore.finishRun(id: runId, state: runState)
             onRunFinished()
-            playFinishSounds(for: finalOutcome)
-            phase = .finished(finalOutcome)
+            playFinishSounds(for: finalOutcome, newBadges: newBadges)
+            phase = .finished(finalOutcome, newBadges: newBadges)
         }
     }
 
@@ -376,18 +378,22 @@ struct TowerView: View {
 
     private func declineDoor() {
         guard let runId else { return }
-        gameStore.finishRun(id: runId, state: runState)
+        let newBadges = gameStore.finishRun(id: runId, state: runState)
         onRunFinished()
-        playFinishSounds(for: .victory)
-        phase = .finished(.victory)
+        playFinishSounds(for: .victory, newBadges: newBadges)
+        phase = .finished(.victory, newBadges: newBadges)
     }
 
     // Live finishes only - a summary reloaded on a later open stays quiet.
-    private func playFinishSounds(for outcome: BattleEngine.Outcome) {
+    private func playFinishSounds(for outcome: BattleEngine.Outcome, newBadges: [String]) {
         SFXPlayer.shared.play(outcome == .victory ? .victory : .defeat)
         Task {
             try? await Task.sleep(for: .seconds(0.8))
             SFXPlayer.shared.play(.coin)
+            for _ in newBadges {
+                try? await Task.sleep(for: .seconds(0.4))
+                SFXPlayer.shared.play(.badge)
+            }
         }
     }
 

@@ -1486,6 +1486,7 @@
 		9FF209C918718471F03DF114 /* veneer.png in Resources */ = {isa = PBXBuildFile; fileRef = E78BC66DCC6307513AF2DE4E /* veneer.png */; };
 		9FF9695FB9661E33FE1B3669 /* caterpillar.png in Resources */ = {isa = PBXBuildFile; fileRef = 646A42C5EF1BEAF6DA533416 /* caterpillar.png */; };
 		A01132291A8BBDF6CE87923C /* bullion.png in Resources */ = {isa = PBXBuildFile; fileRef = D7FA9DEEFCBA619532692E59 /* bullion.png */; };
+		A0647757C91DE8497797DCAB /* badge.wav in Resources */ = {isa = PBXBuildFile; fileRef = 63C3CFC51C21896A4A1F7E23 /* badge.wav */; };
 		A0745C1ADA90050990DB8945 /* pocket.png in Resources */ = {isa = PBXBuildFile; fileRef = 93BD4C85AE1CB53DC853CA2C /* pocket.png */; };
 		A081A6BA6A4A9AF267B8BD22 /* interviewer.png in Resources */ = {isa = PBXBuildFile; fileRef = 95F0226929BFE8F4E81ADC40 /* interviewer.png */; };
 		A0A0DECC406C6A239D0A8E7F /* boutique.png in Resources */ = {isa = PBXBuildFile; fileRef = 13D32BDBF5D6FBF60782F026 /* boutique.png */; };
@@ -1649,6 +1650,7 @@
 		AE048E9C43956155EF80F39C /* player-kid.png in Resources */ = {isa = PBXBuildFile; fileRef = 961B940FEF0F63FCA3BA7F3A /* player-kid.png */; };
 		AE0C98D528503AC277399F26 /* stake.png in Resources */ = {isa = PBXBuildFile; fileRef = BD47AF5751B31635B685B8EE /* stake.png */; };
 		AE223E1CB566A7E73E75A7D5 /* seashore.png in Resources */ = {isa = PBXBuildFile; fileRef = 4974043D0D92579E146C54DC /* seashore.png */; };
+		AE2B47D920D76DF6943ACC18 /* BadgeEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFA7A23B0DEB5470C996D5D4 /* BadgeEngineTests.swift */; };
 		AE39E2956C202D8F96E86DEB /* horseradish.png in Resources */ = {isa = PBXBuildFile; fileRef = DB86F75BF34CA87AE8BDBD85 /* horseradish.png */; };
 		AE8449FAED6C1AF96F0A7D90 /* comic.png in Resources */ = {isa = PBXBuildFile; fileRef = 422B1B5B5F738E67626D0451 /* comic.png */; };
 		AE8D7BC7230B767713AD9A55 /* bean.png in Resources */ = {isa = PBXBuildFile; fileRef = 626C8D8B7FAF6EC1BC88C81C /* bean.png */; };
@@ -2321,6 +2323,7 @@
 		F146D394627809815EA6E72E /* garage.png in Resources */ = {isa = PBXBuildFile; fileRef = 204F8B71801847F6ECD2E1B2 /* garage.png */; };
 		F149FC4CFF3E910F5C226428 /* airmail.png in Resources */ = {isa = PBXBuildFile; fileRef = 7AB35E856AA188EAD96B1DE0 /* airmail.png */; };
 		F150EE258E93D5B7040E8894 /* splashing.png in Resources */ = {isa = PBXBuildFile; fileRef = B5774438F4328C139F415D75 /* splashing.png */; };
+		F1F34A24DF7ED5DCE1ED23A0 /* BadgeEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDC12840FAE3CDBF3C7A96BA /* BadgeEngine.swift */; };
 		F21B830B91EC6DF5BEC59E1F /* mucus.png in Resources */ = {isa = PBXBuildFile; fileRef = 082871516B3A4C20E88F8909 /* mucus.png */; };
 		F23D4EA8CA60B1BCEF4808B7 /* whitefish.png in Resources */ = {isa = PBXBuildFile; fileRef = A5BFDFDCB8B85F25F1382220 /* whitefish.png */; };
 		F286CC0FC256C19F259E4C26 /* squire.png in Resources */ = {isa = PBXBuildFile; fileRef = 60F884DA4E45D734E7CA552D /* squire.png */; };
@@ -3442,6 +3445,7 @@
 		63842BCD887884F8B87C73D6 /* manservant.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = manservant.png; sourceTree = "<group>"; };
 		63B189ED6D88E42FEFD68690 /* straightjacket.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = straightjacket.png; sourceTree = "<group>"; };
 		63BD8242EB04901AC80F9376 /* leopard.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = leopard.png; sourceTree = "<group>"; };
+		63C3CFC51C21896A4A1F7E23 /* badge.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = badge.wav; sourceTree = "<group>"; };
 		63EF50331FCB62E41BB5AC16 /* muffin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = muffin.png; sourceTree = "<group>"; };
 		640990973C8211B99DE86A6B /* syringe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = syringe.png; sourceTree = "<group>"; };
 		640C1FC5B9F97F0F43070AC3 /* pinwheel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pinwheel.png; sourceTree = "<group>"; };
@@ -4894,6 +4898,7 @@
 		FD4FF38750F8F27BE8716B62 /* pomegranate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pomegranate.png; sourceTree = "<group>"; };
 		FD5F39B9EECB6E00D4B5D66E /* permafrost.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = permafrost.png; sourceTree = "<group>"; };
 		FD6694D4868C2779E0061DBB /* arrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arrow.png; sourceTree = "<group>"; };
+		FDC12840FAE3CDBF3C7A96BA /* BadgeEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeEngine.swift; sourceTree = "<group>"; };
 		FDC9027FF2B32C79A247D01A /* toner.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = toner.png; sourceTree = "<group>"; };
 		FDDE526BEC8EF588AABCC891 /* waterfall.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = waterfall.png; sourceTree = "<group>"; };
 		FDF6D901ABAD4E7E8D429A1F /* dust.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dust.png; sourceTree = "<group>"; };
@@ -4915,6 +4920,7 @@
 		FF83CAB0F45DCF02E71C247C /* medication.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = medication.png; sourceTree = "<group>"; };
 		FF8C0977E3648F59CA38807B /* jail.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = jail.png; sourceTree = "<group>"; };
 		FF8C2A37619F890FB6DF5CD7 /* tachometer.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tachometer.png; sourceTree = "<group>"; };
+		FFA7A23B0DEB5470C996D5D4 /* BadgeEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeEngineTests.swift; sourceTree = "<group>"; };
 		FFC0AAD74540F56F7BE6EA11 /* oxtail.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = oxtail.png; sourceTree = "<group>"; };
 		FFC965B3C36D23B1BAB8F6B1 /* star.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = star.png; sourceTree = "<group>"; };
 		FFD30647DFB5C29E1596DE87 /* scientist.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = scientist.png; sourceTree = "<group>"; };
@@ -4976,6 +4982,7 @@
 		58917F4EDBDAB47F9B102508 /* SFX */ = {
 			isa = PBXGroup;
 			children = (
+				63C3CFC51C21896A4A1F7E23 /* badge.wav */,
 				FD12088FEC7578CD852C2920 /* coin.wav */,
 				C80BF8EB118851ED5945540F /* defeat.wav */,
 				52337821A706E5F665088492 /* enemy-down.wav */,
@@ -4990,6 +4997,7 @@
 		5B007D05320BCEF73AC86645 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				FDC12840FAE3CDBF3C7A96BA /* BadgeEngine.swift */,
 				0133527D358D67007F897E88 /* Balance.swift */,
 				6351AEAE05630362D28C527E /* CardPhotos.swift */,
 				AE9A465CFEE5318D7BCD0575 /* CardRecord.swift */,
@@ -5010,6 +5018,7 @@
 		64FCF21D364C5939F6F1CAB4 /* CantoTests */ = {
 			isa = PBXGroup;
 			children = (
+				FFA7A23B0DEB5470C996D5D4 /* BadgeEngineTests.swift */,
 				E515F93170C95342E9B5CBAB /* BattleEngineTests.swift */,
 				C61C02CB19B0DA0520FFD65C /* CantoneseSpeakerTests.swift */,
 				B5928EE16CD403B45E5744A0 /* CardPhotosTests.swift */,
@@ -7661,6 +7670,7 @@
 				32B3BC4A34D9FC20582F3F0F /* bacon.png in Resources */,
 				AC0E3D4C205C98DD5CC196DB /* bacteria.png in Resources */,
 				CEFF548D72961A16A966FCBC /* badge.png in Resources */,
+				A0647757C91DE8497797DCAB /* badge.wav in Resources */,
 				23C96A9C3B32F5F53458B77F /* badger.png in Resources */,
 				0F11AF1BED7CAF9DEC4CE145 /* badminton.png in Resources */,
 				FEFF8C556741F5797C22FE9B /* bag.png in Resources */,
@@ -9980,6 +9990,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F1F34A24DF7ED5DCE1ED23A0 /* BadgeEngine.swift in Sources */,
 				36C3E1A43553EC08B18FC5DD /* Balance.swift in Sources */,
 				76FC3009093342A985C06CDF /* BattleView.swift in Sources */,
 				E21AEB5C4916F98A92F94020 /* CameraPicker.swift in Sources */,
@@ -10021,6 +10032,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AE2B47D920D76DF6943ACC18 /* BadgeEngineTests.swift in Sources */,
 				58C3ED21E1E734A561CCD06B /* BattleEngineTests.swift in Sources */,
 				AFC32945D7F99821774BC0E8 /* CantoneseSpeakerTests.swift in Sources */,
 				E712A179C6664DAA95BA773C /* CardPhotosTests.swift in Sources */,

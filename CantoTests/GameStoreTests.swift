@@ -283,6 +283,23 @@ final class GameStoreTests: XCTestCase {
 
     // MARK: - resetEverything
 
+    // A reset zeroes the wallet, so a surviving badge row would mean the kid
+    // re-grinds the same threshold and gets paid nothing for it, forever.
+    func test_resetEverything_clearsBadgesSoTheyCanBeEarnedAgain() {
+        let store = GameStore(directory: tempDir)
+        let runId = store.startRun(on: "2026-07-04", state: makeRunState())!
+        XCTAssertEqual(store.finishRun(id: runId, state: makeRunState(enemyHP: 0)), ["first-run", "first-victory"])
+
+        store.resetEverything(clearing: LogStore(directory: tempDir))
+
+        let secondRun = store.startRun(on: "2026-07-05", state: makeRunState())!
+        XCTAssertEqual(
+            store.finishRun(id: secondRun, state: makeRunState(enemyHP: 0)), ["first-run", "first-victory"],
+            "a fresh start must be able to re-earn the badges it just wiped"
+        )
+        XCTAssertEqual(store.balance(), Balance.runFinishPay + Balance.bossBonusPay + Balance.badgePay * 2)
+    }
+
     func test_resetEverything_wipesDeckHistoryLedgerRunsAndPhotosButKeepsShopItems() throws {
         let log = LogStore(directory: tempDir)
         makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
@@ -494,7 +511,12 @@ final class GameStoreTests: XCTestCase {
         XCTAssertNotNil(second)
         XCTAssertNotEqual(second, first)
         store.finishRun(id: second!, state: makeRunState(enemyHP: 0))
-        XCTAssertEqual(store.balance(), paidOnce * 2)
+
+        // The run payout repeats every finish, but first-run/first-victory
+        // are one-shot badges already earned by the first finish - farming
+        // pays run+boss twice, not the badge bonus twice.
+        let runAndBossPay = Balance.runFinishPay + Balance.bossBonusPay
+        XCTAssertEqual(store.balance(), paidOnce + runAndBossPay)
     }
 
     func test_finishRun_marksFinished() throws {
@@ -559,18 +581,23 @@ final class GameStoreTests: XCTestCase {
         let runId = store.startRun(on: "2026-07-04", state: makeRunState())!
         let victoryState = makeRunState(enemyHP: 0) // partyHP: 5, from makeRunState default
 
-        store.finishRun(id: runId, state: victoryState)
-        XCTAssertEqual(store.balance(), Balance.runFinishPay + Balance.bossBonusPay)
+        // This is also this store's first finish and first victory, so the
+        // one-shot badges pay alongside the run payout - see the Badges
+        // section below for badge-focused assertions.
+        let firstBadges = store.finishRun(id: runId, state: victoryState)
+        XCTAssertEqual(Set(firstBadges), ["first-run", "first-victory"])
+        let expectedBalance = Balance.runFinishPay + Balance.bossBonusPay + Balance.badgePay * firstBadges.count
+        XCTAssertEqual(store.balance(), expectedBalance)
 
         // Same id, mirroring TowerView's self-healing load path re-calling
         // finishRun on an already-finished run - must not double-pay.
-        store.finishRun(id: runId, state: victoryState)
-        XCTAssertEqual(store.balance(), Balance.runFinishPay + Balance.bossBonusPay)
+        XCTAssertEqual(store.finishRun(id: runId, state: victoryState), [])
+        XCTAssertEqual(store.balance(), expectedBalance)
 
         let reasons = try rawGameQueue(in: tempDir).read { db in
             try String.fetchAll(db, sql: "SELECT reason FROM bux_ledger ORDER BY id")
         }
-        XCTAssertEqual(reasons, ["run_finish", "boss_bonus"])
+        XCTAssertEqual(reasons, ["run_finish", "boss_bonus", "badge:first-run", "badge:first-victory"])
     }
 
     func test_finishRun_defeatStillPaysRunFinishPay() {
@@ -579,9 +606,178 @@ final class GameStoreTests: XCTestCase {
         var defeatState = makeRunState(enemyHP: 3)
         defeatState.partyHP = 0
 
-        store.finishRun(id: runId, state: defeatState)
+        // A defeat still finishes a run, so first-run pays alongside it.
+        let badges = store.finishRun(id: runId, state: defeatState)
 
-        XCTAssertEqual(store.balance(), Balance.runFinishPay)
+        XCTAssertEqual(badges, ["first-run"])
+        XCTAssertEqual(store.balance(), Balance.runFinishPay + Balance.badgePay)
+    }
+
+    // MARK: - Badges
+
+    private func makeBossRunState(enemyHP: Int = 0) -> RunState {
+        RunState(
+            floors: [RunState.Floor(kind: .boss, enemyName: "dragon", maxHP: Balance.bossHP)],
+            floorIndex: 0, enemyHP: enemyHP, partyHP: 5,
+            dealt: [], damageDealt: 0, extensionsTaken: 0
+        )
+    }
+
+    func test_finishRun_awardsFirstRunBadgeAndCreditsItExactlyOnce() throws {
+        let store = GameStore(directory: tempDir)
+        let runId = store.startRun(on: "2026-07-04", state: makeRunState())!
+        var defeatState = makeRunState(enemyHP: 3)
+        defeatState.partyHP = 0
+
+        let newBadges = store.finishRun(id: runId, state: defeatState)
+
+        XCTAssertEqual(newBadges, ["first-run"])
+        XCTAssertEqual(store.balance(), Balance.runFinishPay + Balance.badgePay)
+        let badgeRows = try rawGameQueue(in: tempDir).read { db in
+            try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM badges WHERE badge_id = 'first-run'") ?? 0
+        }
+        XCTAssertEqual(badgeRows, 1)
+        let ledgerRows = try rawGameQueue(in: tempDir).read { db in
+            try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM bux_ledger WHERE reason = 'badge:first-run'") ?? 0
+        }
+        XCTAssertEqual(ledgerRows, 1)
+    }
+
+    // Re-finishing the same run (TowerView's self-heal path) must not
+    // double-award or double-credit - the changesCount > 0 guard covers both
+    // the payout and the badge together, in one transaction.
+    func test_finishRun_reFinishingSameRunAwardsBadgeOnlyOnce() throws {
+        let store = GameStore(directory: tempDir)
+        let runId = store.startRun(on: "2026-07-04", state: makeRunState())!
+        let victoryState = makeRunState(enemyHP: 0)
+
+        XCTAssertEqual(store.finishRun(id: runId, state: victoryState), ["first-run", "first-victory"])
+        XCTAssertEqual(store.finishRun(id: runId, state: victoryState), [], "already-finished re-entry pays nothing new")
+
+        let balanceAfterOnce = Balance.runFinishPay + Balance.bossBonusPay + Balance.badgePay * 2
+        XCTAssertEqual(store.balance(), balanceAfterOnce)
+        let badgeCount = try rawGameQueue(in: tempDir).read { db in
+            try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM badges") ?? 0
+        }
+        XCTAssertEqual(badgeCount, 2)
+    }
+
+    // A badge already earned on an earlier run must not be re-awarded (and
+    // re-credited) just because its threshold is still satisfied later.
+    func test_finishRun_doesNotReAwardAnAlreadyEarnedBadgeOnALaterRun() {
+        let store = GameStore(directory: tempDir)
+        let first = store.startRun(on: "2026-07-04", state: makeRunState())!
+        // makeRunState's default partyHP (5) makes this a victory too, so the
+        // first finish earns both one-shot badges - the second finish below
+        // is the part under test.
+        XCTAssertEqual(Set(store.finishRun(id: first, state: makeRunState(enemyHP: 3))), ["first-run", "first-victory"])
+
+        let second = store.startRun(on: "2026-07-04", state: makeRunState())!
+        let newBadges = store.finishRun(id: second, state: makeRunState(enemyHP: 3))
+
+        XCTAssertEqual(newBadges, [], "finishedRuns >= 1 is still true, but first-run is already owned")
+    }
+
+    // Beating a biome's boss on THIS finishing run earns that biome's badge -
+    // forward-only, no scan of historical state_json (see BadgeEngine).
+    func test_finishRun_bossBadgeKeysOffThisRunsBossFloor() {
+        let store = GameStore(directory: tempDir)
+        let runId = store.startRun(on: "2026-07-04", state: makeBossRunState())!
+
+        let newBadges = store.finishRun(id: runId, state: makeBossRunState(enemyHP: 0))
+
+        XCTAssertTrue(newBadges.contains("boss-tower"))
+    }
+
+    // rich-100 must key off the running MAX of the wallet, not the balance at
+    // finish time - a kid who earned 120 then spent down to 20 still earned it.
+    func test_finishRun_richHundredUsesRunningMaxNotCurrentBalance() {
+        let store = GameStore(directory: tempDir)
+        store.credit(120, reason: "run_finish")
+        store.credit(-100, reason: "redeem:test")
+        XCTAssertEqual(store.balance(), 20)
+        let runId = store.startRun(on: "2026-07-04", state: makeRunState())!
+
+        let newBadges = store.finishRun(id: runId, state: makeRunState(enemyHP: 3))
+
+        XCTAssertTrue(newBadges.contains("rich-100"))
+    }
+
+    // A device db created at schema v3 (pre-badges) must migrate to v4 with
+    // its wallet balance and box progress completely unchanged - the
+    // migration only CREATEs the new badges/gear tables.
+    func test_schemaV3_migratesToV4WithoutTouchingExistingData() throws {
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        try rawGameQueue(in: tempDir).write { db in
+            try db.execute(sql: """
+                CREATE TABLE cards (
+                  id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  traditional TEXT NOT NULL, jyutping TEXT NOT NULL, english TEXT NOT NULL,
+                  photo_filename TEXT, benched INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL,
+                  UNIQUE(traditional, jyutping)
+                )
+                """)
+            try db.execute(sql: """
+                CREATE TABLE card_states (
+                  card_id INTEGER NOT NULL REFERENCES cards(id),
+                  player TEXT NOT NULL CHECK (player IN ('dad','kid')),
+                  box INTEGER NOT NULL DEFAULT 0 CHECK (box BETWEEN 0 AND 3),
+                  due_on TEXT NOT NULL DEFAULT '1970-01-01',
+                  PRIMARY KEY (card_id, player)
+                )
+                """)
+            try db.execute(sql: """
+                CREATE TABLE reviews (
+                  id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  card_id INTEGER NOT NULL, player TEXT NOT NULL,
+                  result TEXT NOT NULL CHECK (result IN ('hit','whiff')), reviewed_at TEXT NOT NULL
+                )
+                """)
+            try db.execute(sql: """
+                CREATE TABLE bux_ledger (
+                  id INTEGER PRIMARY KEY AUTOINCREMENT, amount INTEGER NOT NULL,
+                  reason TEXT NOT NULL, created_at TEXT NOT NULL
+                )
+                """)
+            try db.execute(sql: """
+                CREATE TABLE runs (
+                  id INTEGER PRIMARY KEY AUTOINCREMENT, run_date TEXT NOT NULL,
+                  state_json TEXT NOT NULL, finished INTEGER NOT NULL DEFAULT 0
+                )
+                """)
+            try db.execute(sql: "CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)")
+
+            try db.execute(
+                sql: "INSERT INTO cards (id, traditional, jyutping, english, created_at) VALUES (1, ?, ?, ?, ?)",
+                arguments: ["食", "sik6", "eat", "2026-07-01"]
+            )
+            try db.execute(
+                sql: "INSERT INTO card_states (card_id, player, box, due_on) VALUES (1, 'kid', 3, '2026-07-10')"
+            )
+            try db.execute(sql: "INSERT INTO reviews (card_id, player, result, reviewed_at) VALUES (1, 'kid', 'hit', ?)",
+                            arguments: ["2026-07-01T00:00:00Z"])
+            try db.execute(sql: "INSERT INTO bux_ledger (amount, reason, created_at) VALUES (30, 'run_finish', ?)",
+                            arguments: ["2026-07-01T00:00:00Z"])
+            try db.execute(sql: "INSERT INTO bux_ledger (amount, reason, created_at) VALUES (-10, 'redeem:test', ?)",
+                            arguments: ["2026-07-02T00:00:00Z"])
+            try db.execute(sql: "PRAGMA user_version = 3")
+        }
+
+        let store = GameStore(directory: tempDir)
+
+        XCTAssertEqual(store.balance(), 20, "the wallet must survive the migration unchanged")
+        let entry = store.deck().first!
+        XCTAssertEqual(entry.box, 3, "box progress must survive the migration unchanged")
+        let (version, badgesTableExists, gearTableExists) = try rawGameQueue(in: tempDir).read { db in
+            (
+                try Int.fetchOne(db, sql: "PRAGMA user_version") ?? 0,
+                try Bool.fetchOne(db, sql: "SELECT COUNT(*) > 0 FROM sqlite_master WHERE type = 'table' AND name = 'badges'") ?? false,
+                try Bool.fetchOne(db, sql: "SELECT COUNT(*) > 0 FROM sqlite_master WHERE type = 'table' AND name = 'gear'") ?? false
+            )
+        }
+        XCTAssertEqual(version, 4)
+        XCTAssertTrue(badgesTableExists)
+        XCTAssertTrue(gearTableExists)
     }
 
     func test_nextCards_ordersBySoonestDueAndRespectsLimit() {
@@ -651,9 +847,13 @@ final class GameStoreTests: XCTestCase {
         state.extensionsTaken = 1
         let runId = store.startRun(on: "2026-07-04", state: makeRunState())!
 
-        store.finishRun(id: runId, state: state)
+        let badges = store.finishRun(id: runId, state: state)
 
-        XCTAssertEqual(store.balance(), Balance.runFinishPay + Balance.bossBonusPay + Balance.extensionPay)
+        XCTAssertEqual(Set(badges), ["first-run", "first-victory"])
+        XCTAssertEqual(
+            store.balance(),
+            Balance.runFinishPay + Balance.bossBonusPay + Balance.extensionPay + Balance.badgePay * badges.count
+        )
         let extensionAmount = try rawGameQueue(in: tempDir).read { db in
             try Int.fetchOne(db, sql: "SELECT amount FROM bux_ledger WHERE reason = 'extension'")
         }
@@ -726,7 +926,7 @@ final class GameStoreTests: XCTestCase {
             (try Int.fetchOne(db, sql: "PRAGMA user_version") ?? 0,
              try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM runs WHERE run_date = '2026-07-04'") ?? 0)
         }
-        XCTAssertEqual(version, 3)
+        XCTAssertEqual(version, 4)
         XCTAssertEqual(rows, 2, "the v1 row survived the rebuild alongside the new one")
     }
 
@@ -775,7 +975,7 @@ final class GameStoreTests: XCTestCase {
             (try Int.fetchOne(db, sql: "PRAGMA user_version") ?? 0,
              try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM card_states WHERE player = 'dad'") ?? 0)
         }
-        XCTAssertEqual(version, 3)
+        XCTAssertEqual(version, 4)
         XCTAssertEqual(dadRows, 0, "dad's rows are gone, not just ignored")
     }
 
@@ -833,7 +1033,7 @@ final class GameStoreTests: XCTestCase {
             (try Int.fetchOne(db, sql: "PRAGMA user_version") ?? 0,
              try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM card_states WHERE player = 'dad'") ?? 0)
         }
-        XCTAssertEqual(version, 3)
+        XCTAssertEqual(version, 4)
         XCTAssertEqual(dadRows, 0, "dad's rows are gone, not just ignored")
     }
 
