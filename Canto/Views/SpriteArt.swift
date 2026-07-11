@@ -228,6 +228,15 @@ enum SpriteArt {
         "sherry": "alcohol", "tequila": "alcohol", "tombstone": "tomb", "torpedo": "missile",
         "valium": "pill", "vodka": "alcohol", "weapon": "sword", "whiskey": "alcohol",
         "whisky": "alcohol",
+        // Flag batch 02 (flag-02.tsv).
+        "assassin": "thief", "bayonet": "dagger", "bazooka": "cannon", "bomber": "plane",
+        "brewery": "beer", "burglar": "thief", "chardonnay": "wine", "cognac": "alcohol",
+        "crypt": "tomb", "cyanide": "formaldehyde", "daggers": "dagger", "fighter": "soldier",
+        "gladiator": "soldier", "gunman": "gun", "gunner": "gun", "hunting": "gun",
+        "liqueur": "alcohol", "machete": "sword", "mercenary": "soldier", "meth": "cocaine",
+        "mortuary": "tomb", "robber": "thief", "sharpshooter": "gun", "shooter": "gun",
+        "smoker": "cigarette", "sniper": "gun", "stiletto": "dagger", "switchblade": "dagger",
+        "swordsman": "soldier", "tranquilizer": "stimulant",
     ]
 
     static func cardImage(forEnglish english: String) -> UIImage? {

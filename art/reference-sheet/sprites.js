@@ -29470,6 +29470,188 @@ S.push({ name: 'thief', draw(g) {            // 小偷 siu2 tau1 — thief (robb
     blush(g, 19, 29); blush(g, 37, 29);
   }});
 
+
+S.push({ name: 'vampire', draw(g) {          // 吸血鬼 kap1 hyut3 gwai2 — vampire
+    ball(g, 26, 58, 3.4, 2.2, P.navy, P.navy); ball(g, 38, 58, 3.4, 2.2, P.navy, P.navy); // feet
+    tri(g, 12, 40, 24, 30, 22, 56, P.plum);              // cape L
+    tri(g, 52, 40, 40, 30, 42, 56, P.plum);              // cape R
+    ball(g, CX, 46, 9, 8, P.navy, P.navy);               // black suit
+    tri(g, 27, 40, 36, 40, 31.5, 48, P.crm);             // white collar
+    disc(g, CX, 41, 1.6, P.red);                         // bowtie
+    ball(g, CX, 26, 12, 12, P.crm, P.lgy);               // pale face
+    tri(g, 20, 18, 31, 22, 20, 14, P.navy); tri(g, 43, 18, 32, 22, 43, 14, P.navy); // hair widow's peak
+    rect(g, 24, 16, 39, 20, P.navy);                     // hairline
+    eyes(g, CX, 26, 6);
+    smileArc(g, CX, 31, 2.4, 1.1);
+    g.set(27, 34, P.crm); g.set(36, 34, P.crm);          // fangs
+    blush(g, 21, 31); blush(g, 42, 31);
+  }});
+
+S.push({ name: 'werewolf', draw(g) {         // 狼人 long4 jan4 — werewolf
+    ball(g, 26, 58, 3.6, 2.4, P.brn, P.plum); ball(g, 38, 58, 3.6, 2.4, P.brn, P.plum); // feet
+    ball(g, CX, 48, 10, 8, P.dgy, P.navy);               // torn shirt
+    rect(g, 26, 50, 37, 51, P.navy);                     // tear
+    ball(g, 15, 44, 4, 5, P.brn, P.plum); ball(g, 48, 44, 4, 5, P.brn, P.plum); // paws
+    tri(g, 18, 18, 26, 10, 28, 22, P.brn); tri(g, 45, 18, 37, 10, 35, 22, P.brn); // pointy ears
+    ball(g, CX, 26, 12, 11, P.brn, P.plum);              // furry head
+    ball(g, CX, 32, 6, 4, P.pch, P.brn);                 // snout
+    disc(g, CX, 30, 1.6, P.navy);                        // nose
+    eyes(g, CX, 25, 6);
+    smileArc(g, CX, 33, 2, 0.9);
+    g.set(28, 35, P.crm); g.set(35, 35, P.crm);          // fangs
+    blush(g, 21, 31); blush(g, 42, 31);
+  }});
+
+S.push({ name: 'troll', draw(g) {            // 巨魔 geoi6 mo1 — troll
+    ball(g, 26, 58, 4, 2.6, P.lim, P.grn); ball(g, 38, 58, 4, 2.6, P.lim, P.grn); // feet
+    ball(g, CX, 46, 13, 10, P.grn, P.plum);              // pot belly
+    ball(g, 14, 42, 4, 5, P.lim, P.grn); ball(g, 50, 42, 4, 5, P.lim, P.grn); // arms
+    tri(g, 16, 22, 24, 16, 26, 26, P.lim); tri(g, 48, 22, 40, 16, 38, 26, P.lim); // big ears
+    ball(g, CX, 26, 12, 11, P.lim, P.grn);               // head
+    ball(g, CX, 30, 4, 3.4, P.lim, P.grn);               // big nose
+    for (const x of [26, 31, 37]) stroke(g, [[x, 16], [x + (x-31)*0.3, 8]], 1, 0.6, P.org); // wild hair tuft
+    eyes(g, CX, 24, 6);
+    smileArc(g, CX, 33, 2, 0.9);
+    g.set(27, 35, P.crm); g.set(36, 35, P.crm);          // tusks
+    blush(g, 21, 31); blush(g, 42, 31);
+  }});
+
+S.push({ name: 'zombie', draw(g) {           // 喪屍 song3 si1 — zombie
+    ball(g, 26, 58, 3.6, 2.4, P.grn, P.plum); ball(g, 38, 58, 3.6, 2.4, P.grn, P.plum); // feet
+    ball(g, CX, 48, 10, 8, P.dgy, P.navy);               // tattered shirt
+    stroke(g, [[10, 40], [22, 44]], 2.4, 2, P.lim);      // outstretched arm L
+    stroke(g, [[54, 40], [42, 44]], 2.4, 2, P.lim);      // arm R
+    disc(g, 9, 40, 2.4, P.grn); disc(g, 55, 40, 2.4, P.grn); // hands
+    ball(g, CX, 26, 12, 12, P.lim, P.grn);               // green head
+    ellipse(g, CX, 16, 11, 5, P.dgy);                    // hair
+    eye(g, CX - 6, 26, 4); eye(g, CX + 5, 25, 2.6);      // uneven eyes
+    smileArc(g, CX, 33, 2.2, 1);
+    for (let x = 24; x <= 39; x += 3) g.set(x, 33, P.navy); // stitched mouth marks
+    stroke(g, [[36, 22], [40, 26]], 0.6, 0.6, P.navy);   // stitch on cheek
+    blush(g, 21, 31); blush(g, 42, 31);
+  }});
+
+S.push({ name: 'club', draw(g) {             // 棍 gwan3 — club
+    stroke(g, [[20, 54], [42, 14]], 3, 8, P.brn);        // club body (tapered thick top)
+    stroke(g, [[20, 54], [42, 14]], 2, 6, P.org);        // highlight
+    for (const p of [[38,18],[34,26],[42,22]]) disc(g, p[0], p[1], 1.6, P.brn); // studs
+    rect(g, 17, 50, 24, 56, P.dgy);                      // grip
+    eyes(g, 34, 24, 4);
+    smileArc(g, 34, 28, 1.6, 0.7);
+    blush(g, 29, 26); blush(g, 40, 26);
+  }});
+
+S.push({ name: 'crossbow', draw(g) {         // 弩 nou5 — crossbow
+    stroke(g, [[8, 26], [56, 26]], 2.6, 2.6, P.brn);     // bow limb (horizontal)
+    stroke(g, [[8, 26], [56, 26]], 0.7, 0.7, P.crm);     // string front
+    rrect(g, 26, 24, 40, 52, 2, P.dgy);                  // stock
+    rect(g, 20, 25, 44, 28, P.lgy);                      // rail
+    stroke(g, [[CX, 26], [CX, 12]], 1, 1, P.org);        // loaded bolt
+    tri(g, 30, 14, 33, 14, 31.5, 8, P.lgy);              // bolt head
+    eyes(g, 33, 40, 4);
+    smileArc(g, 33, 44, 1.6, 0.7);
+    blush(g, 28, 42); blush(g, 39, 42);
+  }});
+
+S.push({ name: 'cleaver', draw(g) {          // 菜刀 coi3 dou1 — cleaver
+    rrect(g, 14, 16, 46, 44, 2, P.lgy);                  // blade
+    rrect(g, 14, 16, 46, 20, 1, P.crm);                  // blade spine shine
+    disc(g, 40, 22, 2, null);                            // corner hole
+    rect(g, 44, 24, 54, 40, P.brn);                      // handle
+    rect(g, 44, 24, 54, 27, P.org);                      // handle highlight
+    eyes(g, 28, 32, 5);
+    smileArc(g, 28, 37, 2.2, 0.9);
+    blush(g, 21, 35); blush(g, 36, 35);
+  }});
+
+S.push({ name: 'sickle', draw(g) {           // 鐮刀 lim4 dou1 — sickle
+    stroke(g, [[16, 50], [22, 20], [42, 12], [50, 22]], 2.4, 2, P.lgy); // curved blade
+    stroke(g, [[18, 46], [24, 22], [40, 16]], 0.7, 0.7, P.crm); // blade edge
+    rect(g, 12, 46, 22, 56, P.brn);                      // handle
+    rect(g, 12, 46, 22, 49, P.org);                      // handle highlight
+    eyes(g, 34, 26, 4);
+    smileArc(g, 34, 30, 1.6, 0.7);
+    blush(g, 29, 28); blush(g, 40, 26);
+  }});
+
+S.push({ name: 'harpoon', draw(g) {          // 魚叉 jyu4 caa1 — harpoon
+    stroke(g, [[18, 54], [44, 14]], 1.6, 1.6, P.brn);    // shaft
+    tri(g, 40, 20, 52, 6, 46, 22, P.lgy);                // point
+    tri(g, 38, 16, 44, 12, 42, 20, P.lgy);               // barb
+    stroke(g, [[36, 24], [42, 20]], 0.8, 0.8, P.dgy);    // barb hook
+    for (let a = 0; a < 8; a++) { const t = a/8*6.283; disc(g, 20 + Math.cos(t)*5, 50 + Math.sin(t)*5, 1, P.org); } // rope coil
+    eyes(g, 32, 34, 3);
+    smileArc(g, 32, 37, 1.4, 0.6);
+    blush(g, 27, 36); blush(g, 37, 33);
+  }});
+
+S.push({ name: 'chisel', draw(g) {           // 鑿 zok6 — chisel
+    rrect(g, 26, 30, 38, 56, 3, P.brn);                  // wooden handle
+    rect(g, 26, 30, 38, 34, P.org);                      // handle highlight
+    rect(g, 28, 24, 36, 32, P.dgy);                      // ferrule
+    rect(g, 29, 8, 35, 26, P.lgy);                       // blade
+    rect(g, 29, 8, 31, 26, P.crm);                       // blade shine
+    tri(g, 29, 8, 35, 8, 32, 5, P.crm);                  // bevel tip
+    eyes(g, CX, 42, 4);
+    smileArc(g, CX, 46, 1.7, 0.8);
+    blush(g, 27, 44); blush(g, 37, 44);
+  }});
+
+S.push({ name: 'flamethrower', draw(g) {     // 噴火器 pan3 fo2 hei3 — flamethrower
+    rrect(g, 12, 30, 24, 52, 3, P.red);                  // fuel tank
+    rect(g, 15, 32, 21, 48, P.plum);                     // tank stripe
+    rrect(g, 22, 36, 44, 44, 2, P.dgy);                  // gun body
+    rect(g, 28, 44, 32, 52, P.dgy);                      // grip
+    rect(g, 44, 38, 52, 42, P.lgy);                      // nozzle
+    ball(g, 56, 40, 4, 5, P.org, P.red);                 // flame
+    disc(g, 54, 40, 2, P.yel);
+    ball(g, 60, 38, 2.4, 3, P.yel, P.org);
+    eyes(g, 33, 40, 3);
+    smileArc(g, 33, 42, 1.3, 0.6);
+    blush(g, 28, 41); blush(g, 38, 41);
+  }});
+
+S.push({ name: 'paintball', draw(g) {        // 彩彈 coi2 daan6 — paintball
+    for (let a = 0; a < 8; a++) { const t = a/8*6.283; ball(g, CX + Math.cos(t)*13, 34 + Math.sin(t)*13, 3, 3, [P.red,P.sky,P.yel,P.lim][a%4], P.plum); } // splat blobs
+    ball(g, CX, 34, 12, 12, P.pnk, P.plum, P.crm);       // central splat
+    for (const p of [[16,50,P.sky],[46,52,P.yel],[50,20,P.lim]]) ball(g, p[0], p[1], 3, 3, p[2], P.plum); // stray pellets
+    eyes(g, CX, 33, 5);
+    smileArc(g, CX, 38, 2.2, 0.9);
+    blush(g, 22, 36); blush(g, 41, 36);
+  }});
+
+S.push({ name: 'poker', draw(g) {            // 撲克 pok3 hak1 — poker
+    rrect(g, 12, 22, 34, 52, 2, P.plum);                 // card 1 (tilted)
+    rrect(g, 22, 18, 44, 48, 2, P.crm);                  // card 2
+    tri(g, 30, 24, 36, 24, 33, 30, P.red);               // heart pip half
+    tri(g, 30, 24, 33, 30, 27, 28, P.red);
+    disc(g, 29, 25, 1.8, P.red); disc(g, 34, 25, 1.8, P.red);
+    disc(g, 44, 48, 8, P.red); disc(g, 44, 48, 5, P.crm); disc(g, 44, 48, 2.4, P.red); // poker chip
+    eyes(g, 33, 36, 4);
+    smileArc(g, 33, 40, 1.6, 0.7);
+    blush(g, 27, 38); blush(g, 40, 38);
+  }});
+
+S.push({ name: 'lottery', draw(g) {          // 彩票 coi2 piu3 — lottery ticket
+    rrect(g, 12, 20, 52, 48, 2, P.crm);                  // ticket
+    rect(g, 12, 20, 52, 26, P.red);                      // top banner
+    disc(g, 20, 23, 1.6, P.yel);                         // star
+    rrect(g, 16, 32, 34, 44, 1, P.lgy);                  // scratch panel
+    for (let x = 18; x < 33; x += 3) stroke(g, [[x, 34], [x + 2, 42]], 0.5, 0.5, P.dgy); // scratch texture
+    for (const p of [[40,34,P.sky],[46,34,P.red],[40,40,P.lim],[46,40,P.org]]) disc(g, p[0], p[1], 1.6, p[2]); // lotto dots
+    eyes(g, 24, 42, 3);
+    smileArc(g, 24, 45, 1.4, 0.6);
+  }});
+
+S.push({ name: 'explode', draw(g) {          // 爆炸 baau3 zaa3 — explode
+    for (let a = 0; a < 12; a++) { const t = a/12*6.283, r = a%2 ? 24 : 15; tri(g, CX + Math.cos(t-0.2)*11, 34 + Math.sin(t-0.2)*11, CX + Math.cos(t+0.2)*11, 34 + Math.sin(t+0.2)*11, CX + Math.cos(t)*r, 34 + Math.sin(t)*r, P.org); } // burst spikes
+    ball(g, CX, 34, 14, 13, P.yel, P.org);               // core
+    disc(g, CX, 34, 8, P.crm);                           // white flash
+    eyes(g, CX, 33, 5);
+    smileArc(g, CX, 38, 2.2, 0.9);
+    blush(g, 22, 36); blush(g, 41, 36);
+  }});
+
   function renderGrid(name) {
     const item = S.find(s => s.name === name);
     const g = new Grid();
