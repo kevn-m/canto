@@ -28100,6 +28100,34 @@ S.push({ name: 'titanium', draw(g) {         // 鈦 taai3 — titanium
     blush(g, 22, 45); blush(g, 41, 45);
   }});
 
+
+S.push({ name: 'gunpowder', draw(g) {        // 火藥 fo2 joek6 — powder keg
+    tri(g, 18, 52, 46, 52, 44, 26, P.brn);               // barrel body R
+    tri(g, 18, 52, 44, 26, 20, 26, P.brn);
+    rect(g, 18, 26, 46, 52, P.brn);                      // barrel front
+    ellipse(g, CX, 26, 14, 4, P.org);                    // top rim
+    ellipse(g, CX, 26, 11, 3, P.brn);
+    rect(g, 16, 30, 48, 33, P.dgy); rect(g, 16, 44, 48, 47, P.dgy); // metal bands
+    stroke(g, [[CX, 24], [37, 17], [41, 12]], 1, 0.8, P.dgy); // unlit fuse
+    for (const p of [[24, 38], [38, 40], [31, 42]]) g.set(p[0], p[1], P.navy); // powder specks
+    eyes(g, CX, 38, 5);
+    smileArc(g, CX, 43, 2.2, 0.9);
+    blush(g, 22, 41); blush(g, 41, 41);
+  }});
+
+S.push({ name: 'morphine', draw(g) {         // 嗎啡 maa1 fe1 — medicine vial
+    rrect(g, 24, 26, 40, 52, 3, P.brn);                  // vial shadow
+    rrect(g, 24, 25, 38, 50, 3, P.org);                  // amber glass
+    ellipse(g, CX, 40, 6, 9, P.yel);                     // liquid
+    ellipse(g, 28, 32, 2, 4, P.crm);                     // shine
+    rrect(g, 26, 18, 38, 26, 1, P.lgy);                  // metal cap
+    rect(g, 28, 14, 36, 19, P.dgy);                      // stopper
+    rect(g, 27, 34, 37, 44, P.crm);                      // label
+    stroke(g, [[31, 37], [31, 41]], 1, 1, P.red); stroke(g, [[28, 39], [34, 39]], 1, 1, P.red); // cross
+    eyes(g, 31, 46, 3);
+    smileArc(g, 31, 49, 1.5, 0.7);
+  }});
+
   function renderGrid(name) {
     const item = S.find(s => s.name === name);
     const g = new Grid();

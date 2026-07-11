@@ -338,6 +338,8 @@ final class SpriteArtTests: XCTestCase {
             "racetrack", "raisin", "roller", "runway", "rye", "sawdust", "shawl",
             "shuttle", "spa", "spandex", "stuffing", "tailor", "tar", "titanium", "tofu",
             "vanilla", "velvet", "waterfall",
+            // Plain batch 03 flagged (gunpowder visible, morphine kid-mode-hidden).
+            "gunpowder", "morphine",
         ]
         for name in names {
             XCTAssertNotNil(SpriteArt.image(named: name), "\(name).png missing from the app bundle")
