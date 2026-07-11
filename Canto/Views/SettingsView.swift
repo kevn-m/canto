@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     @ObservedObject private var gameStore = GameStore.shared
     @State private var showResetDialog = false
+    @State private var familyRewardsEnabled = false
 
     var body: some View {
         ZStack {
@@ -12,6 +13,24 @@ struct SettingsView: View {
                     ErrorBanner(message: lastError) { gameStore.clearError() }
                 }
                 List {
+                    Section {
+                        Toggle("Family rewards", isOn: $familyRewardsEnabled)
+                            .tint(GameTheme.gold)
+                            .onChange(of: familyRewardsEnabled) { _, enabled in
+                                gameStore.setFamilyRewardsEnabled(enabled)
+                            }
+                    } header: {
+                        Text("Family rewards")
+                            .font(GameTheme.title(13))
+                            .foregroundStyle(GameTheme.cream.opacity(0.6))
+                    } footer: {
+                        // Off by default (ADR 0021): the Shop is gear-only for
+                        // a solo player until dad turns this on.
+                        Text("Adds dad's real-world treats to the Shop, alongside gear.")
+                            .foregroundStyle(GameTheme.cream.opacity(0.6))
+                    }
+                    .listRowBackground(GameTheme.navy.opacity(0.4))
+
                     Section {
                         Button("Start over", role: .destructive) { showResetDialog = true }
                     } header: {
@@ -43,6 +62,7 @@ struct SettingsView: View {
             }
         }
         .navigationTitle("Settings")
+        .onAppear { familyRewardsEnabled = gameStore.familyRewardsEnabled() }
         .confirmationDialog(
             "Erase all words, history, photos and CantoBux? This can't be undone.",
             isPresented: $showResetDialog,

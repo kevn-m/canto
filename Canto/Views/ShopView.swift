@@ -1,38 +1,51 @@
 import SwiftUI
 
-// Wallet + real-world treats it buys. Balance is always GameStore.balance()
-// (the ledger sum), reloaded after every write so redeem/archive/add can't
-// leave a stale number on screen.
+// Gear-primary shop (ADR 0021, superseding the original Treats|Gear plan):
+// every player sees the cosmetic gear grid by default, and dad's real-world
+// Treats only appear once "Family rewards" is switched on in Settings.
+// Buying auto-equips, so the hero preview above always shows what just
+// happened - no silent transitions.
 struct ShopView: View {
     @ObservedObject private var gameStore = GameStore.shared
-    @State private var items: [ShopItem] = []
     @State private var balance = 0
+    @State private var ownedGear: Set<String> = []
+    @State private var equippedHat: String?
+    @State private var equippedCompanion: String?
+    @State private var familyRewardsEnabled = false
+    @State private var items: [ShopItem] = []
     @State private var pendingRedeem: ShopItem?
     @State private var showingEdit = false
 
     var body: some View {
         ZStack {
             InnBackground()
-            VStack(spacing: 20) {
+            VStack(spacing: 16) {
                 if let lastError = gameStore.lastError {
                     ErrorBanner(message: lastError) { gameStore.clearError() }
                 }
                 balanceView
-                List(items) { item in
-                    itemRow(item)
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16))
+                HeroSpriteView(size: 96, hatId: equippedHat, companionId: equippedCompanion)
+                ScrollView {
+                    VStack(spacing: 20) {
+                        GearShelf(
+                            owned: ownedGear, equippedHat: equippedHat, equippedCompanion: equippedCompanion,
+                            balance: balance, onBuy: buy, onToggleEquip: toggleEquip
+                        )
+                        if familyRewardsEnabled {
+                            treatsSection
+                        }
+                    }
+                    .padding()
                 }
-                .listStyle(.plain)
-                .scrollContentBackground(.hidden)
             }
         }
         .navigationTitle("Shop")
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button("Edit") { showingEdit = true }
-                    .tint(GameTheme.gold)
+            if familyRewardsEnabled {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Edit") { showingEdit = true }
+                        .tint(GameTheme.gold)
+                }
             }
         }
         .onAppear(perform: reload)
@@ -61,7 +74,17 @@ struct ShopView: View {
         .padding(.top, 8)
     }
 
-    private func itemRow(_ item: ShopItem) -> some View {
+    // Dad's real-world IOUs - only visible behind the Settings toggle
+    // (ADR 0021). The Edit sheet (dad's, not the kid's) stays attached here.
+    private var treatsSection: some View {
+        VStack(spacing: 10) {
+            ForEach(items) { item in
+                treatRow(item)
+            }
+        }
+    }
+
+    private func treatRow(_ item: ShopItem) -> some View {
         HStack {
             Text(item.name)
                 .font(GameTheme.title(18))
@@ -79,8 +102,34 @@ struct ShopView: View {
     }
 
     private func reload() {
-        items = gameStore.shopItems(includeArchived: false)
         balance = gameStore.balance()
+        ownedGear = gameStore.ownedGear()
+        let equipped = gameStore.equippedGear()
+        equippedHat = equipped.hat
+        equippedCompanion = equipped.companion
+        familyRewardsEnabled = gameStore.familyRewardsEnabled()
+        items = gameStore.shopItems(includeArchived: false)
+    }
+
+    // Buying always lands the gear on the hero right away - equip
+    // immediately rather than leaving a bought-but-unworn item invisible.
+    // The buy and the equip are separate transactions on purpose: a death
+    // between them leaves gear owned but unworn, which one tap fixes and which
+    // never costs the kid a bux.
+    private func buy(_ item: GearItem) {
+        guard gameStore.buyGear(id: item.id) else {
+            reload()
+            return
+        }
+        SFXPlayer.shared.play(.coin)
+        gameStore.equip(kind: item.kind, id: item.id)
+        reload()
+    }
+
+    private func toggleEquip(_ item: GearItem) {
+        let currentlyEquipped = (item.kind == .hat ? equippedHat : equippedCompanion) == item.id
+        gameStore.equip(kind: item.kind, id: currentlyEquipped ? nil : item.id)
+        reload()
     }
 
     private func redeem() {
@@ -88,6 +137,69 @@ struct ShopView: View {
         pendingRedeem = nil
         gameStore.redeem(item: item)
         reload()
+    }
+}
+
+// The gear grid: every catalogue item, always. Split out so
+// DesignSnapshotTests can render it bare (ShopView's ScrollView lays out as
+// a sliver under ImageRenderer, the same trap as BadgeShelf).
+struct GearShelf: View {
+    let owned: Set<String>
+    let equippedHat: String?
+    let equippedCompanion: String?
+    let balance: Int
+    let onBuy: (GearItem) -> Void
+    let onToggleEquip: (GearItem) -> Void
+
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 14), count: 3)
+
+    var body: some View {
+        LazyVGrid(columns: columns, spacing: 18) {
+            ForEach(GearCatalog.all) { item in
+                GearCardView(
+                    item: item, owned: owned.contains(item.id), equipped: isEquipped(item),
+                    affordable: balance >= item.price,
+                    onBuy: { onBuy(item) }, onToggleEquip: { onToggleEquip(item) }
+                )
+            }
+        }
+    }
+
+    private func isEquipped(_ item: GearItem) -> Bool {
+        switch item.kind {
+        case .hat: return equippedHat == item.id
+        case .companion: return equippedCompanion == item.id
+        }
+    }
+}
+
+// One catalogue slot: the sprite (or SF Symbol fallback), then either a
+// Buy button (unowned, disabled when unaffordable, same pattern as Treats)
+// or an Equip/Unequip toggle (owned).
+private struct GearCardView: View {
+    let item: GearItem
+    let owned: Bool
+    let equipped: Bool
+    let affordable: Bool
+    let onBuy: () -> Void
+    let onToggleEquip: () -> Void
+
+    var body: some View {
+        VStack(spacing: 8) {
+            GearSpriteView(id: item.id, kind: item.kind, size: 56)
+            if owned {
+                Button(equipped ? "Unequip" : "Equip", action: onToggleEquip)
+                    .buttonStyle(GameButtonStyle(prominent: !equipped, compact: true))
+            } else {
+                Button("Buy (\(item.price))", action: onBuy)
+                    .buttonStyle(GameButtonStyle(compact: true))
+                    .disabled(!affordable)
+                    .opacity(affordable ? 1 : 0.4)
+            }
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 6)
+        .cardFrame(selected: equipped)
     }
 }
 

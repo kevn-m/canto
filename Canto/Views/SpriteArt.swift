@@ -288,6 +288,12 @@ enum SpriteArt {
         image(named: "player-kid")
     }
 
+    // Gear sprites ship in Slice 6; nil until then, so every gear view
+    // must fall back to an SF Symbol (see GearSpriteView).
+    static func gearImage(id: String) -> UIImage? {
+        image(named: id)
+    }
+
     // Tries the bundle root and the Sprites subdirectory: XcodeGen flattens
     // resource groups today, but a folder reference would nest them.
     static func image(named name: String) -> UIImage? {
@@ -329,12 +335,58 @@ struct EnemySpriteView: View {
     }
 }
 
-// The hero sprite scaled up with hard pixel edges, or the SF Symbol
-// stand-in if the sprite hasn't shipped yet.
-struct HeroSpriteView: View {
-    var size: CGFloat = 96
+// One gear sprite, or the SF Symbol stand-in until the Slice 6 art batch
+// ships. Shared by the hero composition and the Shop grid/preview so both
+// draw the same fallback.
+struct GearSpriteView: View {
+    let id: String
+    let kind: GearKind
+    var size: CGFloat = 40
 
     var body: some View {
+        if let sprite = SpriteArt.gearImage(id: id) {
+            Image(uiImage: sprite)
+                .resizable()
+                .interpolation(.none)
+                .scaledToFit()
+                .frame(width: size, height: size)
+        } else {
+            Image(systemName: kind == .hat ? "crown.fill" : "pawprint.fill")
+                .font(.system(size: size * 0.6))
+                .foregroundStyle(kind == .hat ? GameTheme.gold : GameTheme.brown)
+                .frame(width: size, height: size)
+        }
+    }
+}
+
+// The hero sprite scaled up with hard pixel edges, or the SF Symbol
+// stand-in if the sprite hasn't shipped yet. Equipped gear composes on top,
+// offsets hardcoded per kind and tuned by eye against the 64px grid
+// (see DesignSnapshotTests' geared-hero snapshot).
+struct HeroSpriteView: View {
+    var size: CGFloat = 96
+    var hatId: String?
+    var companionId: String?
+
+    var body: some View {
+        ZStack {
+            heroSprite
+            // Eyeballed against the render, and tuned for the SF Symbol
+            // stand-ins - Slice 6's real 64px sprites sit differently and will
+            // want re-tuning against a fresh snapshot.
+            if let hatId {
+                GearSpriteView(id: hatId, kind: .hat, size: size * 0.44)
+                    .offset(y: -size * 0.48)
+            }
+            if let companionId {
+                GearSpriteView(id: companionId, kind: .companion, size: size * 0.4)
+                    .offset(x: size * 0.52, y: size * 0.34)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var heroSprite: some View {
         if let sprite = SpriteArt.heroImage() {
             Image(uiImage: sprite)
                 .resizable()

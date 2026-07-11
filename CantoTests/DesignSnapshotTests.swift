@@ -294,4 +294,46 @@ final class DesignSnapshotTests: XCTestCase {
             }
         }
     }
+
+    // Bare GearShelf, not ShopView: ImageRenderer lays its ScrollView out as
+    // a sliver (the same trap as BadgeShelf above). A mix of owned/equipped/
+    // unowned/unaffordable so every card state shows in one render.
+    func test_gearShelfRendersMixedOwnedEquippedAndUnaffordableState() {
+        snapshot("gear-shelf") {
+            ZStack {
+                InnBackground()
+                GearShelf(
+                    owned: ["hat-cap", "pal-cat"], equippedHat: "hat-cap", equippedCompanion: nil,
+                    balance: 10, onBuy: { _ in }, onToggleEquip: { _ in }
+                )
+                .padding()
+            }
+        }
+    }
+
+    // The hero wearing a hat and a companion, on the same 64px grid as the
+    // battle screen - the Shop's preview and the battle hero share this view.
+    func test_heroWearingGearRenders() {
+        snapshot("hero-geared") {
+            ZStack {
+                InnBackground()
+                HeroSpriteView(size: 130, hatId: "hat-crown", companionId: "pal-dragonling")
+            }
+        }
+    }
+
+    // Same gear, shown on the actual battle screen (not just the bare hero)
+    // so the composition reads correctly against the dungeon backdrop too.
+    func test_battleScreenWithGearRenders() {
+        var state = TowerEngine.makeFreshRun()
+        state.enemyHP = 5
+        state.partyHP = 4
+        snapshot("battle-geared") {
+            BattleView(
+                runState: .constant(state),
+                onVictory: {}, onDefeat: {}, onAbandon: {},
+                previewHand: sampleCards, previewHat: "hat-crown", previewCompanion: "pal-dragonling"
+            )
+        }
+    }
 }

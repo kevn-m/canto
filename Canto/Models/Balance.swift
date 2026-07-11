@@ -12,4 +12,6 @@ enum Balance {
     static let bossBonusPay = 5
     static let extensionPay = 2
     static let badgePay = 5
+    static let gearPriceHat = 15        // first hat within ~2 finished runs
+    static let gearPriceCompanion = 25  // companions aspirational
 }

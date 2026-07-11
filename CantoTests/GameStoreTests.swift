@@ -283,6 +283,21 @@ final class GameStoreTests: XCTestCase {
 
     // MARK: - resetEverything
 
+    // The gear rows are wiped, so what's equipped must go too - it lives in
+    // meta, and a stale key leaves the hero wearing a hat the kid doesn't own.
+    func test_resetEverything_unequipsGearItJustDeleted() {
+        let store = GameStore(directory: tempDir)
+        store.credit(Balance.gearPriceHat, reason: "test")
+        XCTAssertTrue(store.buyGear(id: "hat-crown"))
+        store.equip(kind: .hat, id: "hat-crown")
+        XCTAssertEqual(store.equippedGear().hat, "hat-crown")
+
+        store.resetEverything(clearing: LogStore(directory: tempDir))
+
+        XCTAssertTrue(store.ownedGear().isEmpty)
+        XCTAssertNil(store.equippedGear().hat, "a reset hero must not wear gear it no longer owns")
+    }
+
     // A reset zeroes the wallet, so a surviving badge row would mean the kid
     // re-grinds the same threshold and gets paid nothing for it, forever.
     func test_resetEverything_clearsBadgesSoTheyCanBeEarnedAgain() {
@@ -1121,5 +1136,92 @@ final class GameStoreTests: XCTestCase {
         XCTAssertFalse(redeemed)
         XCTAssertNotNil(store.lastError)
         XCTAssertEqual(store.balance(), 0)
+    }
+
+    // MARK: - Gear
+
+    func test_buyGear_debitsBalanceExactlyOnceAndInsertsGearRow() {
+        let store = GameStore(directory: tempDir)
+        store.credit(30, reason: "run_finish")
+
+        XCTAssertTrue(store.buyGear(id: "hat-cap"))
+        XCTAssertEqual(store.balance(), 30 - Balance.gearPriceHat)
+        XCTAssertEqual(store.ownedGear(), ["hat-cap"])
+    }
+
+    func test_buyGear_doubleBuyIsRefusedAndDoesNotDoubleCharge() {
+        let store = GameStore(directory: tempDir)
+        store.credit(100, reason: "run_finish")
+        XCTAssertTrue(store.buyGear(id: "hat-cap"))
+        let balanceAfterFirstBuy = store.balance()
+
+        XCTAssertFalse(store.buyGear(id: "hat-cap"))
+        XCTAssertEqual(store.balance(), balanceAfterFirstBuy)
+    }
+
+    func test_buyGear_insufficientBalanceSetsLastErrorAndLeavesWalletUntouched() {
+        let store = GameStore(directory: tempDir)
+        store.credit(5, reason: "run_finish")
+
+        XCTAssertFalse(store.buyGear(id: "hat-cap"))
+        XCTAssertEqual(store.balance(), 5)
+        XCTAssertNotNil(store.lastError)
+        XCTAssertTrue(store.ownedGear().isEmpty)
+    }
+
+    func test_buyGear_unknownIdIsRefused() {
+        let store = GameStore(directory: tempDir)
+        store.credit(100, reason: "run_finish")
+
+        XCTAssertFalse(store.buyGear(id: "hat-nonexistent"))
+        XCTAssertEqual(store.balance(), 100)
+        XCTAssertNotNil(store.lastError)
+    }
+
+    func test_equip_refusesGearNotOwned() {
+        let store = GameStore(directory: tempDir)
+
+        store.equip(kind: .hat, id: "hat-cap")
+
+        XCTAssertNotNil(store.lastError)
+        XCTAssertNil(store.equippedGear().hat)
+    }
+
+    func test_equip_persistsAcrossFreshGameStoreReopeningSameDirectory() {
+        let store = GameStore(directory: tempDir)
+        store.credit(100, reason: "run_finish")
+        store.buyGear(id: "hat-cap")
+        store.equip(kind: .hat, id: "hat-cap")
+
+        let reopened = GameStore(directory: tempDir)
+        XCTAssertEqual(reopened.equippedGear().hat, "hat-cap")
+    }
+
+    func test_equip_nilUnequips() {
+        let store = GameStore(directory: tempDir)
+        store.credit(100, reason: "run_finish")
+        store.buyGear(id: "hat-cap")
+        store.equip(kind: .hat, id: "hat-cap")
+
+        store.equip(kind: .hat, id: nil)
+
+        XCTAssertNil(store.equippedGear().hat)
+    }
+
+    // MARK: - Family rewards
+
+    func test_familyRewardsEnabled_defaultsToFalseOnFreshDatabase() {
+        let store = GameStore(directory: tempDir)
+        XCTAssertFalse(store.familyRewardsEnabled())
+    }
+
+    func test_familyRewardsEnabled_persistsToggle() {
+        let store = GameStore(directory: tempDir)
+        store.setFamilyRewardsEnabled(true)
+
+        XCTAssertTrue(store.familyRewardsEnabled())
+
+        let reopened = GameStore(directory: tempDir)
+        XCTAssertTrue(reopened.familyRewardsEnabled())
     }
 }

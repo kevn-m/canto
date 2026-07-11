@@ -228,16 +228,22 @@ struct BattleView: View {
 
     // ImageRenderer (DesignSnapshotTests) never runs onAppear, so the deal
     // can't happen there - snapshots inject a hand instead. Live play leaves
-    // this empty and deals as before.
+    // this empty and deals as before. Gear works the same way: passing
+    // previewHat/previewCompanion skips the GameStore read entirely, so a
+    // snapshot doesn't need a seeded database to show equipped gear.
     init(
         runState: Binding<RunState>, onVictory: @escaping () -> Void, onDefeat: @escaping () -> Void,
-        onAbandon: @escaping () -> Void, previewHand: [CardRecord] = []
+        onAbandon: @escaping () -> Void, previewHand: [CardRecord] = [],
+        previewHat: String? = nil, previewCompanion: String? = nil
     ) {
         _runState = runState
         self.onVictory = onVictory
         self.onDefeat = onDefeat
         self.onAbandon = onAbandon
         _hand = State(initialValue: previewHand)
+        _equippedHat = State(initialValue: previewHat)
+        _equippedCompanion = State(initialValue: previewCompanion)
+        gearPreviewProvided = previewHat != nil || previewCompanion != nil
     }
 
     @ObservedObject private var gameStore = GameStore.shared
@@ -251,6 +257,9 @@ struct BattleView: View {
     @State private var enemyLunges = false
     @State private var enemyDefeated = false
     @State private var confirmingAbandon = false
+    @State private var equippedHat: String?
+    @State private var equippedCompanion: String?
+    private let gearPreviewProvided: Bool
 
     var body: some View {
         VStack(spacing: 20) {
@@ -281,6 +290,11 @@ struct BattleView: View {
             // Live play always lands here with an empty hand (fresh floor
             // identity); only an injected previewHand skips the deal.
             if hand.isEmpty { dealHand() }
+            if !gearPreviewProvided {
+                let equipped = gameStore.equippedGear()
+                equippedHat = equipped.hat
+                equippedCompanion = equipped.companion
+            }
         }
         // Swiping the sheet away without grading is allowed on purpose:
         // dad arbitrates, and grade inflation is parenting, not a bug
@@ -342,7 +356,7 @@ struct BattleView: View {
                 .fill(.black.opacity(0.35))
                 .frame(width: heroSize * 0.8, height: 18)
                 .blur(radius: 3)
-            HeroSpriteView(size: heroSize)
+            HeroSpriteView(size: heroSize, hatId: equippedHat, companionId: equippedCompanion)
                 // A slow breathing bob so the hero feels alive between turns.
                 .phaseAnimator([0.0, -6.0]) { view, offset in
                     view.offset(y: offset)

@@ -515,6 +515,7 @@
 		3A326A3ECAB254BF829F146B /* sinus.png in Resources */ = {isa = PBXBuildFile; fileRef = 8C3A13AF1DAE630529B3F9D3 /* sinus.png */; };
 		3A969055B289B344310D3C8C /* exoskeleton.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F4F29818AE65F9FF2EC79FC /* exoskeleton.png */; };
 		3AA10C839E1744DAD5E2E0E6 /* king.png in Resources */ = {isa = PBXBuildFile; fileRef = 558755D16B303DAAF6C4D30E /* king.png */; };
+		3AA9E65928C4B0819F57A1AC /* GearCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36EC8E88B78C2903ADD93953 /* GearCatalog.swift */; };
 		3AAEA1623ECB242C07ECDE9D /* overalls.png in Resources */ = {isa = PBXBuildFile; fileRef = 651F219881CA16FA731D07AB /* overalls.png */; };
 		3B1D8479F443359F2E25EF55 /* barbell.png in Resources */ = {isa = PBXBuildFile; fileRef = 28AA23CF9EAA0FC1A76C4A17 /* barbell.png */; };
 		3B425FEC6D515245FB1AF291 /* tiller.png in Resources */ = {isa = PBXBuildFile; fileRef = 145E09B27B3137558E31255D /* tiller.png */; };
@@ -3009,6 +3010,7 @@
 		36BD28609595164001A05F0E /* microscope.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = microscope.png; sourceTree = "<group>"; };
 		36BFC01E53A74F5C7E418ECF /* cowboy.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cowboy.png; sourceTree = "<group>"; };
 		36D5637ABB055BDFC2050730 /* flamingo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = flamingo.png; sourceTree = "<group>"; };
+		36EC8E88B78C2903ADD93953 /* GearCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GearCatalog.swift; sourceTree = "<group>"; };
 		36F2AFEF4EF36548F7335E5E /* teapot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = teapot.png; sourceTree = "<group>"; };
 		37230B3DD601ECD40AF46D8D /* conqueror.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = conqueror.png; sourceTree = "<group>"; };
 		37313A604CC853EAB3546B17 /* moth.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = moth.png; sourceTree = "<group>"; };
@@ -5007,6 +5009,7 @@
 				ABDA7BE8D99F41D50ACF4374 /* DeckExport.swift */,
 				42903DD53615021D2A5ECC64 /* DictionaryStore.swift */,
 				E2FC8597638058702A4FE8A4 /* GameStore.swift */,
+				36EC8E88B78C2903ADD93953 /* GearCatalog.swift */,
 				DAD660C94DB4289000A31974 /* LogStore.swift */,
 				A85E642516637BD56891895E /* OnlineTranslator.swift */,
 				184D92C27024467041A58274 /* Pick.swift */,
@@ -10008,6 +10011,7 @@
 				959048042509E6F3A74C2DC6 /* DictionaryStore.swift in Sources */,
 				4A40B5CAFD04906EBDA1CFB3 /* GameStore.swift in Sources */,
 				8BC37475838F379DF077CB66 /* GameTheme.swift in Sources */,
+				3AA9E65928C4B0819F57A1AC /* GearCatalog.swift in Sources */,
 				7FD1A5F66A4B0FF7DFB96388 /* HistoryView.swift in Sources */,
 				51B13498CA1FDB56F73AD239 /* LogStore.swift in Sources */,
 				774EE0FF1C839F9ED2629C8D /* LookupResultRowView.swift in Sources */,

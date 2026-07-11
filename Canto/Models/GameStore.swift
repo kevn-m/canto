@@ -25,6 +25,8 @@ private enum GameStoreError: Error, LocalizedError {
     case unknownCard(Int64)
     case itemUnavailable(String)
     case invalidPrice(Int)
+    case unknownGear(String)
+    case gearNotOwned(String)
 
     var errorDescription: String? {
         switch self {
@@ -32,6 +34,8 @@ private enum GameStoreError: Error, LocalizedError {
         case .unknownCard(let id): return "No card state found for card \(id)."
         case .itemUnavailable(let name): return "\(name) is no longer in the shop."
         case .invalidPrice(let price): return "A shop price must be positive, not \(price)."
+        case .unknownGear(let id): return "\(id) isn't a real piece of gear."
+        case .gearNotOwned(let id): return "Can't equip \(id) - it hasn't been bought yet."
         }
     }
 }
@@ -452,6 +456,10 @@ final class GameStore: ObservableObject {
             try db.execute(
                 sql: "INSERT OR REPLACE INTO meta (key, value) VALUES (?, '0')",
                 arguments: ["last_imported_lookup_id"])
+            // The gear rows just went, so what's equipped must go with them -
+            // otherwise the hero keeps wearing a hat the kid no longer owns.
+            try db.execute(
+                sql: "DELETE FROM meta WHERE key IN ('equipped_hat', 'equipped_companion')")
             return names
         }
         for name in filenames where !photos.delete(filename: name) {
@@ -726,6 +734,86 @@ final class GameStore: ObservableObject {
                 arguments: [-price, "redeem:\(name)", ISO8601DateFormatter().string(from: Date())]
             )
             return true
+        }
+    }
+
+    // MARK: - Gear
+
+    // Same shape as redeem: one txn, re-checked not-owned and re-priced from
+    // GearCatalog so a stale Shop screen can't double-buy or charge an old
+    // price. Cosmetic only - never touches Balance's combat numbers.
+    @discardableResult
+    func buyGear(id: String) -> Bool {
+        writeValue(default: false) { db in
+            guard let gear = GearCatalog.item(id: id) else { throw GameStoreError.unknownGear(id) }
+
+            let alreadyOwned = try Int.fetchOne(db, sql: "SELECT 1 FROM gear WHERE gear_id = ?", arguments: [id]) != nil
+            guard !alreadyOwned else {
+                self.reportError("Already own \(id).")
+                return false
+            }
+
+            guard try self.fetchBalance(db) >= gear.price else {
+                self.reportError("Not enough CantoBux for \(id).")
+                return false
+            }
+
+            let createdAt = ISO8601DateFormatter().string(from: Date())
+            try db.execute(
+                sql: "INSERT INTO gear (gear_id, acquired_at) VALUES (?, ?)", arguments: [id, createdAt])
+            try db.execute(
+                sql: "INSERT INTO bux_ledger (amount, reason, created_at) VALUES (?, ?, ?)",
+                arguments: [-gear.price, "gear:\(id)", createdAt]
+            )
+            return true
+        }
+    }
+
+    func ownedGear() -> Set<String> {
+        readValue(default: []) { db in Set(try String.fetchAll(db, sql: "SELECT gear_id FROM gear")) }
+    }
+
+    func equippedGear() -> (hat: String?, companion: String?) {
+        readValue(default: (hat: nil, companion: nil)) { db in
+            let hat = try String.fetchOne(db, sql: "SELECT value FROM meta WHERE key = ?", arguments: ["equipped_hat"])
+            let companion = try String.fetchOne(
+                db, sql: "SELECT value FROM meta WHERE key = ?", arguments: ["equipped_companion"])
+            return (hat: hat, companion: companion)
+        }
+    }
+
+    // A nil id unequips (deletes the meta row). Owning the gear is checked
+    // inside the same transaction - you can't equip what you don't own.
+    func equip(kind: GearKind, id: String?) {
+        let key = kind == .hat ? "equipped_hat" : "equipped_companion"
+        write { db in
+            guard let id else {
+                try db.execute(sql: "DELETE FROM meta WHERE key = ?", arguments: [key])
+                return
+            }
+            let owned = try Int.fetchOne(db, sql: "SELECT 1 FROM gear WHERE gear_id = ?", arguments: [id]) != nil
+            guard owned else { throw GameStoreError.gearNotOwned(id) }
+            try db.execute(
+                sql: "INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)", arguments: [key, id])
+        }
+    }
+
+    // MARK: - Family rewards
+
+    // OFF by default (ADR 0021): the shop is gear-first for a solo player,
+    // and dad's real-world Treats only show once this is switched on.
+    func familyRewardsEnabled() -> Bool {
+        readValue(default: false) { db in
+            try String.fetchOne(db, sql: "SELECT value FROM meta WHERE key = ?", arguments: ["family_rewards_enabled"]) == "1"
+        }
+    }
+
+    func setFamilyRewardsEnabled(_ on: Bool) {
+        write { db in
+            try db.execute(
+                sql: "INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)",
+                arguments: ["family_rewards_enabled", on ? "1" : "0"]
+            )
         }
     }
 }
