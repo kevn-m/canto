@@ -212,6 +212,10 @@ enum SpriteArt {
         // Plain batch 05 (plain-05.tsv).
         "antifreeze": "coolant", "caffeine": "coffee", "diesel": "gasoline", "glucose": "sugar",
         "lactose": "milk", "lambskin": "sheepskin", "seawater": "saltwater",
+        // Plain batch 06 (plain-06.tsv).
+        "brimstone": "sulfur", "brine": "saltwater", "cellulose": "fiber", "chloride": "salt",
+        "curd": "tofu", "froth": "foam", "fructose": "sugar", "grime": "dirt", "muck": "mud",
+        "muslin": "cloth", "rayon": "silk", "shellac": "lacquer", "teakwood": "board",
     ]
 
     static func cardImage(forEnglish english: String) -> UIImage? {
