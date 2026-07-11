@@ -30470,6 +30470,223 @@ S.push({ name: 'udder', draw(g) {            // 乳房 jyu5 fong4
     ring(g, 36, 46, 10, 9);
   }});
 
+
+S.push({ name: 'mucus', draw(g) {            // 鼻涕 bei6 tai3
+    figHead(g);
+    ball(g, CX, 36, 5, 4, P.pch, P.brn);                   // nose
+    stroke(g, [[29, 39], [29, 46]], 1.4, 1.4, P.lim);      // drip
+    ball(g, 29, 48, 2.4, 2.6, P.lim, P.grn, P.crm);        // droplet
+    ring(g, 29, 42, 7, 9);
+  }});
+
+S.push({ name: 'sternum', draw(g) {          // 胸骨 hung1 gwat1
+    figBody(g);
+    rect(g, 30, 25, 33, 36, P.crm);                        // breastbone
+    for (const y of [27, 30, 33]) { rect(g, 26, y, 30, y + 1, P.crm); rect(g, 33, y, 37, y + 1, P.crm); } // ribs
+    ring(g, CX, 30, 5, 8);
+  }});
+
+S.push({ name: 'cartilage', draw(g) {        // 軟骨 jyun5 gwat1
+    figBody(g);
+    rect(g, 25, 44, 29, 48, P.crm);                        // thigh bone end
+    rect(g, 25, 52, 29, 56, P.crm);                        // shin bone end
+    ball(g, 27, 50, 3, 2.4, P.sky, P.lav);                 // cartilage pad
+    ring(g, 27, 50, 6, 6);
+  }});
+
+S.push({ name: 'mane', draw(g) {             // 鬃毛 zung1 mou4
+    for (let a = 0; a < 12; a++) { const t = a / 12 * 6.283; ball(g, CX + Math.cos(t) * 20, 33 + Math.sin(t) * 20, 6, 6, P.brn, P.dgy); } // mane tufts
+    for (let a = 0; a < 10; a++) { const t = a / 10 * 6.283 + 0.3; ball(g, CX + Math.cos(t) * 15, 33 + Math.sin(t) * 15, 5, 5, P.org, P.brn); } // inner mane
+    ball(g, CX, 33, 13, 12, P.yel, P.org);                 // lion face
+    ball(g, 20, 22, 3.4, 3, P.org, P.brn); ball(g, 43, 22, 3.4, 3, P.org, P.brn); // ears
+    ball(g, CX, 38, 7, 5, P.crm, P.lgy);                   // muzzle
+    disc(g, CX, 35, 2, P.brn);                             // nose
+    smileArc(g, 28, 39, 1.8, 0.8); smileArc(g, 35, 39, 1.8, 0.8);
+    eyes(g, CX, 30, 7);
+    blush(g, 21, 37); blush(g, 42, 37);
+    ring(g, CX, 33, 25, 25);
+  }});
+
+S.push({ name: 'cornea', draw(g) {           // 角膜 gok3 mok2
+    ball(g, CX, 32, 26, 17, P.crm, P.lgy);                 // eyeball white
+    ball(g, CX, 32, 11, 11, P.sky, P.lav);                 // iris
+    disc(g, CX, 32, 5, P.navy);                            // pupil
+    disc(g, 27, 27, 2.4, P.crm);                           // glint
+    stroke(g, [[6, 24], [CX, 12], [57, 24]], 1.2, 1.2, P.brn);  // lid line
+    stroke(g, [[6, 40], [CX, 52], [57, 40]], 1.2, 1.2, P.brn);
+    ring(g, CX, 32, 13, 13);
+  }});
+
+S.push({ name: 'exoskeleton', draw(g) {      // 甲殼 gaap3 hok3
+    ball(g, CX, 36, 18, 16, P.grn, P.navy);                // shell
+    stroke(g, [[CX, 22], [CX, 50]], 0.8, 0.8, P.navy);     // shell seam
+    for (const y of [30, 38, 46]) { stroke(g, [[14, y - 3], [22, y]], 1, 1, P.grn); stroke(g, [[49, y - 3], [41, y]], 1, 1, P.grn); } // legs
+    ball(g, CX, 15, 9, 8, P.grn, P.navy);                  // head
+    stroke(g, [[27, 9], [22, 3]], 0.8, 0.8, P.navy); stroke(g, [[36, 9], [41, 3]], 0.8, 0.8, P.navy); // antennae
+    eyes(g, CX, 15, 5);
+    smileArc(g, CX, 19, 1.6, 0.7);
+    ring(g, CX, 36, 21, 19);
+  }});
+
+S.push({ name: 'gills', draw(g) {            // 腮 soi1
+    ball(g, 28, 36, 18, 13, P.sky, P.lav);                 // fish body
+    tri(g, 44, 29, 44, 43, 57, 36, P.lav);                 // tail
+    tri(g, 26, 26, 34, 26, 30, 18, P.lav);                 // dorsal fin
+    eye(g, 16, 33, 2.4);                                   // eye, at the head end
+    smileArc(g, 14, 40, 2, 0.9);
+    for (const x of [23, 26, 29]) stroke(g, [[x, 30], [x - 1, 42]], 1, 1, P.plum); // gill slits, behind the eye
+    blush(g, 19, 40);
+    ring(g, 26, 36, 7, 10);
+  }});
+
+S.push({ name: 'kneecap', draw(g) {          // 膝頭哥 sat1 tau4 go1
+    figBody(g);
+    ball(g, 27, 50, 4, 3.4, P.crm, P.lgy);                 // patella
+    ring(g, 27, 50, 7, 6);
+  }});
+
+S.push({ name: 'fingertip', draw(g) {        // 指尖 zi2 zim1
+    figHand(g);
+    ring(g, 26, 15, 6, 5);
+  }});
+
+S.push({ name: 'gallbladder', draw(g) {      // 膽囊 daam2 nong4
+    figBody(g);
+    ball(g, 35, 34, 4, 5, P.grn, P.navy);                  // gallbladder
+    ring(g, 35, 34, 8, 8);
+  }});
+
+S.push({ name: 'bunion', draw(g) {           // 拇外翻 mou5 ngoi6 faan1
+    figBody(g);
+    ball(g, 21, 57, 3, 2.6, P.pnk, P.plum);                // bunion at big toe
+    ring(g, 21, 57, 6, 5);
+  }});
+
+S.push({ name: 'manicure', draw(g) {         // 修甲 sau1 gaap3
+    figHand(g);
+    for (let i = 0; i < 4; i++) { const x = 19 + i * 7; ellipse(g, x + 2.5, 14, 2.4, 1.6, P.red); } // painted nails
+    rrect(g, 50, 8, 56, 26, 2, P.pnk);                     // polish bottle
+    rect(g, 51, 4, 55, 8, P.plum);                         // bottle cap
+    ring(g, CX, 15, 16, 6);
+  }});
+
+S.push({ name: 'shinbone', draw(g) {         // 脛 ging3
+    figBody(g);
+    rect(g, 26, 49, 29, 57, P.crm);                        // shin bone
+    ring(g, 27, 53, 6, 7);
+  }});
+
+S.push({ name: 'dimple', draw(g) {           // 梨渦 lei4 wo1
+    figHead(g);
+    disc(g, 20, 40, 1.4, P.brn);                           // dimple
+    ring(g, 20, 40, 7, 6);
+  }});
+
+S.push({ name: 'esophagus', draw(g) {        // 食道 sik6 dou6
+    figBody(g);
+    rect(g, 30, 20, 33, 34, P.pnk);                        // food pipe
+    ball(g, CX, 36, 4, 3.4, P.plum, P.navy);               // stomach top
+    ring(g, CX, 27, 6, 9);
+  }});
+
+S.push({ name: 'pinkie', draw(g) {           // 尾指 mei1 zi2
+    figHand(g);
+    ring(g, 21, 22, 6, 12);
+  }});
+
+S.push({ name: 'hairline', draw(g) {         // 髮線 faat3 sin3
+    figHead(g);
+    stroke(g, [[16, 21], [CX, 18], [47, 21]], 0.8, 0.8, P.dgy); // hairline
+    ring(g, CX, 20, 17, 6);
+  }});
+
+S.push({ name: 'clavicle', draw(g) {         // 鎖骨 so2 gwat1
+    figBody(g);
+    stroke(g, [[24, 26], [30, 24]], 1.4, 1.4, P.crm);      // left collarbone
+    stroke(g, [[33, 24], [39, 26]], 1.4, 1.4, P.crm);      // right collarbone
+    ring(g, CX, 25, 11, 5);
+  }});
+
+S.push({ name: 'tartar', draw(g) {           // 他他醬 taa1 taa1 zoeng3
+    rrect(g, 18, 20, 46, 54, 3, P.crm);                    // sauce jar
+    rrect(g, 20, 14, 44, 20, 2, P.grn);                    // lid
+    rrect(g, 21, 28, 43, 42, 1, P.yel);                    // label patch
+    for (const p of [[26, 32], [34, 36], [39, 31], [29, 38]]) disc(g, p[0], p[1], 1.2, P.lim); // herb flecks
+    eyes(g, 32, 46, 5);
+    smileArc(g, 32, 50, 2, 0.9);
+    blush(g, 24, 48); blush(g, 41, 48);
+  }});
+
+S.push({ name: 'tonsil', draw(g) {           // 扁桃腺 pin1 tou4 sin3
+    figHead(g);
+    openMouth(g, CX, 42, 8, 6);
+    ball(g, 27, 43, 2.4, 2.6, P.pnk, P.plum);              // left tonsil
+    ball(g, 36, 43, 2.4, 2.6, P.pnk, P.plum);              // right tonsil
+    ring(g, CX, 43, 11, 8);
+  }});
+
+S.push({ name: 'earwax', draw(g) {           // 耳垢 ji5 gau3
+    figHead(g);
+    ball(g, 12, 32, 4, 6, P.pch, P.brn);                   // ear
+    disc(g, 12, 32, 1.6, P.org);                           // wax
+    stroke(g, [[9, 32], [2, 32]], 1, 1, P.sky);            // cotton bud stick
+    ball(g, 2, 32, 2.4, 2.4, P.crm, P.lgy);                // bud tip
+    ring(g, 12, 32, 7, 8);
+  }});
+
+S.push({ name: 'thyroid', draw(g) {          // 甲狀腺 gaap3 zong6 sin3
+    figBody(g);
+    ball(g, 29, 21, 2.4, 2, P.plum, P.navy);               // thyroid lobes
+    ball(g, 34, 21, 2.4, 2, P.plum, P.navy);
+    ring(g, CX, 21, 7, 5);
+  }});
+
+S.push({ name: 'sunburn', draw(g) {          // 防曬 fong4 saai3
+    rrect(g, 22, 20, 42, 56, 3, P.crm);                    // sunscreen bottle
+    rrect(g, 27, 12, 37, 20, 2, P.org);                    // cap
+    rrect(g, 24, 30, 40, 44, 1, P.yel);                    // label
+    disc(g, 32, 37, 4, P.org);                             // sun on label
+    for (let a = 0; a < 8; a++) { const t = a / 8 * 6.283; stroke(g, [[32 + Math.cos(t) * 5, 37 + Math.sin(t) * 5], [32 + Math.cos(t) * 7, 37 + Math.sin(t) * 7]], 0.6, 0.6, P.org); } // rays
+    eyes(g, 32, 49, 5);
+    smileArc(g, 32, 53, 2, 0.9);
+    blush(g, 25, 51); blush(g, 39, 51);
+  }});
+
+S.push({ name: 'appendix', draw(g) {         // 闌尾 laan4 mei5
+    figBody(g);
+    ball(g, 26, 37, 4, 3.4, P.pnk, P.plum);                // caecum
+    stroke(g, [[25, 39], [24, 43]], 1.4, 1.2, P.pnk);      // appendix
+    ring(g, 25, 40, 7, 8);
+  }});
+
+S.push({ name: 'airway', draw(g) {           // 氣管 hei3 gun2
+    figBody(g);
+    rect(g, 30, 20, 34, 31, P.sky);                        // trachea
+    for (const y of [22, 25, 28]) rect(g, 29, y, 35, y + 1, P.lav); // rings
+    ball(g, 27, 34, 3.4, 5, P.pnk, P.plum);                // lungs
+    ball(g, 36, 34, 3.4, 5, P.pnk, P.plum);
+    ring(g, CX, 25, 7, 8);
+  }});
+
+S.push({ name: 'hangnail', draw(g) {         // 倒刺 dou3 ci3
+    figHand(g);
+    stroke(g, [[24, 16], [22, 12]], 0.8, 0.8, P.pnk);      // torn nail sliver
+    ring(g, 26, 15, 6, 6);
+  }});
+
+S.push({ name: 'cheekbone', draw(g) {        // 頰骨 gaap3 gwat1
+    figHead(g);
+    stroke(g, [[15, 34], [24, 32]], 1.6, 1.6, P.crm);      // cheekbone
+    ring(g, 19, 33, 8, 5);
+  }});
+
+S.push({ name: 'fibula', draw(g) {           // 腓骨 fei4 gwat1
+    figBody(g);
+    rect(g, 26, 49, 28, 57, P.crm);                        // shin bone
+    rect(g, 30, 49, 32, 57, P.lgy);                        // fibula, outer
+    ring(g, 31, 53, 5, 7);
+  }});
+
   function renderGrid(name) {
     const item = S.find(s => s.name === name);
     const g = new Grid();

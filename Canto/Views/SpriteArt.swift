@@ -260,6 +260,9 @@ enum SpriteArt {
         "weaponry": "sword", "whittle": "chisel", "windstorm": "cloud",
         // anatomy-02.
         "bowel": "tummy", "brains": "brain", "gut": "stomach", "jaws": "jaw", "tumor": "wart",
+        // anatomy-03.
+        "abdominal": "tummy", "bile": "gallbladder", "cranium": "skull", "pus": "blister",
+        "vomiting": "diarrhea",
     ]
 
     static func cardImage(forEnglish english: String) -> UIImage? {
