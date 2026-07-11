@@ -374,6 +374,13 @@ final class SpriteArtTests: XCTestCase {
             "straightjacket", "trident", "tsunami",
             // Flag batch 04 (flag-04.tsv).
             "barbed", "blaster", "breathalyzer", "flail", "grille", "unicorn",
+            // Anatomy batch 01 (anatomy-01.tsv) - shared body/head/hand base + highlight ring.
+            "ankle", "arm", "bald", "beard", "body", "brain", "cheek", "chest", "claw",
+            "elbow", "finger", "fist", "foot", "forehead", "heel", "jaw", "kidney",
+            "knee", "knuckle", "knuckles", "limb", "lip", "liver", "lung", "muscle",
+            "nose", "pelvis", "rib", "saliva", "scalp", "shoulder", "skull", "spit",
+            "stomach", "sweat", "tattoo", "thigh", "throat", "tongue", "urine", "wing",
+            "wound", "wrist",
         ]
         for name in names {
             XCTAssertNotNil(SpriteArt.image(named: name), "\(name).png missing from the app bundle")
