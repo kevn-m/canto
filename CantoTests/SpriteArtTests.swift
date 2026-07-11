@@ -340,6 +340,13 @@ final class SpriteArtTests: XCTestCase {
             "vanilla", "velvet", "waterfall",
             // Plain batch 03 flagged (gunpowder visible, morphine kid-mode-hidden).
             "gunpowder", "morphine",
+            // Plain batch 04 (plain-04.tsv).
+            "albino", "ammonia", "asbestos", "beeswax", "bran", "cellophane", "chemicals",
+            "chlorine", "corduroy", "cumin", "denim", "dew", "doorstop", "fiber",
+            "fiberglass", "flannel", "formaldehyde", "fuzz", "linoleum", "mahogany",
+            "malt", "miniskirt", "nylon", "pacemaker", "pellet", "pink", "platinum",
+            "putty", "saline", "saltwater", "seasoning", "serum", "sheepskin", "silt",
+            "snakeskin", "sod", "steroids", "sulfur", "topsoil", "waistband", "yeast",
         ]
         for name in names {
             XCTAssertNotNil(SpriteArt.image(named: name), "\(name).png missing from the app bundle")
