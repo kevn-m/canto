@@ -54,6 +54,15 @@ function toPng(grid) {
   ]);
 }
 
+function compositeGrid(layers) {
+  const out = new Array(W * W).fill(null);
+  for (const layer of layers) {
+    const g = SPRITES.renderGrid(layer);
+    for (let i = 0; i < out.length; i++) if (g[i]) out[i] = g[i];
+  }
+  return out;
+}
+
 let failed = false;
 for (const name of SPRITES.names) {
   const grid = SPRITES.renderGrid(name);
@@ -61,5 +70,15 @@ for (const name of SPRITES.names) {
   if (off.size) { failed = true; console.error(`${name}: OUT OF PALETTE ${[...off]}`); }
   fs.writeFileSync(path.join(__dirname, `${name}.png`), toPng(grid));
   console.log(`${name}.png  out-of-palette: ${off.size ? [...off] : 'none'}`);
+}
+
+// Composite previews (Slice 3) — never bundled into the app, just a way to
+// see gear layers stacked in z-order before anything is built on the Rig.
+for (const comp of (SPRITES.COMPOSITES || [])) {
+  const grid = compositeGrid(comp.layers);
+  const off = new Set(grid.filter(c => c && !PALETTE.has(c.toUpperCase())));
+  if (off.size) { failed = true; console.error(`${comp.name}: OUT OF PALETTE ${[...off]}`); }
+  fs.writeFileSync(path.join(__dirname, `${comp.name}.png`), toPng(grid));
+  console.log(`${comp.name}.png  out-of-palette: ${off.size ? [...off] : 'none'}`);
 }
 process.exit(failed ? 1 : 0);

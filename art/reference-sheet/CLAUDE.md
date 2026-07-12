@@ -18,6 +18,33 @@ Battle effects — `fx-slash`, `fx-impact` — are the only sprites with no face
 chibi armature. They are shapes, not creatures; eyes on a slash arc would be absurd.
 Palette, outline and no-AA still apply. Everything else in the spec above does not.
 
+## The other exception: the Rig and its gear layers
+
+`rig-base`, `avatar-*` and the gear layers (`helm-*`, `chest-*`, `legs-*`, `weap-*`,
+`off-*`) draw against the shared `RIG` zones (`sprites.js`), not the "one centred
+subject filling ~70-80%" rule — a gear layer is deliberately a small shape sitting in
+one corner of an otherwise empty 64px canvas, because compositing is stacking
+same-sized layers, not scaling one drawing. Gear layers also have no face; a helmet
+or a sword doesn't need eyes. Palette, outline and no-AA still apply.
+
+**The Rig is sharp, the mascots are round.** That is the whole difference, and it is
+deliberate — the mascot corpus is soft and cuddly, the Rig is a hero.
+
+- **Don't use `ball()` on the Rig's body or face.** Its self-shading rim is what makes
+  a sprite read as a soft blob. The Rig is built from `rect`/`tri` with straight
+  bevelled shoulders, slim limbs, and a hard-edged shadow down one side.
+- **Don't use the `eyes()` face kit on the Rig.** Its 5px-wide ovals land as two navy
+  slabs on the Rig's narrower face and read as a bandit mask. Use `rigEyes()`.
+- **Call `rigBody()` and `rigFace()`.** An avatar varies its head, hair and palette and
+  nothing else — that is what makes gear fit every avatar for one drawing instead of
+  one drawing per avatar (ADR 0025). A new avatar that draws its own body has broken
+  the Rig, even if it looks fine on its own.
+- **Nothing on an avatar's head may rise above y5.** `helm-knight`'s crown starts there;
+  a taller hair spike clips straight through it.
+- Proportions: `RIG.head` spans y 8-28 — a smaller head than the standard armature's
+  (which is about half the sprite). Chibi hero, on the same 64px canvas as everything
+  else, so the player matches the enemies and card art.
+
 ## The kit (in sprites.js)
 - `ball(g,cx,cy,rx,ry,base,shad,hi)` — self-shading ellipse (shadow rim bottom-right, light top-left). The workhorse.
 - `ellipse/disc/rect/rrect/tri` — flat fills
@@ -26,6 +53,16 @@ Palette, outline and no-AA still apply. Everything else in the spec above does n
 - `eyes/smileArc/openMouth/blush` — face kit; `smileArc(g,cx,y,w,depth)` ends curve UP
 - `outline(g)` — auto navy dilation, runs last; erasing with `null` (bite notches, handle holes) gets outlined correctly
 - `CX = 31.5` — centre; use for all symmetric placement
+
+## Two ways the kit will bite you
+
+- **Give `eyes()` a whole-number `ry`.** `eye()` places its cream sparkle at `y - ry + 1`,
+  and `Grid.set` indexes `y * 64 + x` without flooring. A half-integer `ry` therefore lands
+  on a real but WRONG pixel — a stray cream speck ~32px across the canvas, outside the
+  sprite. (Other fractions just drop the sparkle silently.) `ry: 2` is safe, `ry: 2.5` is not.
+- **Draw a head flat — pass no shadow colour.** `ball()`'s shadow rim wraps the bottom of
+  the head, and a dark rim under a mouth reads as a beard or a droopy moustache. `player-kid`
+  has said so in a comment since batch 1; the Rig relearned it the hard way.
 
 ## Standard armature (deviate only for signature features)
 head ball (CX, 25, 15, 13) · body ball (CX, 48, ~10, 8) · feet balls at x 25/38, y 56 · eyes y≈25 spread 6–8 · muzzle cy≈31 · smile y≈32 · blush at spread+5, y≈30. Draw order: back features (ears/tail/fins) → body → limbs → head → face.
