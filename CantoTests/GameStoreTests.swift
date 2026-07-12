@@ -303,7 +303,7 @@ final class GameStoreTests: XCTestCase {
     // the ones that existed when this test was last touched.
     func test_resetEverything_clearsAvatarIdAndEveryEquippedSlot() {
         let store = GameStore(directory: tempDir)
-        store.credit(1000, reason: "test")
+        store.credit(GearCatalog.all.reduce(0) { $0 + $1.price }, reason: "test")
         for item in GearCatalog.all {
             XCTAssertTrue(store.buyGear(id: item.id))
             store.equip(slot: item.slot, id: item.id)
