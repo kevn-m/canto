@@ -304,7 +304,10 @@ struct BattleView: View {
         _hand = State(initialValue: previewHand)
         _avatarId = State(initialValue: previewAvatarId ?? GameStore.shared.avatarId())
         _equipped = State(initialValue: previewEquipped ?? GameStore.shared.equippedGear())
+        usesPreviewLook = previewAvatarId != nil || previewEquipped != nil
     }
+
+    private let usesPreviewLook: Bool
 
     @ObservedObject private var gameStore = GameStore.shared
     @State private var hand: [CardRecord]
@@ -357,6 +360,13 @@ struct BattleView: View {
             // Live play always lands here with an empty hand (fresh floor
             // identity); only an injected previewHand skips the deal.
             if hand.isEmpty { dealHand() }
+            // Re-read the look here too: the Shop pushes OVER an active fight,
+            // so init's snapshot goes stale if gear changes mid-run. onAppear
+            // fires again on pop-back and the hero visibly swaps into the new kit.
+            if !usesPreviewLook {
+                avatarId = GameStore.shared.avatarId()
+                equipped = GameStore.shared.equippedGear()
+            }
         }
         // Swiping the sheet away without grading is allowed on purpose:
         // dad arbitrates, and grade inflation is parenting, not a bug
