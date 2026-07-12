@@ -30,6 +30,19 @@ if [[ -z "$DEV" ]]; then
 
   COUNT="$(printf '%s' "$DEVS" | grep -c . || true)"
   if [[ "$COUNT" -eq 0 ]]; then
+    # xctrace has said "offline" while devicectl could still acquire the tunnel
+    # on demand and deploy fine. Fall back to any paired iPhone and let the
+    # build/install fail loud if the phone really is unreachable.
+    DEVS="$(xcrun devicectl list devices --json-output /tmp/deploy-devs.json -q >/dev/null 2>&1; python3 -c "
+import json
+for d in json.load(open('/tmp/deploy-devs.json'))['result']['devices']:
+    if d.get('hardwareProperties', {}).get('deviceType') == 'iPhone':
+        print(d['hardwareProperties']['udid'])
+" 2>/dev/null || true)"
+    COUNT="$(printf '%s' "$DEVS" | grep -c . || true)"
+    [[ "$COUNT" -gt 0 ]] && echo "xctrace sees no device; trying paired iPhone(s) via devicectl" >&2
+  fi
+  if [[ "$COUNT" -eq 0 ]]; then
     echo "No connected iPhone. Plug in over USB or enable wireless debugging" >&2
     echo "(Xcode > Devices and Simulators > the iPhone > Connect via network)," >&2
     echo "then UNLOCK the phone and make sure it's on the same Wi-Fi. Verify with:" >&2
