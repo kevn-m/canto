@@ -31,11 +31,13 @@ struct ReviewEngine {
         return Balance.damageByBox[box]
     }
 
-    // Due cards most-overdue first; if fewer than 3, fill ahead of schedule
-    // with the soonest-due cards. Ordering and dedup against already-dealt
-    // cards are the caller's job (RunState.dealt) - this just concatenates.
+    // Due cards most-overdue first, but at most two per hand when a
+    // not-yet-due card can take the third slot - three chronically whiffed
+    // words must not deal the exact same hand every fight. Dedup against
+    // already-dealt cards is the caller's job (RunState.dealt).
     static func hand(due: [CardRecord], soonest: [CardRecord]) -> [CardRecord] {
-        Array((due + soonest).prefix(3))
+        let dueCap = soonest.isEmpty ? 3 : 2
+        return Array((due.prefix(dueCap) + soonest + due.dropFirst(dueCap)).prefix(3))
     }
 
     // "Today" for screens: computed once per screen appearance and passed

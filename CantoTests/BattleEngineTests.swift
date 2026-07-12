@@ -112,7 +112,34 @@ final class BattleEngineTests: XCTestCase {
         XCTAssertEqual(hand.map(\.traditional), ["狗"])
     }
 
-    func test_dealHand_fallsBackToLowestBoxIgnoringDealtWhenWholeDeckExhausted() {
+    func test_dealHand_mixesInAnUndueCardWhenThreeOrMoreAreDue() {
+        let log = LogStore(directory: tempDir)
+        makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
+        makeChosenLookup(log, heard: "dog", traditional: "狗", jyutping: "gau2")
+        makeChosenLookup(log, heard: "cat", traditional: "貓", jyutping: "maau1")
+        makeChosenLookup(log, heard: "water", traditional: "水", jyutping: "seoi2")
+        let store = GameStore(directory: tempDir)
+        store.syncDeck(from: log)
+        let deck = store.deck()
+        let waterId = deck.first { $0.traditional == "水" }!.id
+
+        // 食/狗/貓 whiffed today (due again today); 水 hit (due tomorrow).
+        // Without the due cap the whiffed trio would fill every hand.
+        for word in ["食", "狗", "貓"] {
+            store.recordReview(cardId: deck.first { $0.traditional == word }!.id, result: .whiff, on: "2026-07-04")
+        }
+        store.recordReview(cardId: waterId, result: .hit, on: "2026-07-04")
+
+        let hand = BattleEngine.dealHand(store: store, dealt: [], today: "2026-07-04")
+
+        // Ties on due_on have no defined order, so pin the shape, not the
+        // exact whiffed pair: two due cards, then the undue one.
+        XCTAssertEqual(hand.count, 3)
+        XCTAssertEqual(hand.filter { ["食", "狗", "貓"].contains($0.traditional) }.count, 2)
+        XCTAssertEqual(hand.last?.traditional, "水")
+    }
+
+    func test_dealHand_fallsBackToLeastRecentlyPlayedWhenWholeDeckExhausted() {
         let log = LogStore(directory: tempDir)
         makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
         makeChosenLookup(log, heard: "dog", traditional: "狗", jyutping: "gau2")
@@ -124,14 +151,15 @@ final class BattleEngineTests: XCTestCase {
         let dogId = deck.first { $0.traditional == "狗" }!.id
         let catId = deck.first { $0.traditional == "貓" }!.id
 
-        // 貓 climbs to box 2, 狗 to box 1, 食 stays New (box 0).
+        // 貓 climbs to box 2, 狗 to box 1, 食 stays New (box 0). Play order
+        // wins over box: the fallback rotates the whole deck round-robin
+        // instead of looping the hardest trio for the rest of the climb.
         store.recordReview(cardId: catId, result: .hit, on: "2026-07-01")
         store.recordReview(cardId: catId, result: .hit, on: "2026-07-02")
         store.recordReview(cardId: dogId, result: .hit, on: "2026-07-01")
 
-        let allDealt: Set<Int64> = [eatId, dogId, catId]
-        let hand = BattleEngine.dealHand(store: store, dealt: allDealt, today: "2026-07-04")
+        let hand = BattleEngine.dealHand(store: store, dealt: [catId, eatId, dogId], today: "2026-07-04")
 
-        XCTAssertEqual(hand.map(\.traditional), ["食", "狗", "貓"])
+        XCTAssertEqual(hand.map(\.traditional), ["貓", "食", "狗"])
     }
 }

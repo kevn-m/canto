@@ -3,8 +3,9 @@ import SwiftUI
 // Pure hand-dealing glue (rule 1 in the tech plan): due cards most-overdue
 // first, filled from the soonest-due, excluding cards already dealt this
 // Run. If that leaves nothing (the player's whole deck has been dealt
-// already), fall back to the hardest cards, ignoring the once-per-Run rule -
-// the game must never stall.
+// already), fall back to the least-recently-played cards, ignoring the
+// once-per-Run rule - the game must never stall, and no fixed trio may
+// loop for the rest of the climb.
 enum BattleEngine {
     enum Outcome { case victory, defeat }
 
@@ -27,18 +28,27 @@ enum BattleEngine {
         return nil
     }
 
-    static func dealHand(store: GameStore, dealt: Set<Int64>, today: String) -> [CardRecord] {
-        let due = store.dueCards(on: today, excluding: dealt)
+    static func dealHand(store: GameStore, dealt: [Int64], today: String) -> [CardRecord] {
+        let played = Set(dealt)
+        let due = store.dueCards(on: today, excluding: played)
+        // Always leave room for one not-yet-due card (ReviewEngine.hand's
+        // due cap) so a hand is never three chronic whiffs.
         let fill = store.nextCards(
-            excluding: dealt.union(due.map(\.id)),
-            limit: max(0, 3 - due.count)
+            excluding: played.union(due.map(\.id)),
+            limit: 3 - min(due.count, 2)
         )
         let hand = ReviewEngine.hand(due: due, soonest: fill)
         guard hand.isEmpty else { return hand }
 
+        var lastPlayed: [Int64: Int] = [:]
+        for (index, id) in dealt.enumerated() { lastPlayed[id] = index }
         return Array(
             store.nextCards(excluding: [], limit: Int.max)
-                .sorted { $0.box < $1.box }
+                .sorted { a, b in
+                    let aIndex = lastPlayed[a.id, default: -1]
+                    let bIndex = lastPlayed[b.id, default: -1]
+                    return aIndex != bIndex ? aIndex < bIndex : a.box < b.box
+                }
                 .prefix(3)
         )
     }
@@ -526,7 +536,7 @@ struct BattleView: View {
     }
 
     private func dealHand() {
-        hand = BattleEngine.dealHand(store: gameStore, dealt: Set(runState.dealt), today: today)
+        hand = BattleEngine.dealHand(store: gameStore, dealt: runState.dealt, today: today)
     }
 
     private func grade(card: CardRecord, result: ReviewResult) {

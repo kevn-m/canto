@@ -62,10 +62,18 @@ final class ReviewEngineTests: XCTestCase {
 
     // MARK: - hand
 
-    func test_hand_takesDueCardsFirst() {
+    func test_hand_capsDueAtTwoWhenAFillCardExists() {
+        // Three chronic whiffs are all due every day; without the cap they
+        // would deal the identical hand every fight, forever.
         let due = [card(id: 1), card(id: 2), card(id: 3)]
         let soonest = [card(id: 4)]
         let hand = ReviewEngine.hand(due: due, soonest: soonest)
+        XCTAssertEqual(hand.map(\.id), [1, 2, 4])
+    }
+
+    func test_hand_padsFromDueWhenNoFillCardExists() {
+        let due = [card(id: 1), card(id: 2), card(id: 3)]
+        let hand = ReviewEngine.hand(due: due, soonest: [])
         XCTAssertEqual(hand.map(\.id), [1, 2, 3])
     }
 
