@@ -17,7 +17,7 @@ final class DesignSnapshotTests: XCTestCase {
 
     private let sampleCards = [
         CardRecord(id: 1, traditional: "食", jyutping: "sik6", english: "eat", box: 0, dueOn: "2026-01-01"),
-        CardRecord(id: 2, traditional: "獅子", jyutping: "si1 zi2", english: "lion", box: 1, dueOn: "2026-01-01"),
+        CardRecord(id: 2, traditional: "獅子", jyutping: "si1 zi2", english: "lion", box: 3, dueOn: "2026-01-01"),
         CardRecord(id: 3, traditional: "大象", jyutping: "daai6 zoeng6", english: "elephant", box: 2, dueOn: "2026-01-01"),
     ]
 

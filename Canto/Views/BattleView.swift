@@ -642,6 +642,13 @@ struct HandCardView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
                 .frame(maxWidth: 80)
+            HStack(spacing: 2) {
+                ForEach(0..<ReviewEngine.damage(forBox: card.box), id: \.self) { _ in
+                    Image(systemName: "bolt.fill")
+                        .font(.system(size: 9, weight: .bold))
+                        .foregroundStyle(GameTheme.gold)
+                }
+            }
         }
         .padding(.vertical, 14)
         .padding(.horizontal, 10)
