@@ -404,6 +404,8 @@ final class SpriteArtTests: XCTestCase {
             "tailbone", "thumbnail", "triceps", "ventricle", "vertebra",
             // One-offs.
             "dinosaur",
+            // Battle motion FX (Slice 1 — hero side).
+            "fx-slash", "fx-impact",
         ]
         for name in names {
             XCTAssertNotNil(SpriteArt.image(named: name), "\(name).png missing from the app bundle")

@@ -31371,6 +31371,35 @@ S.push({ name: 'shelf-trophy', draw(g) {             // UI: opens the badge shel
   blush(g, 18, 28); blush(g, 45, 28);
 }});
 
+S.push({ name: 'fx-slash', draw(g) {          // battle FX: hero's slash arc
+  // Bands arc around (48,48) and taper thin-thick-thin, so the swing reads as
+  // a crescent rather than a comet. Each band is inset toward that centre.
+  stroke(g, [[12, 48], [13.2, 38.7], [16.8, 30], [22.5, 22.5]], 2, 8, P.org);     // trail
+  stroke(g, [[22.5, 22.5], [30, 16.8], [38.7, 13.2], [48, 12]], 8, 2, P.org);
+  stroke(g, [[16, 48], [17.1, 39.7], [20.3, 32], [25.4, 25.4]], 1.5, 5.5, P.yel); // edge
+  stroke(g, [[25.4, 25.4], [32, 20.3], [39.7, 17.1], [48, 16]], 5.5, 1.5, P.yel);
+  stroke(g, [[19, 48], [20, 40.5], [22.9, 33.5], [27.5, 27.5]], 1, 3, P.crm);     // core
+  stroke(g, [[27.5, 27.5], [33.5, 22.9], [40.5, 20], [48, 19]], 3, 1, P.crm);
+}});
+
+S.push({ name: 'fx-impact', draw(g) {         // battle FX: hero takes a hit
+  tri(g, CX, 6, CX - 4, 24, CX + 4, 24, P.org);     // spikes (N/S/E/W + diagonals)
+  tri(g, CX, 58, CX - 4, 40, CX + 4, 40, P.org);
+  tri(g, 6, CX, 24, CX - 4, 24, CX + 4, P.org);
+  tri(g, 58, CX, 40, CX - 4, 40, CX + 4, P.org);
+  tri(g, 14, 14, 27, 22, 20, 27, P.org);
+  tri(g, 49, 14, 44, 27, 37, 22, P.org);
+  tri(g, 14, 49, 22, 44, 27, 37, P.org);
+  tri(g, 49, 49, 37, 42, 42, 37, P.org);
+  disc(g, CX, CX, 13, P.yel);                       // core burst
+  disc(g, CX - 6, CX - 3, 5, P.yel);
+  disc(g, CX + 7, CX + 2, 4, P.yel);
+  disc(g, 20, 22, 1.6, P.red);                       // flecks
+  disc(g, 43, 20, 1.4, P.red);
+  disc(g, 22, 44, 1.4, P.red);
+  disc(g, 44, 42, 1.6, P.red);
+}});
+
   function renderGrid(name) {
     const item = S.find(s => s.name === name);
     const g = new Grid();

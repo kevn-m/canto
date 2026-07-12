@@ -314,6 +314,12 @@ struct BattleView: View {
     @State private var enemyFlashes = false
     @State private var enemyLunges = false
     @State private var enemyDefeated = false
+    @State private var heroLunges = false
+    @State private var slashShows = false
+    @State private var heroFlashes = false
+    @State private var impactShows = false
+    @State private var heroAttackGeneration = 0
+    @State private var heroHitGeneration = 0
     @State private var confirmingAbandon = false
     @State private var equippedHat: String?
     @State private var equippedCompanion: String?
@@ -372,6 +378,20 @@ struct BattleView: View {
             guard new < old else { return }
             SFXPlayer.shared.play(.hit)
             damagePop = old - new
+            // The hero darts in, the slash lands, then the enemy's own
+            // flash/shake/pop plays exactly as it always has below.
+            heroAttackGeneration += 1
+            let attackGeneration = heroAttackGeneration
+            withAnimation(.easeIn(duration: 0.12)) { heroLunges = true }
+            Task {
+                try? await Task.sleep(for: .seconds(0.12))
+                guard heroAttackGeneration == attackGeneration else { return }
+                withAnimation(.linear(duration: 0.05)) { slashShows = true }
+                try? await Task.sleep(for: .seconds(0.18))
+                guard heroAttackGeneration == attackGeneration else { return }
+                withAnimation(.spring(duration: 0.35)) { heroLunges = false }
+                withAnimation(.easeOut(duration: 0.2)) { slashShows = false }
+            }
             // Two-step pulses need a real suspension between the writes:
             // synchronous set-then-unset coalesces into one transaction and
             // the flash never shows (Code Patrol caught both pulses here).
@@ -402,6 +422,18 @@ struct BattleView: View {
                 withAnimation(.spring(duration: 0.4)) { enemyLunges = false }
             }
             withAnimation(.linear(duration: 0.3).delay(0.1)) { partyShakes += 1 }
+            // The hero flashes and takes an impact when the enemy's lunge
+            // above actually connects.
+            heroHitGeneration += 1
+            let hitGeneration = heroHitGeneration
+            Task {
+                try? await Task.sleep(for: .seconds(0.15))
+                guard heroHitGeneration == hitGeneration else { return }
+                withAnimation(.linear(duration: 0.05)) { heroFlashes = true; impactShows = true }
+                try? await Task.sleep(for: .seconds(0.2))
+                guard heroHitGeneration == hitGeneration else { return }
+                withAnimation(.easeOut(duration: 0.2)) { heroFlashes = false; impactShows = false }
+            }
         }
     }
 
@@ -419,7 +451,20 @@ struct BattleView: View {
                 .phaseAnimator([0.0, -6.0]) { view, offset in
                     view.offset(y: offset)
                 } animation: { _ in .easeInOut(duration: 1.2) }
+                .brightness(heroFlashes ? 0.8 : 0)
+                .offset(x: heroLunges ? 36 : 0)
+                .scaleEffect(heroLunges ? 1.08 : 1, anchor: .bottom)
                 .modifier(ShakeEffect(animatableData: CGFloat(partyShakes)))
+            if impactShows, let impact = SpriteArt.image(named: "fx-impact") {
+                Image(uiImage: impact)
+                    .resizable()
+                    .interpolation(.none)
+                    .frame(width: heroSize * 0.6, height: heroSize * 0.6)
+                    // Lifted off the bottom edge so the burst lands on the
+                    // hero's body, not down in the ground shadow.
+                    .padding(.bottom, heroSize * 0.15)
+                    .transition(.opacity)
+            }
         }
     }
 
@@ -450,6 +495,15 @@ struct BattleView: View {
                     .scaleEffect(x: enemyDefeated ? 1.3 : 1, y: enemyDefeated ? 0.05 : 1, anchor: .bottom)
                     .opacity(enemyDefeated ? 0 : 1)
                     .modifier(ShakeEffect(animatableData: CGFloat(enemyShakes)))
+                if slashShows, let slash = SpriteArt.image(named: "fx-slash") {
+                    Image(uiImage: slash)
+                        .resizable()
+                        .interpolation(.none)
+                        .frame(width: enemySize * 0.6, height: enemySize * 0.6)
+                        // Lands on the enemy's body rather than its feet.
+                        .padding(.bottom, enemySize * 0.15)
+                        .transition(.opacity)
+                }
                 if enemyDefeated {
                     HStack(spacing: 22) {
                         ForEach(0..<3, id: \.self) { star in
