@@ -94,8 +94,18 @@ struct TowerEntryView: View {
         .toolbar {
             // Only from day 2 onward - a "1" every single day is noise.
             if streak >= 2 {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    StreakFlameChip(streak: streak)
+                // iOS 26 wraps every toolbar item in a glass circle, which
+                // makes the flame read as one more button. Hide it; earlier
+                // iOS draws no per-item background to begin with.
+                if #available(iOS 26.0, *) {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        StreakFlameChip(streak: streak)
+                    }
+                    .sharedBackgroundVisibility(.hidden)
+                } else {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        StreakFlameChip(streak: streak)
+                    }
                 }
             }
             ToolbarItem(placement: .navigationBarTrailing) {
