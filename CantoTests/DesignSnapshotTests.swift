@@ -390,4 +390,21 @@ final class DesignSnapshotTests: XCTestCase {
             }
         }
     }
+
+    // The three shipped hats, redrawn onto the Rig as helmet layers. They kept
+    // their ids so the wallet's gear rows still resolve, which means a future
+    // redraw could silently put one back off the head - LOOK at this one.
+    func test_shippedHatsSitOnBothAvatars() {
+        snapshotOnInn("avatar-hats") {
+            VStack(spacing: 20) {
+                ForEach(["avatar-scout", "avatar-nova"], id: \.self) { avatar in
+                    HStack(spacing: 12) {
+                        ForEach(["hat-cap", "hat-crown", "hat-wizard"], id: \.self) { hat in
+                            AvatarSpriteView(size: 96, avatarId: avatar, equipped: [.helmet: hat])
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

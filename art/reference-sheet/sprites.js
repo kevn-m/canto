@@ -109,6 +109,11 @@
     legs:  { x0: 24, y0: 45, x1: 40, y1: 58 },   // leggings zone
     handL: { x: 18, y: 38 },                     // off-hand anchor (viewer's left)
     handR: { x: 46, y: 38 },                     // weapon anchor (viewer's right)
+    // Every helmet-slot layer draws here. y1 is the load-bearing number: the brim
+    // stops at 16, outline() dilates it to 17, and the eyes start at 20 — so the
+    // face always shows. A helm over the face makes every avatar the same knight.
+    // y0 = 5 is what caps how tall an avatar's hair may be; a taller spike clips.
+    helm: { x0: 22, y0: 5, x1: 41, y1: 16 },
   };
   // Centre and radii for the box zones, so a recipe draws FROM the zone instead
   // of re-typing its numbers. Move a zone above and every layer follows it.
@@ -31295,31 +31300,48 @@ S.push({ name: 'badge-rich-100', draw(g) {           // wallet reached 100 Canto
   smileArc(g, CX, 50, 2, 0.9);
 }});
 
-S.push({ name: 'hat-cap', draw(g) {                  // baseball cap, alone (composited on hero)
+/* The three shipped hats, redrawn as helmet-slot layers on the Rig (Slice 5).
+   Same names, same ids — the wallet paid for these, so ownership rows must keep
+   resolving. They used to be small drawings floating in the middle of the canvas,
+   glued onto the hero by a hand-tuned offset; now they sit where a helmet sits and
+   composite by plain z-order like every other layer. Same rule as helm-knight: the
+   brim stops at y16 and the eyes start at y20, so the avatar's face stays its own. */
+
+S.push({ name: 'hat-cap', draw(g) {                  // baseball cap, on the Rig
   // The bill CONTRASTS with the crown rather than shading it. A grey-blue bill
   // below-right of a blue dome is exactly where a drop shadow sits, and reads
   // as one - two passes died that way. Red says "cap" on sight.
-  ellipse(g, CX + 9, 36, 15, 4.5, P.navy);            // bill underlay, so it keeps its own edge against the crown
-  ellipse(g, CX + 9, 36, 14, 3.4, P.red);
-  ball(g, CX - 2, 27, 14, 12, P.sky, P.lav);          // crown on top, capping the bill's back half
-  disc(g, CX - 2, 16, 2, P.crm);                      // button
+  const h = RIG.helm;
+  rect(g, h.x0, h.y0 + 1, h.x1, h.y1 - 1, P.sky);     // crown
+  rect(g, h.x1 - 3, h.y0 + 1, h.x1, h.y1 - 1, P.lav); // hard shadow
+  tri(g, h.x0, h.y0 + 1, h.x0 + 3, h.y0 + 1, h.x0, h.y0 + 4, null); // bevels
+  tri(g, h.x1, h.y0 + 1, h.x1 - 3, h.y0 + 1, h.x1, h.y0 + 4, null);
+  rect(g, h.x0, h.y1 - 2, h.x1, h.y1, P.sky);         // band
+  rect(g, h.x1, h.y1 - 3, h.x1 + 9, h.y1, P.red);     // bill, out to the side
+  rect(g, 30, h.y0 - 1, 33, h.y0 + 1, P.crm);         // button
 }});
 
-S.push({ name: 'hat-crown', draw(g) {                // king's crown, alone
-  tri(g, 12.5, 34, 20, 34, 16, 20, P.yel);            // points
-  tri(g, 20, 34, 28, 34, 24, 14, P.yel);
-  tri(g, 28, 34, 36, 34, 32, 14, P.yel);
-  tri(g, 36, 34, 44, 34, 40, 20, P.yel);
-  rect(g, 12.5, 34, 44, 42, P.org);                   // band
-  disc(g, 20, 26, 2, P.red); disc(g, CX, 21, 2.2, P.sky); disc(g, 36, 26, 2, P.red); // jewels
+S.push({ name: 'hat-crown', draw(g) {                // king's crown, on the Rig
+  const h = RIG.helm;
+  rect(g, h.x0, h.y1 - 5, h.x1, h.y1 - 3, P.yel);     // fill under the points
+  tri(g, h.x0, h.y1 - 4, 27, h.y1 - 4, 24, h.y0 - 1, P.yel); // points
+  tri(g, 26, h.y1 - 4, 32, h.y1 - 4, 29, h.y0 - 3, P.yel);
+  tri(g, 31, h.y1 - 4, 37, h.y1 - 4, 34, h.y0 - 3, P.yel);
+  tri(g, 36, h.y1 - 4, h.x1, h.y1 - 4, 39, h.y0 - 1, P.yel);
+  rect(g, h.x0, h.y1 - 3, h.x1, h.y1, P.org);         // band
+  rect(g, 25, h.y1 - 2, 27, h.y1 - 1, P.red);         // jewels
+  rect(g, 30, h.y1 - 2, 33, h.y1 - 1, P.sky);
+  rect(g, 36, h.y1 - 2, 38, h.y1 - 1, P.red);
 }});
 
-S.push({ name: 'hat-wizard', draw(g) {               // wizard hat, alone
-  ellipse(g, CX, 41, 17, 4.5, P.lav);                 // brim shadow
-  ellipse(g, CX, 39, 16, 4, P.plum);                  // brim
-  tri(g, 18, 41, 45, 41, 34, 6, P.plum);              // cone
-  tri(g, 18, 41, 40, 41, 30, 10, P.lav);              // shade side
-  disc(g, 26, 27, 1.6, P.yel); disc(g, 33, 19, 1.4, P.yel); disc(g, 24, 34, 1.2, P.yel); // stars
+S.push({ name: 'hat-wizard', draw(g) {               // wizard hat, on the Rig
+  const h = RIG.helm;
+  tri(g, h.x0 - 1, h.y1 - 2, h.x1 + 1, h.y1 - 2, 33, 0, P.lav);  // cone, leaning
+  tri(g, 33, h.y1 - 2, h.x1 + 1, h.y1 - 2, 33, 0, P.plum);       // shaded side
+  rect(g, h.x0 - 3, h.y1 - 2, h.x1 + 3, h.y1, P.lav);            // brim — stops at y1, same as every helm
+  rect(g, h.x0 - 3, h.y1, h.x1 + 3, h.y1, P.plum);               // brim shade
+  rect(g, 27, 9, 29, 11, P.yel);                                 // stars
+  rect(g, 31, 4, 33, 6, P.yel);
 }});
 
 S.push({ name: 'pal-cat', draw(g) {                  // tiny companion cat, cuter/rounder than 'cat'
@@ -31518,15 +31540,16 @@ S.push({ name: 'helm-knight', draw(g) {               // open-face helm
   // The brim stops at y16 and the eyes start at y18. That gap is the whole point:
   // a helm over the face makes every avatar the same knight. The crown starts at
   // y5 and covers the hair spikes, which is why no avatar's hair rises above it.
-  rect(g, 22, 5, 41, 15, P.lgy);                        // crown, angular
-  rect(g, 38, 5, 41, 15, P.lav);                        // hard shadow, light from top-left
-  tri(g, 22, 5, 25, 5, 22, 8, null);                    // small corner bevels — a deep cut turns it into a party hat
-  tri(g, 41, 5, 38, 5, 41, 8, null);
-  rect(g, 20, 14, 43, 16, P.lgy);                       // brim, wider than the crown
-  rect(g, 20, 15, 43, 15, P.org);                       // gold stripe
-  rect(g, 28, 1, 35, 5, P.red);                         // crest, a fin along the top
-  tri(g, 28, 1, 28, 5, 24, 5, P.red);                   // swept forward, not a round plume
-  rect(g, 33, 1, 35, 5, P.plum);                        // crest shade
+  const h = RIG.helm;
+  rect(g, h.x0, h.y0, h.x1, h.y1 - 1, P.lgy);           // crown, angular
+  rect(g, h.x1 - 3, h.y0, h.x1, h.y1 - 1, P.lav);       // hard shadow, light from top-left
+  tri(g, h.x0, h.y0, h.x0 + 3, h.y0, h.x0, h.y0 + 3, null); // small corner bevels — a deep cut turns it into a party hat
+  tri(g, h.x1, h.y0, h.x1 - 3, h.y0, h.x1, h.y0 + 3, null);
+  rect(g, h.x0 - 2, h.y1 - 2, h.x1 + 2, h.y1, P.lgy);   // brim, wider than the crown
+  rect(g, h.x0 - 2, h.y1 - 1, h.x1 + 2, h.y1 - 1, P.org); // gold stripe
+  rect(g, 28, 1, 35, h.y0, P.red);                      // crest, a fin along the top
+  tri(g, 28, 1, 28, h.y0, 24, h.y0, P.red);             // swept forward, not a round plume
+  rect(g, 33, 1, 35, h.y0, P.plum);                     // crest shade
 }});
 
 S.push({ name: 'chest-knight', draw(g) {              // breastplate + pauldrons
