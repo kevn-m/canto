@@ -31559,11 +31559,643 @@ S.push({ name: 'off-knight-shield', draw(g) {         // shield, held at RIG.han
   disc(g, h.x, h.y - 1, 2.2, P.red);                   // boss
 }});
 
+/* --- content batch: avatars:kid-friendly (agent-designed) --- */
+
+S.push({ name: 'avatar-ember', draw(g) {              // kid-friendly avatar; deep skin, navy afro puffs
+  rigBody(g, P.red, P.plum, P.brn, P.plum);
+  rigFace(g, P.brn);
+  const h = RIG.head;
+  // Two puffs on top, overlapping at the centre so they read as an afro, not ears.
+  // Below the helm's y0 line — what still says "ember" under a helm.
+  ball(g, h.cx - 4, h.cy - 11, 4.5, 4, P.navy);
+  ball(g, h.cx + 4, h.cy - 11, 4.5, 4, P.navy);
+  ellipse(g, h.cx - 12.5, h.cy - 1, 2, 5, P.navy);      // sideburns, below the helm brim so ember still shows through a helm
+  ellipse(g, h.cx + 12.5, h.cy - 1, 2, 5, P.navy);
+  rigEyes(g, 3.5, 1.6);                                 // warm wide smile
+  blush(g, h.cx - 10, 30); blush(g, h.cx + 10, 30);
+}});
+
+S.push({ name: 'avatar-lily', draw(g) {               // kid-friendly avatar; light skin, twin buns
+  rigBody(g, P.pnk, P.plum);
+  rigFace(g);
+  const h = RIG.head;
+  ellipse(g, h.cx, h.cy - 8, 10, 3.5, P.navy);          // fringe, straight across the forehead
+  ball(g, h.cx - 11, h.cy - 8, 3.5, 3.5, P.navy);       // twin buns, level with the fringe (not perched above it)
+  ball(g, h.cx + 11, h.cy - 8, 3.5, 3.5, P.navy);
+  ellipse(g, h.cx - 12.5, h.cy - 1, 2, 6, P.navy);      // side fringe, below the helm brim
+  ellipse(g, h.cx + 12.5, h.cy - 1, 2, 6, P.navy);
+  rigEyes(g, 3, 1.4);
+  blush(g, h.cx - 10, 30); blush(g, h.cx + 10, 30);
+}});
+
+S.push({ name: 'avatar-jun', draw(g) {                // kid-friendly avatar; light skin, bowl cut
+  rigBody(g, P.yel, P.org);
+  rigFace(g);
+  const h = RIG.head;
+  ellipse(g, h.cx, h.cy - 9, 13, 6, P.navy);            // bowl cap
+  rect(g, h.cx - 11, 20, h.cx + 11, 21, P.navy);        // straight fringe, sits above y23 so eyes stay clear
+  ellipse(g, h.cx - 12.5, h.cy - 1, 2, 5, P.navy);      // sideburns, below the helm brim so jun still shows through a helm
+  ellipse(g, h.cx + 12.5, h.cy - 1, 2, 5, P.navy);
+  rigEyes(g, 3, 1.4);
+  blush(g, h.cx - 10, 30); blush(g, h.cx + 10, 30);
+}});
+
+S.push({ name: 'avatar-pip', draw(g) {                // kid-friendly avatar; light skin, tousled hair + freckles
+  rigBody(g, P.grn, P.plum);
+  rigFace(g);
+  const h = RIG.head;
+  ellipse(g, h.cx, h.cy - 8, 11, 5.5, P.org);           // tousled cap
+  ball(g, h.cx - 2, h.cy - 14, 2.2, 2.6, P.org);        // single sprout tuft
+  ellipse(g, h.cx - 12.5, h.cy - 1, 2, 5, P.org);       // sideburns, below the helm brim so pip still shows through a helm
+  ellipse(g, h.cx + 12.5, h.cy - 1, 2, 5, P.org);
+  rigEyes(g, 3, 1.4);
+  blush(g, h.cx - 10, 30); blush(g, h.cx + 10, 30);
+  g.set(Math.round(h.cx - 9), 28, P.brn);               // freckles
+  g.set(Math.round(h.cx - 7), 30, P.brn);
+  g.set(Math.round(h.cx + 8), 29, P.brn);
+}});
+
+S.push({ name: 'avatar-koa', draw(g) {                // kid-friendly avatar; deep skin, dark grey curls
+  rigBody(g, P.lim, P.grn, P.brn, P.plum);
+  rigFace(g, P.brn);
+  const h = RIG.head;
+  // Small bumps hugging the head's upper curve — curls, not a helmet dome. The
+  // lowest pair sits below the helm brim (y1=20) so koa still shows through a helm.
+  for (const [dx, dy] of [[-9, -10], [-4.5, -14], [0, -14], [4.5, -14], [9, -10], [-13, 6], [13, 6]]) {
+    ball(g, h.cx + dx, h.cy + dy, 2.6, 2.6, P.dgy);
+  }
+  rigEyes(g, 4, 1.8);                                   // big grin
+  blush(g, h.cx - 10, 30); blush(g, h.cx + 10, 30);
+}});
+
+/* --- content batch: avatars:cool (agent-designed) --- */
+
+S.push({ name: 'avatar-yuki', draw(g) {               // older/calm avatar; armored-first (ADR 0025)
+  rigBody(g, P.lav, P.plum);
+  rigFace(g);
+  const h = RIG.head;
+  // Long light-grey hair: cap plus locks reaching low past the chin line — the
+  // locks are what still reads "yuki" under a full helm, so they hang well
+  // below RIG.helm.y1.
+  ellipse(g, h.cx, h.cy - 9, 13, 6.5, P.lgy);           // hair cap
+  ellipse(g, h.cx - 12.5, h.cy + 2, 2.2, 9, P.lgy);     // long side locks
+  ellipse(g, h.cx + 12.5, h.cy + 2, 2.2, 9, P.lgy);
+  // Cream tips (lgy's highlight partner): the knight set is lgy/lav too, so
+  // plain grey locks vanish into the armour — the cream is what still shows.
+  ellipse(g, h.cx - 12.5, h.cy + 7, 1.8, 4, P.crm);
+  ellipse(g, h.cx + 12.5, h.cy + 7, 1.8, 4, P.crm);
+  rigEyes(g, 2.6, 1.0);                                 // calm flatter mouth, like nova's
+}});
+
+S.push({ name: 'avatar-amara', draw(g) {              // older/cool avatar; armored-first (ADR 0025)
+  rigBody(g, P.plum, P.navy, P.brn, P.plum);
+  rigFace(g, P.brn);
+  const h = RIG.head;
+  // Two long navy braids, stacked balls tapering down, with bead pixels — navy
+  // is also the outline colour, so thin strands vanish into it; a plum shadow
+  // rim gives each ball an interior that reads as a braid, not just outline.
+  ellipse(g, h.cx, h.cy - 9, 13, 6.5, P.navy);          // hair cap
+  ball(g, h.cx - 13, h.cy, 2.6, 3, P.navy, P.plum);     // left braid, stacked balls
+  ball(g, h.cx - 13.5, h.cy + 6, 2.2, 2.6, P.navy, P.plum);
+  ball(g, h.cx - 14, h.cy + 11, 1.7, 2, P.navy, P.plum);
+  ball(g, h.cx + 13, h.cy, 2.6, 3, P.navy, P.plum);     // right braid
+  ball(g, h.cx + 13.5, h.cy + 6, 2.2, 2.6, P.navy, P.plum);
+  ball(g, h.cx + 14, h.cy + 11, 1.7, 2, P.navy, P.plum);
+  disc(g, h.cx - 14, h.cy + 12, 0.8, P.yel);            // bead pixels
+  disc(g, h.cx + 14, h.cy + 12, 0.8, P.yel);
+  rigEyes(g, 3, 1.4);
+}});
+
+S.push({ name: 'avatar-noor', draw(g) {               // older/calm avatar; armored-first (ADR 0025)
+  rigBody(g, P.grn, P.plum);
+  rigFace(g);
+  const h = RIG.head;
+  // Smooth hijab cap framing the whole hair zone, short drape onto the shoulders.
+  // No hair shows; the cap stays clear of the eyes (y23) and below RIG.helm.y0.
+  ball(g, h.cx, h.cy - 6, 14, 9, P.sky, P.lav);         // cap over the whole hair zone
+  ellipse(g, h.cx - 12.5, h.cy + 5, 2.6, 6, P.sky);     // short drape, left shoulder
+  ellipse(g, h.cx + 12.5, h.cy + 5, 2.6, 6, P.sky);     // short drape, right shoulder
+  rigEyes(g, 3, 1.4);
+}});
+
+S.push({ name: 'avatar-rex', draw(g) {                // older/cool avatar; armored-first (ADR 0025)
+  rigBody(g, P.org, P.brn, P.brn, P.plum);
+  rigFace(g, P.brn);
+  const h = RIG.head;
+  // Shaved head: a thin buzz-line arc hugging the skull, no volume — reads under
+  // a helm as stubble at the temples instead of vanishing entirely.
+  ellipse(g, h.cx, h.cy - 11, 12.5, 3, P.dgy);          // low buzz cap, thin arc
+  rigEyes(g, 3.4, 1.6);                                 // confident grin, wider mouth
+}});
+
+S.push({ name: 'avatar-sage', draw(g) {               // older/cool avatar; armored-first (ADR 0025)
+  rigBody(g, P.dgy, P.navy);
+  rigFace(g);
+  const h = RIG.head;
+  // Green ponytail swept high to one side, plus a side fringe — the ponytail
+  // sweeps out past the helm's x1 so it survives a full set.
+  ellipse(g, h.cx, h.cy - 9, 13, 6.5, P.grn);           // hair cap
+  ellipse(g, h.cx - 8, h.cy - 13, 3.5, 2.4, P.grn);     // side fringe
+  ellipse(g, h.cx + 15, h.cy - 6, 3, 6.5, P.grn);       // high ponytail, swept right
+  ellipse(g, h.cx + 18, h.cy + 1, 2.2, 4.5, P.grn);
+  rigEyes(g, 2.8, 1.1);                                 // small knowing smile
+}});
+
+/* --- content batch: jade (agent-designed) --- */
+
+/* Jade set — polished jade-stone plate, gold trim. Reads distinct from the grey
+   knight set at a glance: green stone body, gold accents, no plume. */
+
+S.push({ name: 'helm-jade', draw(g) {         // jade circlet, gold ornament
+  const h = RIG.helm, cx = RIG.head.cx;
+  ball(g, cx, h.y1 - 7, 12, 6, P.lim, P.grn);   // domed jade crown
+  ellipse(g, cx, h.y1 - 1, 13.5, 1.6, P.org);   // gold band, brim
+  disc(g, cx, h.y0 + 3, 1.8, P.yel);            // gold ornament, top edge stays below y0
+  disc(g, cx, h.y0 + 3, 0.9, P.org);
+}});
+
+S.push({ name: 'chest-jade', draw(g) {        // jade plate, gold collar
+  const t = RIG.torso;
+  ball(g, t.cx, t.cy, t.rx, t.ry, P.lim, P.grn);  // plate — same ball as the tunic it covers
+  ellipse(g, t.cx, t.y0 + 1, t.rx - 1, 1.6, P.org); // gold collar trim
+  disc(g, t.cx, t.cy, 2.2, P.yel);              // gold medallion boss
+  disc(g, t.cx, t.cy, 1.2, P.org);
+}});
+
+S.push({ name: 'legs-jade', draw(g) {         // jade greaves, gold trim
+  const l = RIG.legs;
+  ball(g, l.cx - 4, l.cy, 3.5, l.ry, P.lim, P.grn); // greaves — the same balls as the legs
+  ball(g, l.cx + 4, l.cy, 3.5, l.ry, P.lim, P.grn);
+  ellipse(g, l.cx - 4, l.cy - 2, 3.5, 1, P.org);    // gold knee trim
+  ellipse(g, l.cx + 4, l.cy - 2, 3.5, 1, P.org);
+  ball(g, l.cx - 5.5, l.y1, 4, 2.4, P.lim, P.grn);  // sabatons over the boots
+  ball(g, l.cx + 5.5, l.y1, 4, 2.4, P.lim, P.grn);
+}});
+
+S.push({ name: 'weap-jade-sword', draw(g) {   // jade blade, gripped at RIG.handR
+  const h = RIG.handR;
+  stroke(g, [[h.x, h.y - 3], [h.x, h.y - 20]], 2.6, 1.4, P.lim); // jade blade
+  ellipse(g, h.x, h.y - 3, 5, 1.4, P.yel);      // gold crossguard
+  ball(g, h.x, h.y + 1, 2, 2, P.org, P.brn);    // gold pommel
+}});
+
+S.push({ name: 'off-jade-disc', draw(g) {     // jade bi disc, held at RIG.handL
+  const h = RIG.handL;
+  ball(g, h.x, h.y - 1, 7, 7, P.lim, P.grn);    // disc body
+  disc(g, h.x, h.y - 1, 2.4, null);             // centre hole — null erases so outline() rings it
+  disc(g, h.x - 4, h.y - 4, 1, P.org);          // gold cord stud
+}});
+
+/* --- content batch: mage (agent-designed) --- */
+
+S.push({ name: 'helm-mage', draw(g) {          // gold circlet + gem, not a pointed hat
+  const h = RIG.helm, cx = RIG.head.cx;
+  ball(g, cx, h.y1 - 2, 13, 2, P.yel, P.org);   // band across the brow
+  ball(g, cx, h.y1 - 6, 3, 2.6, P.sky, P.lav);  // gem
+  disc(g, cx, h.y1 - 9, 1.3, P.yel);            // gold prong above the gem
+  disc(g, cx - 1, h.y1 - 7, 0.6, P.crm);        // gem sparkle
+}});
+
+S.push({ name: 'chest-mage', draw(g) {         // robe drape, same torso ball as the tunic
+  const t = RIG.torso;
+  ball(g, t.cx, t.cy, t.rx, t.ry, P.sky, P.lav);
+  ellipse(g, t.cx, t.y0 + 2, 4, 1.4, P.yel);    // gold collar trim
+  ellipse(g, t.cx, t.y1 - 1, t.rx - 1, 1.6, P.lav); // hem shadow at the drape's base
+  star5(g, t.cx - 5, t.cy - 1, 1.8, 0.8, P.yel);
+  star5(g, t.cx + 5, t.cy + 2, 1.8, 0.8, P.yel);
+}});
+
+S.push({ name: 'legs-mage', draw(g) {          // robe hem over the stubby legs
+  const l = RIG.legs;
+  ball(g, l.cx - 4, l.cy, 3.5, l.ry, P.sky, P.lav);
+  ball(g, l.cx + 4, l.cy, 3.5, l.ry, P.sky, P.lav);
+  ellipse(g, l.cx - 4, l.cy - 2, 3.5, 1, P.yel);   // gold knee trim
+  ellipse(g, l.cx + 4, l.cy - 2, 3.5, 1, P.yel);
+  ball(g, l.cx - 5.5, l.y1, 4, 2.4, P.sky, P.lav); // robe hem over the boots
+  ball(g, l.cx + 5.5, l.y1, 4, 2.4, P.sky, P.lav);
+  ellipse(g, l.cx, l.y1 - 1, 7, 1.4, P.lav);       // drape sagging between the legs
+}});
+
+S.push({ name: 'weap-mage-staff', draw(g) {    // tall staff, gripped at RIG.handR
+  const h = RIG.handR;
+  stroke(g, [[h.x, h.y + 1], [h.x, h.y - 20]], 1.6, 1.2, P.brn); // shaft
+  ball(g, h.x, h.y - 23, 3.5, 3.5, P.sky, P.lav);                // glowing orb
+  disc(g, h.x - 1, h.y - 24, 1, P.crm);                          // glow sparkle
+}});
+
+S.push({ name: 'off-mage-tome', draw(g) {      // small open spellbook, held at RIG.handL
+  const h = RIG.handL;
+  ball(g, h.x - 3, h.y, 4.5, 2.4, P.brn, P.plum); // cover, wide and flat like an open book
+  ellipse(g, h.x - 3, h.y - 0.4, 3.2, 1.3, P.crm); // open pages
+  rect(g, h.x - 3, h.y - 1, h.x - 3, h.y, P.brn);  // spine crease down the middle
+  disc(g, h.x - 3, h.y - 0.4, 0.8, P.sky);         // glowing rune
+}});
+
+/* --- content batch: rogue (agent-designed) --- */
+
+S.push({ name: 'helm-rogue', draw(g) {                // soft hood; brim stops at RIG.helm.y1, face stays clear
+  const h = RIG.helm, cx = RIG.head.cx;
+  ball(g, cx, h.y1 - 7, 11, 7, P.dgy, P.navy);          // hood dome — rounder than the knight's flat crown, reads as cloth
+  ball(g, cx + 6, h.y1 - 10, 3, 3, P.dgy, P.navy);      // hood point, folded back over the shoulder
+  ellipse(g, cx, h.y1 - 1, 12, 1.4, P.dgy);             // brim, wider than the dome
+  ellipse(g, cx, h.y1 - 1, 12, 0.6, P.red);             // scarf trim along the brim edge
+}});
+
+S.push({ name: 'chest-rogue', draw(g) {               // leather jerkin, diagonal strap
+  const t = RIG.torso;
+  ball(g, t.cx, t.cy, t.rx, t.ry, P.dgy, P.navy);       // jerkin — the same ball as the tunic it covers
+  stroke(g, [[t.x0 + 1, t.y0], [t.x1 - 1, t.y1]], 1.6, 1.6, P.red);  // diagonal strap, shoulder to hip
+  disc(g, t.cx, t.cy + 3, 0.8, P.org);                  // buckle stud
+}});
+
+S.push({ name: 'legs-rogue', draw(g) {                // dark leather boots over the stubby legs
+  const l = RIG.legs;
+  ball(g, l.cx - 4, l.cy, 3.5, l.ry, P.dgy, P.navy);    // boots — the same balls as the legs
+  ball(g, l.cx + 4, l.cy, 3.5, l.ry, P.dgy, P.navy);
+  ball(g, l.cx - 5.5, l.y1, 4, 2.4, P.dgy, P.navy);     // boot soles over the feet
+  ball(g, l.cx + 5.5, l.y1, 4, 2.4, P.dgy, P.navy);
+  ellipse(g, l.cx - 4, l.cy - 2, 3.5, 1, P.red);        // cuff trim
+  ellipse(g, l.cx + 4, l.cy - 2, 3.5, 1, P.red);
+}});
+
+S.push({ name: 'weap-rogue-dagger', draw(g) {         // dagger, gripped at RIG.handR — short, unlike the knight's sword
+  const h = RIG.handR;
+  stroke(g, [[h.x, h.y - 2], [h.x, h.y - 9]], 2, 1.2, P.lgy);    // blade
+  stroke(g, [[h.x, h.y - 3], [h.x, h.y - 8]], 0.8, 0.5, P.crm);  // edge highlight
+  ellipse(g, h.x, h.y - 2, 3, 1, P.dgy);                // crossguard
+  ball(g, h.x, h.y + 1, 1.6, 1.6, P.dgy, P.navy);       // pommel
+}});
+
+S.push({ name: 'off-rogue-dagger', draw(g) {          // parry dagger, held at RIG.handL — mirrors weap-rogue-dagger, clearly smaller than the shield
+  const h = RIG.handL;
+  stroke(g, [[h.x, h.y - 2], [h.x, h.y - 9]], 2, 1.2, P.lgy);
+  stroke(g, [[h.x, h.y - 3], [h.x, h.y - 8]], 0.8, 0.5, P.crm);
+  ellipse(g, h.x, h.y - 2, 3, 1, P.dgy);
+  ball(g, h.x, h.y + 1, 1.6, 1.6, P.dgy, P.navy);
+}});
+
+/* --- content batch: paladin (agent-designed) --- */
+
+S.push({ name: 'helm-paladin', draw(g) {              // gold dome with small white wings
+  const h = RIG.helm, cx = RIG.head.cx;
+  ball(g, cx, h.y1 - 7, 12, 6, P.yel, P.org);           // domed crown
+  ellipse(g, cx, h.y1 - 1, 13.5, 1.6, P.yel);           // brim
+  ellipse(g, cx, h.y1 - 1, 13, 0.8, P.org);             // shade stripe
+  tri(g, cx - 3, h.y1 - 8, cx - 12, h.y1 - 13, cx - 1, h.y1 - 2, P.crm); // wings, swept up off the dome, inside the helm zone
+  tri(g, cx + 3, h.y1 - 8, cx + 12, h.y1 - 13, cx + 1, h.y1 - 2, P.crm);
+  disc(g, cx, h.y0 + 2, 1.3, P.crm);                    // crest bead
+}});
+
+S.push({ name: 'chest-paladin', draw(g) {             // gold breastplate, sky gem boss
+  const t = RIG.torso;
+  ball(g, t.cx, t.cy, t.rx, t.ry, P.yel, P.org);        // plate — the same ball as the tunic it covers
+  ellipse(g, t.cx, t.cy + 3, t.rx - 2, 1.4, P.org);     // belt
+  disc(g, t.cx, t.cy + 3, 1.6, P.crm);                  // buckle
+  disc(g, t.cx, t.cy - 3, 2.6, P.sky);                  // gem boss
+  disc(g, t.cx - 0.8, t.cy - 3.8, 0.8, P.crm);          // gem sparkle (sky/crm is low-contrast)
+}});
+
+S.push({ name: 'legs-paladin', draw(g) {              // gold greaves
+  const l = RIG.legs;
+  ball(g, l.cx - 4, l.cy, 3.5, l.ry, P.yel, P.org);     // greaves — the same balls as the legs
+  ball(g, l.cx + 4, l.cy, 3.5, l.ry, P.yel, P.org);
+  ellipse(g, l.cx - 4, l.cy - 2, 3.5, 1, P.crm);        // knee trim
+  ellipse(g, l.cx + 4, l.cy - 2, 3.5, 1, P.crm);
+  ball(g, l.cx - 5.5, l.y1, 4, 2.4, P.yel, P.org);      // sabatons over the boots
+  ball(g, l.cx + 5.5, l.y1, 4, 2.4, P.yel, P.org);
+}});
+
+S.push({ name: 'weap-paladin-hammer', draw(g) {       // two-tone warhammer, gripped at RIG.handR
+  const h = RIG.handR;
+  stroke(g, [[h.x, h.y - 1], [h.x, h.y - 15]], 1.4, 1.2, P.brn);  // shaft, into the hand
+  rect(g, h.x - 5, h.y - 20, h.x + 5, h.y - 14, P.org); // hammer head block, reads as a hammer not a mace
+  rect(g, h.x - 5, h.y - 20, h.x - 1, h.y - 14, P.yel); // two-tone cap
+}});
+
+S.push({ name: 'off-paladin-shield', draw(g) {        // tall crm/gold shield, yellow emblem
+  const h = RIG.handL;
+  ball(g, h.x, h.y - 1, 6.5, 9.5, P.crm, P.lgy);        // tall shield body
+  ellipse(g, h.x, h.y - 1, 4.5, 7.5, P.org);            // gold border fill
+  ball(g, h.x, h.y - 1, 3, 5, P.crm, P.lgy);            // inner field
+  disc(g, h.x, h.y - 1, 2, P.yel);                      // emblem
+}});
+
+/* --- content batch: warlock (agent-designed) --- */
+
+S.push({ name: 'helm-warlock', draw(g) {              // rounded hood + lim circlet gem, no horns
+  const h = RIG.helm, cx = RIG.head.cx;
+  ball(g, cx, h.y1 - 7, 12, 6, P.plum, P.navy);        // hood dome — same shape as knight's, deep plum
+  ellipse(g, cx, h.y1 - 1, 13, 1.6, P.plum);           // hood brim
+  ball(g, cx, h.y1 - 8, 1.8, 1.8, P.lim, P.grn, P.crm); // circlet gem, glowing on the brow
+}});
+
+S.push({ name: 'chest-warlock', draw(g) {             // vestment robe with a lim sash and glyph
+  const t = RIG.torso;
+  ball(g, t.cx, t.cy, t.rx, t.ry, P.plum, P.navy);     // robe — the same ball as the tunic it covers
+  stroke(g, [[t.x0 + 1, t.y0], [t.x1 - 3, t.y1 - 1]], 1.6, 1.6, P.lim); // diagonal sash
+  ball(g, t.cx, t.cy - 3, 1.8, 1.8, P.lim, P.grn, P.crm); // glyph rune, glowing at the sternum
+}});
+
+S.push({ name: 'legs-warlock', draw(g) {              // robe hem over the stubby legs, dark boots
+  const l = RIG.legs;
+  ball(g, l.cx - 4, l.cy, 3.5, l.ry, P.plum, P.navy);  // robe hem — the same balls as the legs
+  ball(g, l.cx + 4, l.cy, 3.5, l.ry, P.plum, P.navy);
+  ellipse(g, l.cx - 4, l.cy - 2, 3.5, 1, P.lim);       // lim trim at the hem
+  ellipse(g, l.cx + 4, l.cy - 2, 3.5, 1, P.lim);
+  ball(g, l.cx - 5.5, l.y1, 4, 2.4, P.navy, P.plum);   // dark boots
+  ball(g, l.cx + 5.5, l.y1, 4, 2.4, P.navy, P.plum);
+}});
+
+S.push({ name: 'weap-warlock-staff', draw(g) {        // curved staff, gripped at RIG.handR, floating lim flame
+  const h = RIG.handR;
+  stroke(g, [[h.x, h.y - 1], [h.x + 5, h.y - 12], [h.x + 6, h.y - 22]], 1.6, 1.2, P.brn); // curves out clear of the head/hair
+  ball(g, h.x + 6, h.y - 25, 2.6, 2.8, P.lim, P.grn, P.crm);  // floating flame/gem, detached above the shaft tip
+}});
+
+S.push({ name: 'off-warlock-orb', draw(g) {           // levitating orb above the palm at RIG.handL
+  const h = RIG.handL;
+  ball(g, h.x, h.y - 5, 3, 3, P.lim, P.grn, P.crm);    // orb, hovering just above the hand
+  disc(g, h.x, h.y - 1, 1.2, P.grn);                   // faint glow puddle over the palm, ties orb to hand
+}});
+
+/* --- content batch: hunter (agent-designed) --- */
+
+S.push({ name: 'chest-hunter', draw(g) {              // leather jerkin
+  const t = RIG.torso;
+  ball(g, t.cx, t.cy, t.rx, t.ry, P.brn, P.plum);       // jerkin — the same ball as the tunic it covers
+  stroke(g, [[t.cx - 7, t.cy - 5], [t.cx + 6, t.cy + 5]], 1.2, 1.2, P.grn); // chest strap
+  disc(g, t.cx + 6, t.cy + 5, 1.4, P.yel);              // strap buckle
+}});
+
+S.push({ name: 'legs-hunter', draw(g) {               // leather leg wraps and boots
+  const l = RIG.legs;
+  ball(g, l.cx - 4, l.cy, 3.5, l.ry, P.brn, P.plum);    // wraps — the same balls as the legs
+  ball(g, l.cx + 4, l.cy, 3.5, l.ry, P.brn, P.plum);
+  ball(g, l.cx - 5.5, l.y1, 4, 2.4, P.brn, P.plum);     // boots over the feet
+  ball(g, l.cx + 5.5, l.y1, 4, 2.4, P.brn, P.plum);
+  ellipse(g, l.cx - 5.5, l.y1 - 2, 3.5, 0.8, P.grn);    // lace trim
+  ellipse(g, l.cx + 5.5, l.y1 - 2, 3.5, 0.8, P.grn);
+}});
+
+S.push({ name: 'helm-hunter', draw(g) {               // ranger cap with a single feather
+  const h = RIG.helm, cx = RIG.head.cx;
+  ball(g, cx, h.y1 - 6, 11, 5.5, P.brn, P.plum);        // soft cap crown
+  ellipse(g, cx, h.y1 - 2, 9, 1.8, P.plum);             // front bill
+  // feather curves up off the side; tip stays at/below helm.y0, never above it
+  stroke(g, [[cx + 6, h.y1 - 8], [cx + 9, h.y0 + 6], [cx + 8, h.y0 + 2]], 1.1, 0.4, P.red);
+}});
+
+S.push({ name: 'weap-hunter-bow', draw(g) {           // longbow, gripped at RIG.handR
+  const h = RIG.handR;
+  // grip sits at the hand; both limbs flare OUT and away from the face, tapering
+  // thin tip -> thick grip so it reads as a curve, not a straight stick
+  stroke(g, [[h.x + 3, h.y - 16], [h.x, h.y - 8], [h.x - 1, h.y]], 0.8, 1.5, P.brn);
+  stroke(g, [[h.x - 1, h.y], [h.x, h.y + 8], [h.x + 3, h.y + 14]], 1.5, 0.8, P.brn);
+  stroke(g, [[h.x + 3, h.y - 16], [h.x + 3, h.y + 14]], 0.4, 0.4, P.lgy); // string, straight chord
+}});
+
+S.push({ name: 'off-hunter-quiver', draw(g) {         // quiver of arrows, slung at RIG.handL
+  const h = RIG.handL;
+  ball(g, h.x, h.y + 3, 3.2, 5.5, P.brn, P.plum);       // quiver body
+  ellipse(g, h.x, h.y - 1, 3.4, 1, P.plum);             // rim
+  stroke(g, [[h.x - 2.5, h.y - 1], [h.x - 2.5, h.y - 7]], 0.5, 0.5, P.lgy);  // 3 separate arrow shafts
+  stroke(g, [[h.x, h.y - 2], [h.x, h.y - 9]], 0.5, 0.5, P.lgy);
+  stroke(g, [[h.x + 2.5, h.y - 1], [h.x + 2.5, h.y - 7]], 0.5, 0.5, P.lgy);
+  tri(g, h.x - 3.5, h.y - 7, h.x - 1.5, h.y - 7, h.x - 2.5, h.y - 10, P.red);  // fletchings
+  tri(g, h.x - 1, h.y - 9, h.x + 1, h.y - 9, h.x, h.y - 12, P.grn);
+  tri(g, h.x + 1.5, h.y - 7, h.x + 3.5, h.y - 7, h.x + 2.5, h.y - 10, P.red);
+}});
+
+/* --- content batch: druid (agent-designed) --- */
+
+S.push({ name: 'helm-druid', draw(g) {                // leafy circlet + antler nubs
+  // Crown stays under RIG.helm.y0; the nubs are the tallest thing here and still
+  // clear it, unlike the knight's plume which is allowed to graze the cap.
+  const h = RIG.helm, cx = RIG.head.cx;
+  ellipse(g, cx, h.y1 - 2, 13, 1.6, P.brn);             // circlet band
+  disc(g, cx - 7, h.y1 - 3, 2, P.lim); disc(g, cx + 7, h.y1 - 3, 2, P.lim); // leaf accents
+  disc(g, cx, h.y1 - 4, 2, P.lim);
+  ball(g, cx - 6, h.y0 + 3, 1.6, 2.6, P.brn, P.plum);   // antler nubs, small and low
+  ball(g, cx + 6, h.y0 + 3, 1.6, 2.6, P.brn, P.plum);
+}});
+
+S.push({ name: 'chest-druid', draw(g) {               // bark-tone wrap
+  const t = RIG.torso;
+  ball(g, t.cx, t.cy, t.rx, t.ry, P.brn, P.plum);       // wrap — the same ball as the tunic it covers
+  ellipse(g, t.cx, t.cy + 3, t.rx - 2, 1.4, P.dgy);     // cord belt
+  disc(g, t.cx - 3, t.cy - 2, 2, P.lim);                // leaf brooch
+}});
+
+S.push({ name: 'legs-druid', draw(g) {                // bark boots
+  const l = RIG.legs;
+  ball(g, l.cx - 4, l.cy, 3.5, l.ry, P.brn, P.plum);    // wraps — the same balls as the legs
+  ball(g, l.cx + 4, l.cy, 3.5, l.ry, P.brn, P.plum);
+  ball(g, l.cx - 5.5, l.y1, 4, 2.4, P.brn, P.plum);     // boots over the feet
+  ball(g, l.cx + 5.5, l.y1, 4, 2.4, P.brn, P.plum);
+  ellipse(g, l.cx - 5.5, l.y1 - 2, 4, 1, P.lim);        // leaf trim
+  ellipse(g, l.cx + 5.5, l.y1 - 2, 4, 1, P.lim);
+}});
+
+S.push({ name: 'weap-druid-staff', draw(g) {          // gnarled staff, gripped at RIG.handR
+  const h = RIG.handR;
+  // Bows OUTWARD (positive x) rather than in toward the head — a lean back toward
+  // CX put the same-brn shaft right under the avatar's sidelock and the two blurred
+  // into one blob. Staying right of x46 keeps it clear of that hair.
+  stroke(g, [[h.x, h.y - 3], [h.x + 3, h.y - 10], [h.x + 1, h.y - 17], [h.x + 4, h.y - 21]], 1.8, 1.2, P.brn); // wavy shaft
+  disc(g, h.x + 4, h.y - 21, 2.6, P.lim);               // leaf sprig at the top
+  disc(g, h.x + 2, h.y - 19, 1.6, P.lim);
+}});
+
+S.push({ name: 'off-druid-blossom', draw(g) {         // small flower, held at RIG.handL
+  const h = RIG.handL;
+  disc(g, h.x, h.y - 5, 1.4, P.grn);                    // stem
+  disc(g, h.x - 1.4, h.y - 8, 1.6, P.pnk);              // petals
+  disc(g, h.x + 1.4, h.y - 8, 1.6, P.pnk);
+  disc(g, h.x, h.y - 9.4, 1.6, P.pnk);
+  disc(g, h.x, h.y - 8, 1, P.yel);                      // centre
+}});
+
+/* --- content batch: shaman (agent-designed) --- */
+
+S.push({ name: 'helm-shaman', draw(g) {               // mail cowl, hugs the head instead of doming above it
+  const h = RIG.helm, cx = RIG.head.cx;
+  ball(g, cx, h.y1 - 6, 12.5, 7, P.sky, P.lav);         // cowl — flatter than the knight's crown, reads as cloth-over-mail
+  ellipse(g, cx, h.y1 - 1, 12.5, 1.4, P.brn);           // leather hem at the brim
+  tri(g, cx - 1, h.y0 + 1, cx + 1.5, h.y0 + 1, cx - 1, h.y0 + 4, P.yel);   // lightning-bolt mark, top-centre, well clear of the eyes
+  tri(g, cx - 1, h.y0 + 4, cx + 1.5, h.y0 + 4, cx + 1.5, h.y0 + 7, P.yel);
+}});
+
+S.push({ name: 'chest-shaman', draw(g) {              // mail hauberk over the tunic ball
+  const t = RIG.torso;
+  ball(g, t.cx, t.cy, t.rx, t.ry, P.sky, P.lav);        // mail — same ball as the tunic it covers
+  clipTo(g, [P.sky], () => {                            // link dots, only over the mail
+    for (let y = t.y0 + 2; y <= t.y1 - 1; y += 3)
+      for (let x = t.x0 + 2; x <= t.x1 - 1; x += 3)
+        disc(g, x + (((y - t.y0) / 3) % 2), y, 0.5, P.lav);
+  });
+  ellipse(g, t.cx, t.cy + 3, t.rx - 2, 1.4, P.brn);     // leather belt
+  disc(g, t.cx, t.cy + 3, 1.6, P.org);                  // earth-tone buckle
+}});
+
+S.push({ name: 'legs-shaman', draw(g) {               // mail boots over the stubby legs
+  const l = RIG.legs;
+  ball(g, l.cx - 4, l.cy, 3.5, l.ry, P.sky, P.lav);     // mail leggings — same balls as the legs
+  ball(g, l.cx + 4, l.cy, 3.5, l.ry, P.sky, P.lav);
+  ball(g, l.cx - 5.5, l.y1, 4, 2.4, P.brn, P.plum);     // leather boots
+  ball(g, l.cx + 5.5, l.y1, 4, 2.4, P.brn, P.plum);
+  ellipse(g, l.cx - 5.5, l.y1 - 1, 3.6, 0.8, P.org);    // boot cuff trim
+  ellipse(g, l.cx + 5.5, l.y1 - 1, 3.6, 0.8, P.org);
+}});
+
+S.push({ name: 'weap-shaman-axe', draw(g) {           // stone-headed axe, gripped at RIG.handR
+  const h = RIG.handR;
+  stroke(g, [[h.x, h.y + 1], [h.x, h.y - 16]], 1.4, 1, P.brn);   // haft
+  ball(g, h.x + 3, h.y - 17, 4.5, 2.6, P.dgy, P.navy);  // stone head, blunt wedge stuck off one side of the haft — round, no menace
+}});
+
+S.push({ name: 'off-shaman-totem', draw(g) {          // carved totem, standing at RIG.handL
+  const h = RIG.handL;
+  ball(g, h.x, h.y + 1, 3.6, 4.5, P.brn, P.plum);       // base band
+  ball(g, h.x, h.y - 7, 3.6, 4.5, P.org, P.brn);        // middle band
+  ball(g, h.x, h.y - 15, 3.6, 4.5, P.sky, P.lav);       // top band, painted face
+  disc(g, h.x - 1.4, h.y - 15.5, 0.9, P.navy);          // plain eyes, friendly
+  disc(g, h.x + 1.4, h.y - 15.5, 0.9, P.navy);
+}});
+
+/* --- content batch: frost (agent-designed) --- */
+
+S.push({ name: 'helm-frost', draw(g) {                // icy dome, two small crystal spikes
+  const h = RIG.helm, cx = RIG.head.cx;
+  ball(g, cx, h.y1 - 7, 12, 6, P.lgy, P.lav);         // domed crown
+  ellipse(g, cx, h.y1 - 1, 13.5, 1.6, P.lgy);         // brim, wider than the dome
+  ellipse(g, cx, h.y1 - 1, 13, 0.8, P.sky);           // icy stripe
+  tri(g, cx - 7, h.y0 + 3, cx - 4, h.y0 + 3, cx - 5.5, h.y0, P.sky);  // crystal spikes —
+  tri(g, cx + 4, h.y0 + 3, cx + 7, h.y0 + 3, cx + 5.5, h.y0, P.sky);  // apex stops at helm.y0, never above it
+}});
+
+S.push({ name: 'chest-frost', draw(g) {               // plate with a sky rune mark
+  const t = RIG.torso;
+  ball(g, t.cx, t.cy, t.rx, t.ry, P.lgy, P.lav);      // plate — same ball as the tunic it covers
+  ellipse(g, t.cx, t.cy - 2, 1.2, 3, P.sky);          // rune cross
+  ellipse(g, t.cx, t.cy - 2, 3, 1.2, P.sky);
+}});
+
+S.push({ name: 'legs-frost', draw(g) {                // icy greaves over the stubby legs
+  const l = RIG.legs;
+  ball(g, l.cx - 4, l.cy, 3.5, l.ry, P.lgy, P.lav);   // greaves — same balls as the legs
+  ball(g, l.cx + 4, l.cy, 3.5, l.ry, P.lgy, P.lav);
+  ellipse(g, l.cx - 4, l.cy - 2, 3.5, 1, P.sky);      // icy trim
+  ellipse(g, l.cx + 4, l.cy - 2, 3.5, 1, P.sky);
+  ball(g, l.cx - 5.5, l.y1, 4, 2.4, P.lgy, P.lav);    // sabatons over the boots
+  ball(g, l.cx + 5.5, l.y1, 4, 2.4, P.lgy, P.lav);
+}});
+
+S.push({ name: 'weap-frost-runeblade', draw(g) {      // runeblade, gripped at RIG.handR
+  const h = RIG.handR;
+  stroke(g, [[h.x, h.y - 3], [h.x, h.y - 20]], 2.6, 1.4, P.sky);  // blade
+  stroke(g, [[h.x, h.y - 5], [h.x, h.y - 19]], 0.7, 0.4, P.crm);  // thin edge — sky/crm is high-contrast, keep it slim so the blade stays blue
+  ellipse(g, h.x, h.y - 3, 5, 1.4, P.lav);            // crossguard
+  ball(g, h.x, h.y + 1, 2, 2, P.lav, P.navy);         // pommel
+  disc(g, h.x - 1.8, h.y - 9, 0.6, P.crm);            // rune pixels, clear of the edge so they read on the sky
+  disc(g, h.x + 1.8, h.y - 14, 0.6, P.crm);
+}});
+
+S.push({ name: 'off-frost-shield', draw(g) {          // ice shield, held at RIG.handL
+  const h = RIG.handL;
+  ball(g, h.x, h.y - 1, 7, 8.5, P.sky, P.lav);        // shield body — same round shape as knight's shield
+  ellipse(g, h.x, h.y - 1, 2, 6.5, P.lav);            // vertical facet spine
+  ellipse(g, h.x - 3, h.y - 3, 1, 3, P.lav);          // angled facets, hex-cut gem feel
+  ellipse(g, h.x + 3, h.y - 3, 1, 3, P.lav);
+  disc(g, h.x, h.y - 1, 1.8, P.lgy);                  // icy core boss
+}});
+
+/* --- content batch: priest (agent-designed) --- */
+
+S.push({ name: 'helm-priest', draw(g) {               // slim gold halo, floats above the crown
+  const h = RIG.helm, cx = RIG.head.cx;
+  ellipse(g, cx, h.y0, 7, 2, P.yel);                    // ring — stays at y0, never rises above it
+  ellipse(g, cx, h.y0, 5, 1, null);                     // punch the centre out to leave a thin band
+}});
+
+S.push({ name: 'chest-priest', draw(g) {              // white vestment, same torso ball as the tunic
+  const t = RIG.torso;
+  ball(g, t.cx, t.cy, t.rx, t.ry, P.crm, P.lgy);        // robe
+  ellipse(g, t.cx, t.cy - t.ry + 2, t.rx - 2, 1.4, P.yel); // gold collar trim
+  ellipse(g, t.cx, t.cy, 1.6, t.ry - 2, P.yel);         // vertical stole stripe
+}});
+
+S.push({ name: 'legs-priest', draw(g) {               // robe hem over the stubby legs, sandals on the feet
+  const l = RIG.legs;
+  ball(g, l.cx - 4, l.cy, 3.5, l.ry, P.crm, P.lgy);     // hem — the same balls as the legs
+  ball(g, l.cx + 4, l.cy, 3.5, l.ry, P.crm, P.lgy);
+  ball(g, l.cx - 5.5, l.y1, 4, 2.4, P.crm, P.lgy);      // sandals over the boots
+  ball(g, l.cx + 5.5, l.y1, 4, 2.4, P.crm, P.lgy);
+  ellipse(g, l.cx - 5.5, l.y1 - 1, 3.6, 0.8, P.yel);    // gold strap
+  ellipse(g, l.cx + 5.5, l.y1 - 1, 3.6, 0.8, P.yel);
+}});
+
+S.push({ name: 'weap-priest-staff', draw(g) {         // staff, gripped at RIG.handR, sun disc on top
+  const h = RIG.handR;
+  // Gold shaft, not brown — brown reads as an extra ponytail against the hair.
+  // Tilted outward so the sun disc clears the head instead of sitting at eye level.
+  stroke(g, [[h.x, h.y - 1], [h.x + 3, h.y - 16]], 1.6, 1.2, P.org); // shaft, connects into the hand
+  disc(g, h.x + 3, h.y - 19, 3.2, P.yel);               // radiant sun disc
+  disc(g, h.x + 3, h.y - 19, 1.4, P.crm);                // bright core
+}});
+
+S.push({ name: 'off-priest-lantern', draw(g) {        // lantern, held at RIG.handL
+  const h = RIG.handL;
+  ellipse(g, h.x, h.y - 3, 1.6, 1.2, P.org);            // handle loop
+  ellipse(g, h.x, h.y - 3, 0.8, 0.6, null);             // punch it into a ring
+  ball(g, h.x, h.y + 1, 3, 3, P.yel, P.org);            // lantern body
+  disc(g, h.x, h.y + 1, 1.4, P.crm);                    // light within
+}});
+
 const COMPOSITES = [
   { name: 'composite-scout-bare',   layers: ['avatar-scout'] },
   { name: 'composite-scout-knight', layers: ['avatar-scout', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
   { name: 'composite-nova-bare',    layers: ['avatar-nova'] },
   { name: 'composite-nova-knight',  layers: ['avatar-nova', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-ember-bare', layers: ['avatar-ember'] },
+  { name: 'composite-ember-knight', layers: ['avatar-ember', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-lily-bare', layers: ['avatar-lily'] },
+  { name: 'composite-lily-knight', layers: ['avatar-lily', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-jun-bare', layers: ['avatar-jun'] },
+  { name: 'composite-jun-knight', layers: ['avatar-jun', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-pip-bare', layers: ['avatar-pip'] },
+  { name: 'composite-pip-knight', layers: ['avatar-pip', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-koa-bare', layers: ['avatar-koa'] },
+  { name: 'composite-koa-knight', layers: ['avatar-koa', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-yuki-bare', layers: ['avatar-yuki'] },
+  { name: 'composite-yuki-knight', layers: ['avatar-yuki', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-amara-bare', layers: ['avatar-amara'] },
+  { name: 'composite-amara-knight', layers: ['avatar-amara', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-noor-bare', layers: ['avatar-noor'] },
+  { name: 'composite-noor-knight', layers: ['avatar-noor', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-rex-bare', layers: ['avatar-rex'] },
+  { name: 'composite-rex-knight', layers: ['avatar-rex', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-sage-bare', layers: ['avatar-sage'] },
+  { name: 'composite-sage-knight', layers: ['avatar-sage', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-scout-jade', layers: ['avatar-scout', 'legs-jade', 'chest-jade', 'weap-jade-sword', 'off-jade-disc', 'helm-jade'] },
+  { name: 'composite-nova-jade', layers: ['avatar-nova', 'legs-jade', 'chest-jade', 'weap-jade-sword', 'off-jade-disc', 'helm-jade'] },
+  { name: 'composite-scout-mage', layers: ['avatar-scout', 'legs-mage', 'chest-mage', 'weap-mage-staff', 'off-mage-tome', 'helm-mage'] },
+  { name: 'composite-nova-mage', layers: ['avatar-nova', 'legs-mage', 'chest-mage', 'weap-mage-staff', 'off-mage-tome', 'helm-mage'] },
+  { name: 'composite-scout-rogue', layers: ['avatar-scout', 'legs-rogue', 'chest-rogue', 'weap-rogue-dagger', 'off-rogue-dagger', 'helm-rogue'] },
+  { name: 'composite-nova-rogue', layers: ['avatar-nova', 'legs-rogue', 'chest-rogue', 'weap-rogue-dagger', 'off-rogue-dagger', 'helm-rogue'] },
+  { name: 'composite-scout-paladin', layers: ['avatar-scout', 'legs-paladin', 'chest-paladin', 'weap-paladin-hammer', 'off-paladin-shield', 'helm-paladin'] },
+  { name: 'composite-nova-paladin', layers: ['avatar-nova', 'legs-paladin', 'chest-paladin', 'weap-paladin-hammer', 'off-paladin-shield', 'helm-paladin'] },
+  { name: 'composite-scout-warlock', layers: ['avatar-scout', 'legs-warlock', 'chest-warlock', 'weap-warlock-staff', 'off-warlock-orb', 'helm-warlock'] },
+  { name: 'composite-nova-warlock', layers: ['avatar-nova', 'legs-warlock', 'chest-warlock', 'weap-warlock-staff', 'off-warlock-orb', 'helm-warlock'] },
+  { name: 'composite-scout-hunter', layers: ['avatar-scout', 'legs-hunter', 'chest-hunter', 'weap-hunter-bow', 'off-hunter-quiver', 'helm-hunter'] },
+  { name: 'composite-nova-hunter', layers: ['avatar-nova', 'legs-hunter', 'chest-hunter', 'weap-hunter-bow', 'off-hunter-quiver', 'helm-hunter'] },
+  { name: 'composite-scout-druid', layers: ['avatar-scout', 'legs-druid', 'chest-druid', 'weap-druid-staff', 'off-druid-blossom', 'helm-druid'] },
+  { name: 'composite-nova-druid', layers: ['avatar-nova', 'legs-druid', 'chest-druid', 'weap-druid-staff', 'off-druid-blossom', 'helm-druid'] },
+  { name: 'composite-scout-shaman', layers: ['avatar-scout', 'legs-shaman', 'chest-shaman', 'weap-shaman-axe', 'off-shaman-totem', 'helm-shaman'] },
+  { name: 'composite-nova-shaman', layers: ['avatar-nova', 'legs-shaman', 'chest-shaman', 'weap-shaman-axe', 'off-shaman-totem', 'helm-shaman'] },
+  { name: 'composite-scout-frost', layers: ['avatar-scout', 'legs-frost', 'chest-frost', 'weap-frost-runeblade', 'off-frost-shield', 'helm-frost'] },
+  { name: 'composite-nova-frost', layers: ['avatar-nova', 'legs-frost', 'chest-frost', 'weap-frost-runeblade', 'off-frost-shield', 'helm-frost'] },
+  { name: 'composite-scout-priest', layers: ['avatar-scout', 'legs-priest', 'chest-priest', 'weap-priest-staff', 'off-priest-lantern', 'helm-priest'] },
+  { name: 'composite-nova-priest', layers: ['avatar-nova', 'legs-priest', 'chest-priest', 'weap-priest-staff', 'off-priest-lantern', 'helm-priest'] },
 ];
 
   function renderGrid(name) {
