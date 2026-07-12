@@ -826,8 +826,16 @@ final class GameStore: ObservableObject {
     // Free to pick (AvatarCatalog has no price), so this is a plain validated
     // write - an unknown id is reported, never crashes, same contract as
     // buyGear's unknownGear.
-    func setAvatar(id: String) {
+    //
+    // A nil id picks the shipped kid, which has no catalogue entry because it IS
+    // the absence of one: no avatar_id row means render player-kid. Same shape as
+    // equip(slot:id:) above, where nil unequips.
+    func setAvatar(id: String?) {
         write { db in
+            guard let id else {
+                try db.execute(sql: "DELETE FROM meta WHERE key = ?", arguments: ["avatar_id"])
+                return
+            }
             guard AvatarCatalog.item(id: id) != nil else { throw GameStoreError.unknownAvatar(id) }
             try db.execute(
                 sql: "INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)", arguments: ["avatar_id", id])

@@ -1345,6 +1345,20 @@ final class GameStoreTests: XCTestCase {
         XCTAssertEqual(store.avatarId(), "avatar-scout")
     }
 
+    // The picker's first cell is the shipped kid, and it has no catalogue id - it
+    // IS "no avatar_id row". Picking it must clear the row, or the player can
+    // switch away from the kid and never get back, which is what shipped.
+    func test_setAvatar_nilGoesBackToTheShippedKid() {
+        let store = GameStore(directory: tempDir)
+        store.setAvatar(id: "avatar-scout")
+        XCTAssertEqual(store.avatarId(), "avatar-scout")
+
+        store.setAvatar(id: nil)
+
+        XCTAssertNil(store.avatarId(), "picking the kid must clear avatar_id, not no-op")
+        XCTAssertNil(store.lastError)
+    }
+
     // MARK: - Family rewards
 
     func test_familyRewardsEnabled_defaultsToFalseOnFreshDatabase() {

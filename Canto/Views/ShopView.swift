@@ -274,10 +274,11 @@ struct AvatarGrid: View {
         .buttonStyle(.plain)
     }
 
+    // nil is the shipped kid, and it must still be written - it clears avatar_id.
+    // Skipping the write here is what made the kid unpickable: the sheet played its
+    // sound and dismissed while the old pick stayed on disk.
     private func pick(_ id: String?) {
-        if let id {
-            gameStore.setAvatar(id: id)
-        }
+        gameStore.setAvatar(id: id)
         SFXPlayer.shared.play(.flip)
         onPicked()
     }
