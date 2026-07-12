@@ -320,6 +320,8 @@ struct BattleView: View {
     @State private var impactShows = false
     @State private var heroAttackGeneration = 0
     @State private var heroHitGeneration = 0
+    @State private var enemyFlashGeneration = 0
+    @State private var enemyLungeGeneration = 0
     @State private var confirmingAbandon = false
     @State private var equippedHat: String?
     @State private var equippedCompanion: String?
@@ -395,9 +397,12 @@ struct BattleView: View {
             // Two-step pulses need a real suspension between the writes:
             // synchronous set-then-unset coalesces into one transaction and
             // the flash never shows (Code Patrol caught both pulses here).
+            enemyFlashGeneration += 1
+            let flashGeneration = enemyFlashGeneration
             withAnimation(.linear(duration: 0.05)) { enemyFlashes = true }
             Task {
                 try? await Task.sleep(for: .seconds(0.12))
+                guard enemyFlashGeneration == flashGeneration else { return }
                 withAnimation(.easeOut(duration: 0.3)) { enemyFlashes = false }
             }
             withAnimation(.linear(duration: 0.3)) { enemyShakes += 1 }
@@ -416,9 +421,12 @@ struct BattleView: View {
             SFXPlayer.shared.play(.whiff)
             // The enemy lunges down at the party, then springs back. Same
             // deferred-unset rule as the flash above.
+            enemyLungeGeneration += 1
+            let lungeGeneration = enemyLungeGeneration
             withAnimation(.easeIn(duration: 0.15)) { enemyLunges = true }
             Task {
                 try? await Task.sleep(for: .seconds(0.18))
+                guard enemyLungeGeneration == lungeGeneration else { return }
                 withAnimation(.spring(duration: 0.4)) { enemyLunges = false }
             }
             withAnimation(.linear(duration: 0.3).delay(0.1)) { partyShakes += 1 }
