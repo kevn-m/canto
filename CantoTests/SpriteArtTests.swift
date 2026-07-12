@@ -402,6 +402,8 @@ final class SpriteArtTests: XCTestCase {
             "perm", "phalanges", "phlegm", "pore", "retina", "scapula", "septum", "shank",
             "sinus", "smirk", "stamen", "stoma", "subcommittee", "swelling", "synapse",
             "tailbone", "thumbnail", "triceps", "ventricle", "vertebra",
+            // One-offs.
+            "dinosaur",
         ]
         for name in names {
             XCTAssertNotNil(SpriteArt.image(named: name), "\(name).png missing from the app bundle")

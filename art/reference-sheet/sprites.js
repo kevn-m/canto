@@ -17445,6 +17445,21 @@ S.push({ name: 'tyrannosaurus', draw(g) {
     blush(g, CX - 11, 23); blush(g, CX + 11, 23);
   }});
 
+S.push({ name: 'dinosaur', draw(g) {                          // long-neck sauropod; the jaws dino is 'tyrannosaurus'
+    stroke(g, [[40, 50], [52, 47], [59, 39]], 5, 1.4, P.sky); // long tapering tail
+    ball(g, CX, 47, 13, 10, P.sky, P.lav);                    // round body
+    ball(g, 24, 57, 4.2, 3, P.sky, P.lav);                    // stumpy feet
+    ball(g, 39, 57, 4.2, 3, P.sky, P.lav);
+    stroke(g, [[29, 45], [24, 33], [25, 25]], 5.5, 5, P.sky); // long neck
+    ball(g, 24, 21, 10, 9, P.sky, P.lav);                     // small head, held high
+    clipTo(g, [P.sky, P.lav], () => {
+      disc(g, 36, 43, 2.6, P.lim); disc(g, 43, 48, 2.2, P.lim); disc(g, 30, 51, 2.2, P.lim);
+    });
+    eyes(g, 24, 20, 6.5);
+    smileArc(g, 24, 27, 3, 1.2);
+    blush(g, 16, 25); blush(g, 32, 25);
+  }});
+
 S.push({ name: 'squire', draw(g) {
     ball(g, CX, 49, 11, 8.5, P.grn, P.plum);                  // tunic
     tri(g, CX, 42, 27, 50, 36, 50, P.yel);                    // crest diamond

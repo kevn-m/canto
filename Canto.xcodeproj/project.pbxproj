@@ -24,6 +24,7 @@
 		0111D5062AD40DF81F91233B /* keystone.png in Resources */ = {isa = PBXBuildFile; fileRef = 65FA1603174E332089385A8D /* keystone.png */; };
 		01179A5E26AC162D53D02906 /* spherical.png in Resources */ = {isa = PBXBuildFile; fileRef = 1E10C0D2BB979B738E56B585 /* spherical.png */; };
 		011E86ACDEC56DE1D5ECAAA3 /* coastguard.png in Resources */ = {isa = PBXBuildFile; fileRef = 2A597A43E631927598C179CC /* coastguard.png */; };
+		013456F9A396CEC66FB23EE9 /* dinosaur.png in Resources */ = {isa = PBXBuildFile; fileRef = DD7F862014439DE97BFFE998 /* dinosaur.png */; };
 		01975F66A03888C698275244 /* mailbag.png in Resources */ = {isa = PBXBuildFile; fileRef = 9C3B861AE20729454AAB6C48 /* mailbag.png */; };
 		01D20EC3BDFA852D5A20C99C /* marmalade.png in Resources */ = {isa = PBXBuildFile; fileRef = C381124DD235CBC59CB16C6D /* marmalade.png */; };
 		01EBC63219E2BB5EF61A226A /* book.png in Resources */ = {isa = PBXBuildFile; fileRef = D048AF47A2747AF759CD9410 /* book.png */; };
@@ -4650,6 +4651,7 @@
 		DD2FAC1310F7CAFE333DE16F /* tiptoe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = tiptoe.png; sourceTree = "<group>"; };
 		DD66C064EBC3D8C25D22FD14 /* flypaper.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = flypaper.png; sourceTree = "<group>"; };
 		DD6F768A4E32E10836707DE2 /* lawyer.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lawyer.png; sourceTree = "<group>"; };
+		DD7F862014439DE97BFFE998 /* dinosaur.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dinosaur.png; sourceTree = "<group>"; };
 		DD807BD38CEFBF14134821B5 /* shovel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = shovel.png; sourceTree = "<group>"; };
 		DD89CAD576B1E6587AC918E5 /* cavalry.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cavalry.png; sourceTree = "<group>"; };
 		DD8FE8F32D52EA629C12DF90 /* card.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = card.png; sourceTree = "<group>"; };
@@ -5754,6 +5756,7 @@
 				5D731DE2289C5776BD591128 /* dictionary.png */,
 				700A5F7F8CF0BCA139191280 /* dike.png */,
 				2F1F25EEB68616644C41D6D9 /* dimple.png */,
+				DD7F862014439DE97BFFE998 /* dinosaur.png */,
 				61B09E9C03A7A0F6E41CB5EA /* diploma.png */,
 				D6F9EF877BECF9BFF891CA66 /* dipstick.png */,
 				6C710D03D0A71FA7373E781C /* director.png */,
@@ -8271,6 +8274,7 @@
 				8CC84AD3CBB395CA8D1E8F45 /* dictionary.png in Resources */,
 				4CD7F775FD1AD1475DE813E6 /* dike.png in Resources */,
 				142576DC64EF6220F518811C /* dimple.png in Resources */,
+				013456F9A396CEC66FB23EE9 /* dinosaur.png in Resources */,
 				8823E362ABA55317AFA3208B /* diploma.png in Resources */,
 				616734DBFDDED4FADA367D3F /* dipstick.png in Resources */,
 				127869B924FF7640994CA0BE /* director.png in Resources */,
