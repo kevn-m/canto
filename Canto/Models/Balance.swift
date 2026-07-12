@@ -14,4 +14,9 @@ enum Balance {
     static let badgePay = 5
     static let gearPriceHat = 15        // first hat within ~2 finished runs
     static let gearPriceCompanion = 25  // companions aspirational
+    static let gearPriceHelmet = 15
+    static let gearPriceChest = 20
+    static let gearPriceLeggings = 15
+    static let gearPriceWeapon = 25
+    static let gearPriceOffhand = 20
 }

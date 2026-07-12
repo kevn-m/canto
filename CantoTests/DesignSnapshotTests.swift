@@ -336,7 +336,7 @@ final class DesignSnapshotTests: XCTestCase {
             ZStack {
                 InnBackground()
                 GearShelf(
-                    owned: ["hat-cap", "pal-cat"], equippedHat: "hat-cap", equippedCompanion: nil,
+                    owned: ["hat-cap", "pal-cat"], equipped: [.helmet: "hat-cap"],
                     balance: 10, onBuy: { _ in }, onToggleEquip: { _ in }
                 )
                 .padding()
@@ -344,13 +344,20 @@ final class DesignSnapshotTests: XCTestCase {
         }
     }
 
-    // The hero wearing a hat and a companion, on the same 64px grid as the
-    // battle screen - the Shop's preview and the battle hero share this view.
+    // The hero wearing a full knight kit plus a companion, on the same 64px
+    // grid as the battle screen - the Shop's preview and the battle hero
+    // share this view.
     func test_heroWearingGearRenders() {
         snapshot("hero-geared") {
             ZStack {
                 InnBackground()
-                HeroSpriteView(size: 130, hatId: "hat-crown", companionId: "pal-dragonling")
+                AvatarSpriteView(
+                    size: 130, avatarId: "avatar-scout",
+                    equipped: [
+                        .helmet: "helm-knight", .chest: "chest-knight", .leggings: "legs-knight",
+                        .weapon: "weap-knight-sword", .offhand: "off-knight-shield", .companion: "pal-dragonling",
+                    ]
+                )
             }
         }
     }
@@ -365,8 +372,22 @@ final class DesignSnapshotTests: XCTestCase {
             BattleView(
                 runState: .constant(state),
                 onVictory: {}, onDefeat: {}, onAbandon: {},
-                previewHand: sampleCards, previewHat: "hat-crown", previewCompanion: "pal-dragonling"
+                previewHand: sampleCards, previewAvatarId: "avatar-scout",
+                previewEquipped: [.helmet: "helm-knight", .companion: "pal-dragonling"]
             )
+        }
+    }
+
+    // Bare AvatarGrid, not the AvatarPickerView sheet: ImageRenderer draws
+    // NavigationStack as a "no entry" placeholder, the same trap as
+    // GearShelf/BadgeShelf above.
+    func test_avatarPickerRenders() {
+        snapshot("avatar-picker") {
+            ZStack {
+                InnBackground()
+                AvatarGrid()
+                    .padding()
+            }
         }
     }
 }

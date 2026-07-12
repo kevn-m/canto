@@ -27,6 +27,7 @@ private enum GameStoreError: Error, LocalizedError {
     case invalidPrice(Int)
     case unknownGear(String)
     case gearNotOwned(String)
+    case unknownAvatar(String)
 
     var errorDescription: String? {
         switch self {
@@ -36,6 +37,7 @@ private enum GameStoreError: Error, LocalizedError {
         case .invalidPrice(let price): return "A shop price must be positive, not \(price)."
         case .unknownGear(let id): return "\(id) isn't a real piece of gear."
         case .gearNotOwned(let id): return "Can't equip \(id) - it hasn't been bought yet."
+        case .unknownAvatar(let id): return "\(id) isn't a real avatar."
         }
     }
 }
@@ -170,9 +172,16 @@ final class GameStore: ObservableObject {
               acquired_at TEXT NOT NULL
             )
             """)
+        // v5: hats are helmet-slot gear now. Same ids - the wallet paid for
+        // them - so only the meta key moves. UPDATE OR REPLACE (not UPDATE):
+        // meta.key is the primary key, and a plain UPDATE would throw if both
+        // keys somehow existed. On a fresh db this matches zero rows.
+        if version < 5 {
+            try db.execute(sql: "UPDATE OR REPLACE meta SET key = 'equipped_helmet' WHERE key = 'equipped_hat'")
+        }
         // Schema version stamp so a future release can migrate a
         // populated device db instead of no-op'ing on IF NOT EXISTS.
-        try db.execute(sql: "PRAGMA user_version = 4")
+        try db.execute(sql: "PRAGMA user_version = 5")
     }
 
     func clearError() {
@@ -457,9 +466,12 @@ final class GameStore: ObservableObject {
                 sql: "INSERT OR REPLACE INTO meta (key, value) VALUES (?, '0')",
                 arguments: ["last_imported_lookup_id"])
             // The gear rows just went, so what's equipped must go with them -
-            // otherwise the hero keeps wearing a hat the kid no longer owns.
-            try db.execute(
-                sql: "DELETE FROM meta WHERE key IN ('equipped_hat', 'equipped_companion')")
+            // otherwise the hero keeps wearing gear the kid no longer owns.
+            // avatar_id goes too: a reset is a fresh start back to the legacy
+            // kid sprite. Driven off GearSlot.allCases, not a hand-written list:
+            // forgetting a key here is the bug that has shipped twice.
+            let equippedKeys = GearSlot.allCases.map { "'equipped_\($0.rawValue)'" }.joined(separator: ", ")
+            try db.execute(sql: "DELETE FROM meta WHERE key IN (\(equippedKeys), 'avatar_id')")
             return names
         }
         for name in filenames where !photos.delete(filename: name) {
@@ -773,19 +785,24 @@ final class GameStore: ObservableObject {
         readValue(default: []) { db in Set(try String.fetchAll(db, sql: "SELECT gear_id FROM gear")) }
     }
 
-    func equippedGear() -> (hat: String?, companion: String?) {
-        readValue(default: (hat: nil, companion: nil)) { db in
-            let hat = try String.fetchOne(db, sql: "SELECT value FROM meta WHERE key = ?", arguments: ["equipped_hat"])
-            let companion = try String.fetchOne(
-                db, sql: "SELECT value FROM meta WHERE key = ?", arguments: ["equipped_companion"])
-            return (hat: hat, companion: companion)
+    func equippedGear() -> [GearSlot: String] {
+        readValue(default: [:]) { db in
+            var equipped: [GearSlot: String] = [:]
+            for slot in GearSlot.allCases {
+                if let id = try String.fetchOne(
+                    db, sql: "SELECT value FROM meta WHERE key = ?", arguments: ["equipped_\(slot.rawValue)"]
+                ) {
+                    equipped[slot] = id
+                }
+            }
+            return equipped
         }
     }
 
     // A nil id unequips (deletes the meta row). Owning the gear is checked
     // inside the same transaction - you can't equip what you don't own.
-    func equip(kind: GearKind, id: String?) {
-        let key = kind == .hat ? "equipped_hat" : "equipped_companion"
+    func equip(slot: GearSlot, id: String?) {
+        let key = "equipped_\(slot.rawValue)"
         write { db in
             guard let id else {
                 try db.execute(sql: "DELETE FROM meta WHERE key = ?", arguments: [key])
@@ -795,6 +812,25 @@ final class GameStore: ObservableObject {
             guard owned else { throw GameStoreError.gearNotOwned(id) }
             try db.execute(
                 sql: "INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)", arguments: [key, id])
+        }
+    }
+
+    // MARK: - Avatar
+
+    func avatarId() -> String? {
+        readValue(default: nil) { db in
+            try String.fetchOne(db, sql: "SELECT value FROM meta WHERE key = ?", arguments: ["avatar_id"])
+        }
+    }
+
+    // Free to pick (AvatarCatalog has no price), so this is a plain validated
+    // write - an unknown id is reported, never crashes, same contract as
+    // buyGear's unknownGear.
+    func setAvatar(id: String) {
+        write { db in
+            guard AvatarCatalog.item(id: id) != nil else { throw GameStoreError.unknownAvatar(id) }
+            try db.execute(
+                sql: "INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)", arguments: ["avatar_id", id])
         }
     }
 

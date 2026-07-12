@@ -9,12 +9,13 @@ struct ShopView: View {
     @ObservedObject private var gameStore = GameStore.shared
     @State private var balance = 0
     @State private var ownedGear: Set<String> = []
-    @State private var equippedHat: String?
-    @State private var equippedCompanion: String?
+    @State private var equipped: [GearSlot: String] = [:]
+    @State private var avatarId: String?
     @State private var familyRewardsEnabled = false
     @State private var items: [ShopItem] = []
     @State private var pendingRedeem: ShopItem?
     @State private var showingEdit = false
+    @State private var showingAvatarPicker = false
 
     var body: some View {
         ZStack {
@@ -24,11 +25,11 @@ struct ShopView: View {
                     ErrorBanner(message: lastError) { gameStore.clearError() }
                 }
                 balanceView
-                HeroSpriteView(size: 96, hatId: equippedHat, companionId: equippedCompanion)
+                heroPreviewButton
                 ScrollView {
                     VStack(spacing: 20) {
                         GearShelf(
-                            owned: ownedGear, equippedHat: equippedHat, equippedCompanion: equippedCompanion,
+                            owned: ownedGear, equipped: equipped,
                             balance: balance, onBuy: buy, onToggleEquip: toggleEquip
                         )
                         if familyRewardsEnabled {
@@ -60,6 +61,25 @@ struct ShopView: View {
         .sheet(isPresented: $showingEdit, onDismiss: reload) {
             ShopEditView()
         }
+        .sheet(isPresented: $showingAvatarPicker, onDismiss: reload) {
+            AvatarPickerView()
+        }
+    }
+
+    // Tapping the hero swaps the avatar - the swap badge is the only hint
+    // (show-don't-label), same spirit as the rest of the screen.
+    private var heroPreviewButton: some View {
+        Button { showingAvatarPicker = true } label: {
+            AvatarSpriteView(size: 96, avatarId: avatarId, equipped: equipped)
+                .overlay(alignment: .bottomTrailing) {
+                    Image(systemName: "arrow.2.squarepath")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(GameTheme.navy)
+                        .padding(6)
+                        .background(Circle().fill(GameTheme.gold))
+                }
+        }
+        .buttonStyle(.plain)
     }
 
     private var balanceView: some View {
@@ -104,9 +124,8 @@ struct ShopView: View {
     private func reload() {
         balance = gameStore.balance()
         ownedGear = gameStore.ownedGear()
-        let equipped = gameStore.equippedGear()
-        equippedHat = equipped.hat
-        equippedCompanion = equipped.companion
+        equipped = gameStore.equippedGear()
+        avatarId = gameStore.avatarId()
         familyRewardsEnabled = gameStore.familyRewardsEnabled()
         items = gameStore.shopItems(includeArchived: false)
     }
@@ -122,13 +141,13 @@ struct ShopView: View {
             return
         }
         SFXPlayer.shared.play(.coin)
-        gameStore.equip(kind: item.kind, id: item.id)
+        gameStore.equip(slot: item.slot, id: item.id)
         reload()
     }
 
     private func toggleEquip(_ item: GearItem) {
-        let currentlyEquipped = (item.kind == .hat ? equippedHat : equippedCompanion) == item.id
-        gameStore.equip(kind: item.kind, id: currentlyEquipped ? nil : item.id)
+        let currentlyEquipped = equipped[item.slot] == item.id
+        gameStore.equip(slot: item.slot, id: currentlyEquipped ? nil : item.id)
         reload()
     }
 
@@ -140,13 +159,13 @@ struct ShopView: View {
     }
 }
 
-// The gear grid: every catalogue item, always. Split out so
+// The gear grid: every catalogue item, always, grouped by slot. Split out so
 // DesignSnapshotTests can render it bare (ShopView's ScrollView lays out as
-// a sliver under ImageRenderer, the same trap as BadgeShelf).
+// a sliver under ImageRenderer, the same trap as BadgeShelf). No heading
+// text - each group leads with its slot's sprites (show-don't-label).
 struct GearShelf: View {
     let owned: Set<String>
-    let equippedHat: String?
-    let equippedCompanion: String?
+    let equipped: [GearSlot: String]
     let balance: Int
     let onBuy: (GearItem) -> Void
     let onToggleEquip: (GearItem) -> Void
@@ -154,21 +173,21 @@ struct GearShelf: View {
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 14), count: 3)
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 18) {
-            ForEach(GearCatalog.all) { item in
-                GearCardView(
-                    item: item, owned: owned.contains(item.id), equipped: isEquipped(item),
-                    affordable: balance >= item.price,
-                    onBuy: { onBuy(item) }, onToggleEquip: { onToggleEquip(item) }
-                )
+        VStack(spacing: 18) {
+            ForEach(GearSlot.allCases, id: \.self) { slot in
+                let items = GearCatalog.all.filter { $0.slot == slot }
+                if !items.isEmpty {
+                    LazyVGrid(columns: columns, spacing: 18) {
+                        ForEach(items) { item in
+                            GearCardView(
+                                item: item, owned: owned.contains(item.id), equipped: equipped[slot] == item.id,
+                                affordable: balance >= item.price,
+                                onBuy: { onBuy(item) }, onToggleEquip: { onToggleEquip(item) }
+                            )
+                        }
+                    }
+                }
             }
-        }
-    }
-
-    private func isEquipped(_ item: GearItem) -> Bool {
-        switch item.kind {
-        case .hat: return equippedHat == item.id
-        case .companion: return equippedCompanion == item.id
         }
     }
 }
@@ -186,7 +205,7 @@ private struct GearCardView: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            GearSpriteView(id: item.id, kind: item.kind, size: 56)
+            GearSpriteView(id: item.id, slot: item.slot, size: 56)
             if owned {
                 Button(equipped ? "Unequip" : "Equip", action: onToggleEquip)
                     .buttonStyle(GameButtonStyle(prominent: !equipped, compact: true))
@@ -203,6 +222,64 @@ private struct GearCardView: View {
         // the card hugs its button and "Unequip" stretches wider than "Buy".
         .frame(maxWidth: .infinity)
         .cardFrame(selected: equipped)
+    }
+}
+
+// The sheet chrome around AvatarGrid. Single-use, stays in ShopView.swift.
+struct AvatarPickerView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                InnBackground()
+                AvatarGrid { dismiss() }
+                    .padding()
+            }
+            .navigationTitle("Choose Hero")
+        }
+    }
+}
+
+// A grid of every avatar, plus the legacy kid as the first cell (so a family
+// device can go back). Bare AvatarSpriteView, no gear - identity, not a fit
+// check. Split out so DesignSnapshotTests can render it bare (ImageRenderer
+// draws NavigationStack as a "no entry" placeholder, the same trap as
+// GearShelf/BadgeShelf).
+struct AvatarGrid: View {
+    var onPicked: () -> Void = {}
+
+    @ObservedObject private var gameStore = GameStore.shared
+    @State private var currentAvatarId: String?
+
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 14), count: 3)
+
+    var body: some View {
+        LazyVGrid(columns: columns, spacing: 18) {
+            avatarCell(id: nil)
+            ForEach(AvatarCatalog.all) { avatar in
+                avatarCell(id: avatar.id)
+            }
+        }
+        .onAppear { currentAvatarId = gameStore.avatarId() }
+    }
+
+    private func avatarCell(id: String?) -> some View {
+        Button { pick(id) } label: {
+            AvatarSpriteView(size: 72, avatarId: id)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity)
+                .cardFrame(selected: currentAvatarId == id)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func pick(_ id: String?) {
+        if let id {
+            gameStore.setAvatar(id: id)
+        }
+        SFXPlayer.shared.play(.flip)
+        onPicked()
     }
 }
 

@@ -359,12 +359,12 @@ struct BadgeSpriteView: View {
     }
 }
 
-// One gear sprite, or the SF Symbol stand-in until the Slice 6 art batch
-// ships. Shared by the hero composition and the Shop grid/preview so both
-// draw the same fallback.
+// One gear sprite, or the SF Symbol stand-in until its art ships. Shared by
+// the Rig composition and the Shop grid/preview so both draw the same
+// fallback.
 struct GearSpriteView: View {
     let id: String
-    let kind: GearKind
+    let slot: GearSlot
     var size: CGFloat = 40
 
     var body: some View {
@@ -375,43 +375,51 @@ struct GearSpriteView: View {
                 .scaledToFit()
                 .frame(width: size, height: size)
         } else {
-            Image(systemName: kind == .hat ? "crown.fill" : "pawprint.fill")
+            Image(systemName: fallbackSymbol)
                 .font(.system(size: size * 0.6))
-                .foregroundStyle(kind == .hat ? GameTheme.gold : GameTheme.brown)
+                .foregroundStyle(slot == .companion ? GameTheme.brown : GameTheme.gold)
                 .frame(width: size, height: size)
+        }
+    }
+
+    private var fallbackSymbol: String {
+        switch slot {
+        case .helmet: return "crown.fill"
+        case .chest: return "tshirt.fill"
+        case .leggings: return "figure.walk"
+        case .weapon: return "swords" // fallback only shows before art ships
+        case .offhand: return "shield.fill"
+        case .companion: return "pawprint.fill"
         }
     }
 }
 
-// The hero sprite scaled up with hard pixel edges, or the SF Symbol
-// stand-in if the sprite hasn't shipped yet. Equipped gear composes on top,
-// offsets hardcoded per kind and tuned by eye against the 64px grid
-// (see DesignSnapshotTests' geared-hero snapshot).
-struct HeroSpriteView: View {
+// One avatar layer plus its equipped gear, stacked in z-order on the Rig's
+// shared canvas (ADR 0025). Every layer is the same size - never offsets -
+// except the companion, which renders beside the avatar, not on it.
+struct AvatarSpriteView: View {
     var size: CGFloat = 96
-    var hatId: String?
-    var companionId: String?
+    var avatarId: String?                       // nil -> the legacy kid sprite
+    var equipped: [GearSlot: String] = [:]
 
     var body: some View {
         ZStack {
-            heroSprite
-            // Eyeballed against the render, and tuned for the SF Symbol
-            // stand-ins - Slice 6's real 64px sprites sit differently and will
-            // want re-tuning against a fresh snapshot.
-            if let hatId {
-                GearSpriteView(id: hatId, kind: .hat, size: size * 0.44)
-                    .offset(y: -size * 0.48)
+            spriteLayer(avatarId ?? AvatarCatalog.legacyHeroSprite)
+            ForEach(GearSlot.zOrder, id: \.self) { slot in
+                if let id = equipped[slot] { spriteLayer(id) }
             }
-            if let companionId {
-                GearSpriteView(id: companionId, kind: .companion, size: size * 0.4)
-                    .offset(x: size * 0.52, y: size * 0.34)
+        }
+        .overlay(alignment: .bottomTrailing) {
+            if let pal = equipped[.companion] {
+                GearSpriteView(id: pal, slot: .companion, size: size * 0.4)
+                    .offset(x: size * 0.18, y: 0)   // beside, not on: the one allowed offset
             }
         }
     }
 
     @ViewBuilder
-    private var heroSprite: some View {
-        if let sprite = SpriteArt.heroImage() {
+    private func spriteLayer(_ name: String) -> some View {
+        if let sprite = SpriteArt.image(named: name) {
             Image(uiImage: sprite)
                 .resizable()
                 .interpolation(.none)

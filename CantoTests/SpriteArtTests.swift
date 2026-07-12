@@ -406,6 +406,10 @@ final class SpriteArtTests: XCTestCase {
             "dinosaur",
             // Battle motion FX (Slice 1 — hero side).
             "fx-slash", "fx-impact",
+            // Slice 3 avatar rig (ADR 0025): the two avatars and the knight set's
+            // five full-canvas slot layers.
+            "avatar-scout", "avatar-nova",
+            "helm-knight", "chest-knight", "legs-knight", "weap-knight-sword", "off-knight-shield",
         ]
         for name in names {
             XCTAssertNotNil(SpriteArt.image(named: name), "\(name).png missing from the app bundle")
@@ -475,6 +479,14 @@ final class SpriteArtTests: XCTestCase {
     func test_gearImage_mapsEveryCatalogueItemToASprite() {
         for item in GearCatalog.all {
             XCTAssertNotNil(SpriteArt.gearImage(id: item.id), "\(item.id) has no sprite")
+        }
+    }
+
+    // Every avatar the picker can offer must resolve to a sprite - a missing
+    // layer PNG must fail the build, same reasoning as gear.
+    func test_avatarImage_mapsEveryCatalogueItemToASprite() {
+        for avatar in AvatarCatalog.all {
+            XCTAssertNotNil(SpriteArt.image(named: avatar.id), "\(avatar.id) has no sprite")
         }
     }
 

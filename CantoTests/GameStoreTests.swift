@@ -289,13 +289,37 @@ final class GameStoreTests: XCTestCase {
         let store = GameStore(directory: tempDir)
         store.credit(Balance.gearPriceHat, reason: "test")
         XCTAssertTrue(store.buyGear(id: "hat-crown"))
-        store.equip(kind: .hat, id: "hat-crown")
-        XCTAssertEqual(store.equippedGear().hat, "hat-crown")
+        store.equip(slot: .helmet, id: "hat-crown")
+        XCTAssertEqual(store.equippedGear()[.helmet], "hat-crown")
 
         store.resetEverything(clearing: LogStore(directory: tempDir))
 
         XCTAssertTrue(store.ownedGear().isEmpty)
-        XCTAssertNil(store.equippedGear().hat, "a reset hero must not wear gear it no longer owns")
+        XCTAssertNil(store.equippedGear()[.helmet], "a reset hero must not wear gear it no longer owns")
+    }
+
+    // This exact bug - clearing a table but leaving its meta pointer behind -
+    // has shipped twice. Every equipped_* slot and avatar_id must go, not just
+    // the ones that existed when this test was last touched.
+    func test_resetEverything_clearsAvatarIdAndEveryEquippedSlot() {
+        let store = GameStore(directory: tempDir)
+        store.credit(1000, reason: "test")
+        for item in GearCatalog.all {
+            XCTAssertTrue(store.buyGear(id: item.id))
+            store.equip(slot: item.slot, id: item.id)
+        }
+        store.setAvatar(id: "avatar-scout")
+        XCTAssertEqual(store.avatarId(), "avatar-scout")
+        for slot in GearSlot.allCases {
+            XCTAssertNotNil(store.equippedGear()[slot], "\(slot) should be equipped before reset")
+        }
+
+        store.resetEverything(clearing: LogStore(directory: tempDir))
+
+        XCTAssertNil(store.avatarId(), "a reset must go back to the legacy kid sprite")
+        for slot in GearSlot.allCases {
+            XCTAssertNil(store.equippedGear()[slot], "\(slot) must not survive a reset")
+        }
     }
 
     // A reset zeroes the wallet, so a surviving badge row would mean the kid
@@ -805,9 +829,101 @@ final class GameStoreTests: XCTestCase {
                 try Bool.fetchOne(db, sql: "SELECT COUNT(*) > 0 FROM sqlite_master WHERE type = 'table' AND name = 'gear'") ?? false
             )
         }
-        XCTAssertEqual(version, 4)
+        XCTAssertEqual(version, 5)
         XCTAssertTrue(badgesTableExists)
         XCTAssertTrue(gearTableExists)
+    }
+
+    // A device db created at schema v4 has 'equipped_hat' in meta - the wallet
+    // paid for that hat, so the migration must move the pointer to
+    // 'equipped_helmet' rather than losing it.
+    func test_schemaV4_migratesToV5MovingEquippedHatToEquippedHelmet() throws {
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        try rawGameQueue(in: tempDir).write { db in
+            try Self.createV4Schema(db)
+            try db.execute(
+                sql: "INSERT INTO gear (gear_id, acquired_at) VALUES ('hat-cap', ?)", arguments: ["2026-07-01"])
+            try db.execute(
+                sql: "INSERT INTO meta (key, value) VALUES ('equipped_hat', 'hat-cap')")
+            try db.execute(sql: "PRAGMA user_version = 4")
+        }
+
+        let store = GameStore(directory: tempDir)
+
+        XCTAssertEqual(store.equippedGear()[.helmet], "hat-cap")
+        let (version, oldKeyRow) = try rawGameQueue(in: tempDir).read { db in
+            (
+                try Int.fetchOne(db, sql: "PRAGMA user_version") ?? 0,
+                try String.fetchOne(db, sql: "SELECT value FROM meta WHERE key = 'equipped_hat'")
+            )
+        }
+        XCTAssertEqual(version, 5)
+        XCTAssertNil(oldKeyRow, "no equipped_hat key survives the migration")
+    }
+
+    // An empty v4 db has nothing to migrate - the zero-row UPDATE must still
+    // be a harmless no-op, and the schema must still land on version 5.
+    func test_schemaV4_emptyDbMigrationStillLandsOnVersion5() throws {
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        try rawGameQueue(in: tempDir).write { db in
+            try Self.createV4Schema(db)
+            try db.execute(sql: "PRAGMA user_version = 4")
+        }
+
+        let store = GameStore(directory: tempDir)
+
+        XCTAssertNil(store.equippedGear()[.helmet])
+        let version = try rawGameQueue(in: tempDir).read { db in
+            try Int.fetchOne(db, sql: "PRAGMA user_version") ?? 0
+        }
+        XCTAssertEqual(version, 5)
+    }
+
+    private static func createV4Schema(_ db: Database) throws {
+        try db.execute(sql: """
+            CREATE TABLE cards (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              traditional TEXT NOT NULL, jyutping TEXT NOT NULL, english TEXT NOT NULL,
+              photo_filename TEXT, benched INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL,
+              UNIQUE(traditional, jyutping)
+            )
+            """)
+        try db.execute(sql: """
+            CREATE TABLE card_states (
+              card_id INTEGER NOT NULL REFERENCES cards(id),
+              player TEXT NOT NULL CHECK (player IN ('dad','kid')),
+              box INTEGER NOT NULL DEFAULT 0 CHECK (box BETWEEN 0 AND 3),
+              due_on TEXT NOT NULL DEFAULT '1970-01-01',
+              PRIMARY KEY (card_id, player)
+            )
+            """)
+        try db.execute(sql: """
+            CREATE TABLE reviews (
+              id INTEGER PRIMARY KEY AUTOINCREMENT, card_id INTEGER NOT NULL, player TEXT NOT NULL,
+              result TEXT NOT NULL CHECK (result IN ('hit','whiff')), reviewed_at TEXT NOT NULL
+            )
+            """)
+        try db.execute(sql: """
+            CREATE TABLE bux_ledger (
+              id INTEGER PRIMARY KEY AUTOINCREMENT, amount INTEGER NOT NULL,
+              reason TEXT NOT NULL, created_at TEXT NOT NULL
+            )
+            """)
+        try db.execute(sql: """
+            CREATE TABLE shop_items (
+              id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL,
+              price INTEGER NOT NULL, archived INTEGER NOT NULL DEFAULT 0
+            )
+            """)
+        try db.execute(sql: """
+            CREATE TABLE runs (
+              id INTEGER PRIMARY KEY AUTOINCREMENT, run_date TEXT NOT NULL,
+              state_json TEXT NOT NULL, finished INTEGER NOT NULL DEFAULT 0
+            )
+            """)
+        try db.execute(sql: "CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)")
+        try db.execute(sql: "CREATE TABLE badges (badge_id TEXT PRIMARY KEY, earned_at TEXT NOT NULL)")
+        try db.execute(sql: "CREATE TABLE gear (gear_id TEXT PRIMARY KEY, acquired_at TEXT NOT NULL)")
     }
 
     func test_nextCards_ordersBySoonestDueAndRespectsLimit() {
@@ -956,7 +1072,7 @@ final class GameStoreTests: XCTestCase {
             (try Int.fetchOne(db, sql: "PRAGMA user_version") ?? 0,
              try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM runs WHERE run_date = '2026-07-04'") ?? 0)
         }
-        XCTAssertEqual(version, 4)
+        XCTAssertEqual(version, 5)
         XCTAssertEqual(rows, 2, "the v1 row survived the rebuild alongside the new one")
     }
 
@@ -1005,7 +1121,7 @@ final class GameStoreTests: XCTestCase {
             (try Int.fetchOne(db, sql: "PRAGMA user_version") ?? 0,
              try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM card_states WHERE player = 'dad'") ?? 0)
         }
-        XCTAssertEqual(version, 4)
+        XCTAssertEqual(version, 5)
         XCTAssertEqual(dadRows, 0, "dad's rows are gone, not just ignored")
     }
 
@@ -1063,7 +1179,7 @@ final class GameStoreTests: XCTestCase {
             (try Int.fetchOne(db, sql: "PRAGMA user_version") ?? 0,
              try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM card_states WHERE player = 'dad'") ?? 0)
         }
-        XCTAssertEqual(version, 4)
+        XCTAssertEqual(version, 5)
         XCTAssertEqual(dadRows, 0, "dad's rows are gone, not just ignored")
     }
 
@@ -1181,31 +1297,52 @@ final class GameStoreTests: XCTestCase {
     func test_equip_refusesGearNotOwned() {
         let store = GameStore(directory: tempDir)
 
-        store.equip(kind: .hat, id: "hat-cap")
+        store.equip(slot: .helmet, id: "hat-cap")
 
         XCTAssertNotNil(store.lastError)
-        XCTAssertNil(store.equippedGear().hat)
+        XCTAssertNil(store.equippedGear()[.helmet])
     }
 
     func test_equip_persistsAcrossFreshGameStoreReopeningSameDirectory() {
         let store = GameStore(directory: tempDir)
         store.credit(100, reason: "run_finish")
         store.buyGear(id: "hat-cap")
-        store.equip(kind: .hat, id: "hat-cap")
+        store.equip(slot: .helmet, id: "hat-cap")
 
         let reopened = GameStore(directory: tempDir)
-        XCTAssertEqual(reopened.equippedGear().hat, "hat-cap")
+        XCTAssertEqual(reopened.equippedGear()[.helmet], "hat-cap")
     }
 
     func test_equip_nilUnequips() {
         let store = GameStore(directory: tempDir)
         store.credit(100, reason: "run_finish")
         store.buyGear(id: "hat-cap")
-        store.equip(kind: .hat, id: "hat-cap")
+        store.equip(slot: .helmet, id: "hat-cap")
 
-        store.equip(kind: .hat, id: nil)
+        store.equip(slot: .helmet, id: nil)
 
-        XCTAssertNil(store.equippedGear().hat)
+        XCTAssertNil(store.equippedGear()[.helmet])
+    }
+
+    // MARK: - Avatar
+
+    func test_setAvatar_acceptsACatalogueId() {
+        let store = GameStore(directory: tempDir)
+
+        store.setAvatar(id: "avatar-nova")
+
+        XCTAssertEqual(store.avatarId(), "avatar-nova")
+        XCTAssertNil(store.lastError)
+    }
+
+    func test_setAvatar_rejectsAnUnknownIdAndLeavesTheCurrentPickUntouched() {
+        let store = GameStore(directory: tempDir)
+        store.setAvatar(id: "avatar-scout")
+
+        store.setAvatar(id: "avatar-nonexistent")
+
+        XCTAssertNotNil(store.lastError)
+        XCTAssertEqual(store.avatarId(), "avatar-scout")
     }
 
     // MARK: - Family rewards
