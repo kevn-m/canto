@@ -103,17 +103,21 @@
 
   // The Rig: every avatar and every gear layer draws against these zones.
   // A layer that paints outside its zone will misalign on the composite sheet.
+  // The Rig keeps the mascot silhouette: a big round head on a small round body,
+  // same as player-kid (sprites.js) and every enemy and card sprite. A sharper,
+  // more "heroic" build was tried and rejected — the player stood next to 2,400
+  // round chibi sprites and read as a different game.
   const RIG = {
-    head:  { cx: CX, cy: 18, rx: 11, ry: 10 },   // helmet zone: spans y 8-28
-    torso: { x0: 22, y0: 28, x1: 42, y1: 44 },   // chest zone
-    legs:  { x0: 24, y0: 45, x1: 40, y1: 58 },   // leggings zone
-    handL: { x: 18, y: 38 },                     // off-hand anchor (viewer's left)
-    handR: { x: 46, y: 38 },                     // weapon anchor (viewer's right)
+    head:  { cx: CX, cy: 24, rx: 14, ry: 13 },   // spans y 11-37, same ball as player-kid
+    torso: { x0: 21, y0: 37, x1: 42, y1: 51 },   // chest zone
+    legs:  { x0: 23, y0: 49, x1: 40, y1: 58 },   // leggings zone — player-kid has no legs, the Rig grows stubby ones so leggings have somewhere to go
+    handL: { x: 18, y: 44 },                     // off-hand anchor (viewer's left)
+    handR: { x: 45, y: 44 },                     // weapon anchor (viewer's right)
     // Every helmet-slot layer draws here. y1 is the load-bearing number: the brim
-    // stops at 16, outline() dilates it to 17, and the eyes start at 20 — so the
+    // stops at 20, outline() dilates it to 21, and the eyes start at 23 — so the
     // face always shows. A helm over the face makes every avatar the same knight.
-    // y0 = 5 is what caps how tall an avatar's hair may be; a taller spike clips.
-    helm: { x0: 22, y0: 5, x1: 41, y1: 16 },
+    // y0 = 5 also caps how tall an avatar's hair may be; taller and it clips.
+    helm: { x0: 19, y0: 5, x1: 44, y1: 20 },
   };
   // Centre and radii for the box zones, so a recipe draws FROM the zone instead
   // of re-typing its numbers. Move a zone above and every layer follows it.
@@ -31311,37 +31315,34 @@ S.push({ name: 'hat-cap', draw(g) {                  // baseball cap, on the Rig
   // The bill CONTRASTS with the crown rather than shading it. A grey-blue bill
   // below-right of a blue dome is exactly where a drop shadow sits, and reads
   // as one - two passes died that way. Red says "cap" on sight.
-  const h = RIG.helm;
-  rect(g, h.x0, h.y0 + 1, h.x1, h.y1 - 1, P.sky);     // crown
-  rect(g, h.x1 - 3, h.y0 + 1, h.x1, h.y1 - 1, P.lav); // hard shadow
-  tri(g, h.x0, h.y0 + 1, h.x0 + 3, h.y0 + 1, h.x0, h.y0 + 4, null); // bevels
-  tri(g, h.x1, h.y0 + 1, h.x1 - 3, h.y0 + 1, h.x1, h.y0 + 4, null);
-  rect(g, h.x0, h.y1 - 2, h.x1, h.y1, P.sky);         // band
-  rect(g, h.x1, h.y1 - 3, h.x1 + 9, h.y1, P.red);     // bill, out to the side
-  rect(g, 30, h.y0 - 1, 33, h.y0 + 1, P.crm);         // button
+  const h = RIG.helm, cx = RIG.head.cx;
+  ellipse(g, cx + 9, h.y1 - 3, 15, 3, P.navy);         // bill underlay, so it keeps its own edge
+  ellipse(g, cx + 9, h.y1 - 3, 14, 2, P.red);
+  ball(g, cx - 2, h.y1 - 8, 13, 6, P.sky, P.lav);      // crown, capping the bill's back half
+  disc(g, cx - 2, h.y0 + 3, 2, P.crm);                 // button
 }});
 
 S.push({ name: 'hat-crown', draw(g) {                // king's crown, on the Rig
-  const h = RIG.helm;
-  rect(g, h.x0, h.y1 - 5, h.x1, h.y1 - 3, P.yel);     // fill under the points
-  tri(g, h.x0, h.y1 - 4, 27, h.y1 - 4, 24, h.y0 - 1, P.yel); // points
-  tri(g, 26, h.y1 - 4, 32, h.y1 - 4, 29, h.y0 - 3, P.yel);
-  tri(g, 31, h.y1 - 4, 37, h.y1 - 4, 34, h.y0 - 3, P.yel);
-  tri(g, 36, h.y1 - 4, h.x1, h.y1 - 4, 39, h.y0 - 1, P.yel);
-  rect(g, h.x0, h.y1 - 3, h.x1, h.y1, P.org);         // band
-  rect(g, 25, h.y1 - 2, 27, h.y1 - 1, P.red);         // jewels
-  rect(g, 30, h.y1 - 2, 33, h.y1 - 1, P.sky);
-  rect(g, 36, h.y1 - 2, 38, h.y1 - 1, P.red);
+  const h = RIG.helm, cx = RIG.head.cx;
+  const base = h.y1 - 3;
+  tri(g, cx - 13, base, cx - 7, base, cx - 10, h.y0 + 4, P.yel);   // points
+  tri(g, cx - 7, base, cx - 1, base, cx - 4, h.y0 + 1, P.yel);
+  tri(g, cx + 1, base, cx + 7, base, cx + 4, h.y0 + 1, P.yel);
+  tri(g, cx + 7, base, cx + 13, base, cx + 10, h.y0 + 4, P.yel);
+  rect(g, cx - 13, base, cx + 13, h.y1, P.org);                    // band
+  disc(g, cx - 8, h.y1 - 1, 1.6, P.red);                           // jewels
+  disc(g, cx, h.y1 - 1, 1.8, P.sky);
+  disc(g, cx + 8, h.y1 - 1, 1.6, P.red);
 }});
 
 S.push({ name: 'hat-wizard', draw(g) {               // wizard hat, on the Rig
-  const h = RIG.helm;
-  tri(g, h.x0 - 1, h.y1 - 2, h.x1 + 1, h.y1 - 2, 33, 0, P.lav);  // cone, leaning
-  tri(g, 33, h.y1 - 2, h.x1 + 1, h.y1 - 2, 33, 0, P.plum);       // shaded side
-  rect(g, h.x0 - 3, h.y1 - 2, h.x1 + 3, h.y1, P.lav);            // brim — stops at y1, same as every helm
-  rect(g, h.x0 - 3, h.y1, h.x1 + 3, h.y1, P.plum);               // brim shade
-  rect(g, 27, 9, 29, 11, P.yel);                                 // stars
-  rect(g, 31, 4, 33, 6, P.yel);
+  const h = RIG.helm, cx = RIG.head.cx;
+  ellipse(g, cx, h.y1 - 2, 16, 3, P.lav);             // brim
+  ellipse(g, cx, h.y1 - 3, 15, 2.2, P.plum);
+  tri(g, cx - 12, h.y1 - 3, cx + 12, h.y1 - 3, cx + 3, h.y0 - 4, P.plum);  // cone
+  tri(g, cx - 12, h.y1 - 3, cx + 6, h.y1 - 3, cx - 1, h.y0 - 1, P.lav);    // lit side
+  disc(g, cx - 5, h.y1 - 8, 1.6, P.yel);              // stars
+  disc(g, cx + 1, h.y0 + 1, 1.4, P.yel);
 }});
 
 S.push({ name: 'pal-cat', draw(g) {                  // tiny companion cat, cuter/rounder than 'cat'
@@ -31446,151 +31447,114 @@ S.push({ name: 'fx-impact', draw(g) {         // battle FX: hero takes a hit
 // The one shared body. A new avatar physically cannot drift off the Rig, because
 // it doesn't draw a body — it calls this. (Same trick as medal() for the badges.)
 //
-// Built from rect/tri, NOT ball(). The mascot corpus is round and soft on purpose;
-// the Rig is a hero — straight shoulders, slim limbs, hard-edged shadow. ball()'s
-// self-shading rim is what makes a sprite read as a soft blob, so it is not used
-// on the Rig's body or face.
+// ball()-based and round, exactly like the mascot corpus. player-kid has no arms
+// at all — just hands floating beside the body — and the Rig keeps that. It grows
+// stubby legs only because leggings need somewhere to sit.
 function rigBody(g, tunic, tunicShade) {
   const t = RIG.torso, l = RIG.legs;
-  rect(g, t.x0 + 1, t.y0, t.x1 - 1, t.y1 - 1, tunic);                  // torso block
-  rect(g, t.x1 - 4, t.y0, t.x1 - 1, t.y1 - 1, tunicShade);             // hard shadow down the trailing edge only
-                                                                       // (a wide block reads as a two-tone shirt, not light)
-  tri(g, t.x0 + 1, t.y0, t.x0 + 4, t.y0, t.x0 + 1, t.y0 + 3, null);    // bevel the shoulders square
-  tri(g, t.x1 - 1, t.y0, t.x1 - 4, t.y0, t.x1 - 1, t.y0 + 3, null);
-  stroke(g, [[t.x0 + 2, t.y0 + 3], [RIG.handL.x, RIG.handL.y - 2]], 2.2, 1.8, P.pch);   // slim arms, straight
-  stroke(g, [[t.x1 - 2, t.y0 + 3], [RIG.handR.x, RIG.handR.y - 2]], 2.2, 1.8, P.pch);
-  rrect(g, RIG.handL.x - 2, RIG.handL.y - 2, RIG.handL.x + 2, RIG.handL.y + 2, 1, P.pch); // fists
-  rrect(g, RIG.handR.x - 2, RIG.handR.y - 2, RIG.handR.x + 2, RIG.handR.y + 2, 1, P.pch);
-  rect(g, l.x0 + 3, l.y0, l.x0 + 6, l.y1 - 3, P.dgy);                  // legs, slim with a gap
-  rect(g, l.x1 - 6, l.y0, l.x1 - 3, l.y1 - 3, P.dgy);
-  rect(g, l.x1 - 4, l.y0, l.x1 - 3, l.y1 - 3, P.navy);                 // shadow on the trailing edge
-  rect(g, l.x0 + 1, l.y1 - 3, l.x0 + 7, l.y1, P.brn);                  // boots, flat and angular
-  rect(g, l.x1 - 7, l.y1 - 3, l.x1 - 1, l.y1, P.brn);
+  ball(g, t.cx, t.cy, t.rx, t.ry, tunic, tunicShade);                  // tunic
+  ball(g, l.cx - 4, l.cy, 3.5, l.ry, P.dgy, P.navy);                   // stubby legs
+  ball(g, l.cx + 4, l.cy, 3.5, l.ry, P.dgy, P.navy);
+  ball(g, l.cx - 5.5, l.y1, 4, 2.4, P.brn, P.plum);                    // feet
+  ball(g, l.cx + 5.5, l.y1, 4, 2.4, P.brn, P.plum);
+  ball(g, RIG.handL.x, RIG.handL.y, 3.2, 2.8, P.pch, P.brn);           // hands
+  ball(g, RIG.handR.x, RIG.handR.y, 3.2, 2.8, P.pch, P.brn);
 }
 
-// The shared face: squared skull, tapered jaw. Flat peach — no shade rim, which
-// on a head reads as a beard (player-kid has said so since batch 1).
+// The shared head. FLAT peach — pass no shadow colour. ball()'s shade rim wraps
+// under the mouth and reads as a beard; player-kid has said so since batch 1.
 function rigFace(g) {
   const h = RIG.head;
-  rect(g, h.cx - 6.5, h.cy - 7, h.cx + 6.5, h.cy + 5, P.pch);          // skull
-  rect(g, h.cx - 4.5, h.cy + 6, h.cx + 4.5, h.cy + 9, P.pch);          // jaw
-  rect(g, h.cx - 2.5, h.cy + 10, h.cx + 2.5, h.cy + 10, P.pch);        // chin, a step narrower again
-  tri(g, h.cx - 6.5, h.cy + 3, h.cx - 6.5, h.cy + 6, h.cx - 4.5, h.cy + 6, null); // cheek cuts
-  tri(g, h.cx + 6.5, h.cy + 3, h.cx + 6.5, h.cy + 6, h.cx + 4.5, h.cy + 6, null);
+  ball(g, h.cx, h.cy, h.rx, h.ry, P.pch);
 }
 
-// The Rig's face, NOT the mascot face kit. eyes() draws a 5px-wide oval with a
-// sparkle — on a 13px face that lands as two navy slabs and reads as a bandit
-// mask. Small hard eyes; the hair carries the character, as in the reference.
-function rigEyes(g, mouthDepth) {
-  const h = RIG.head;
-  rect(g, h.cx - 5.5, 20, h.cx - 2.5, 22, P.navy);                     // left eye
-  rect(g, h.cx + 2.5, 20, h.cx + 5.5, 22, P.navy);                     // right eye
-  g.set(h.cx - 5.5, 20, P.crm);                                        // sparkle, top-left
-  g.set(h.cx + 2.5, 20, P.crm);
-  smileArc(g, h.cx, 26, 2.6, mouthDepth);
+// The mascot face kit, unchanged: big navy eyes with a cream sparkle, mouth turns
+// UP. Give eyes() a WHOLE-NUMBER ry — a half-integer one paints a stray pixel
+// across the canvas (see CLAUDE.md).
+function rigEyes(g, mouthW, mouthDepth) {
+  eyes(g, RIG.head.cx, 26, 6);
+  smileArc(g, RIG.head.cx, 32, mouthW, mouthDepth);
 }
 
 S.push({ name: 'rig-base', draw(g) {                  // bare shared body — the Rig, no hair
   rigBody(g, P.sky, P.lav);
   rigFace(g);
-  rigEyes(g, 1.2);
+  rigEyes(g, 3, 1.4);
 }});
 
 S.push({ name: 'avatar-scout', draw(g) {              // kid-friendly avatar; armored-first (ADR 0025)
   rigBody(g, P.grn, P.plum);
   rigFace(g);
-  // A SOLID mass framing the skull, jagged on top — not spikes on a band, which
-  // reads as a crown. The tris overlap so the silhouette has no gaps in it.
-  // Nothing rises above y5: the helm's crown starts there and would clip it.
-  rect(g, 23, 10, 40, 18, P.brn);                       // mass over the skull, down to a fringe
-  tri(g, 22, 14, 30, 14, 24, 5, P.brn);                 // jagged top, boyish and blunt
-  tri(g, 26, 14, 35, 14, 29, 5, P.brn);
-  tri(g, 31, 14, 40, 14, 36, 6, P.brn);
-  tri(g, 35, 14, 42, 14, 41, 8, P.brn);
-  // The locks hang BELOW the helm's brim (y16), so they still show in a full set.
-  // Hair is the only thing telling one armoured avatar from another.
-  rect(g, 22, 12, 24, 24, P.brn);                       // side locks
-  rect(g, 39, 12, 41, 24, P.brn);
-  rigEyes(g, 1.6);                                      // wider grin — the kid-friendly one
+  const h = RIG.head;
+  // Hair cap + side locks, the same shapes player-kid uses. A helm hides the cap;
+  // the LOCKS hang below its brim and are what still say "scout" in a full set.
+  ellipse(g, h.cx, h.cy - 9, 13, 6.5, P.brn);           // hair cap
+  ball(g, h.cx, h.cy - 15, 3, 3, P.brn);                // sprout tuft (the helm covers it)
+  ellipse(g, h.cx - 12.5, h.cy - 2, 2, 5, P.brn);       // side locks
+  ellipse(g, h.cx + 12.5, h.cy - 2, 2, 5, P.brn);
+  rigEyes(g, 3, 1.4);
+  blush(g, h.cx - 10, 30); blush(g, h.cx + 10, 30);
 }});
 
 S.push({ name: 'avatar-nova', draw(g) {               // cool avatar; armored-first (ADR 0025)
   rigBody(g, P.sky, P.lav);
   rigFace(g);
-  // Same solid-mass rule as scout, but the spikes are taller, swept and asymmetric —
-  // this is the whole character. Still capped at y5 by the helm's crown.
-  rect(g, 23, 10, 40, 18, P.navy);                      // mass over the skull
-  // The spikes point UP, and stay inside the head's width. Splayed sideways they
-  // read as devil horns, which is a different character entirely.
-  tri(g, 23, 14, 29, 14, 24, 5, P.navy);                // jagged top, swept
-  tri(g, 26, 14, 33, 14, 28, 5, P.navy);
-  tri(g, 30, 14, 37, 14, 35, 5, P.navy);
-  tri(g, 34, 14, 40, 14, 39, 7, P.navy);
-  rect(g, 24, 10, 37, 11, P.lav);                       // lit top edge — a flat mass reads as a bowl cut
-  // Locks below the brim, same rule as scout. Lav, not navy: a navy lock sits right
-  // beside a navy eye and the two merge into one dark smudge.
-  rect(g, 22, 12, 24, 25, P.lav);                       // side locks, longer than scout's
-  rect(g, 39, 12, 41, 25, P.lav);
-  rect(g, 22, 18, 23, 25, P.sky);                       // streak, low enough to survive the helm
-  rigEyes(g, 0.9);                                      // flatter than scout's — a smirk, not a grin
+  const h = RIG.head;
+  // Same shapes as scout, different colour and a longer lock. That, not a different
+  // silhouette, is how avatars differ — a sharper build was tried and rejected,
+  // because the player has to belong beside the enemies and the card art.
+  // No highlight on the hair: navy->lav is a high-contrast pair and the spec is
+  // explicit that those read as blotches (it's why the dolphin and bear lost theirs).
+  // The streak carries the colour instead.
+  ellipse(g, h.cx, h.cy - 9, 13, 6.5, P.navy);          // dark hair cap
+  ellipse(g, h.cx - 12.5, h.cy - 1, 2, 7, P.navy);      // longer locks
+  ellipse(g, h.cx + 12.5, h.cy - 1, 2, 7, P.navy);
+  ellipse(g, h.cx - 12.5, h.cy + 1, 1.6, 4.5, P.sky);   // streak, below the brim so it survives the helm
+  rigEyes(g, 2.6, 1.0);                                 // flatter mouth than scout's
 }});
 
 S.push({ name: 'helm-knight', draw(g) {               // open-face helm
-  // The brim stops at y16 and the eyes start at y18. That gap is the whole point:
-  // a helm over the face makes every avatar the same knight. The crown starts at
-  // y5 and covers the hair spikes, which is why no avatar's hair rises above it.
-  const h = RIG.helm;
-  rect(g, h.x0, h.y0, h.x1, h.y1 - 1, P.lgy);           // crown, angular
-  rect(g, h.x1 - 3, h.y0, h.x1, h.y1 - 1, P.lav);       // hard shadow, light from top-left
-  tri(g, h.x0, h.y0, h.x0 + 3, h.y0, h.x0, h.y0 + 3, null); // small corner bevels — a deep cut turns it into a party hat
-  tri(g, h.x1, h.y0, h.x1 - 3, h.y0, h.x1, h.y0 + 3, null);
-  rect(g, h.x0 - 2, h.y1 - 2, h.x1 + 2, h.y1, P.lgy);   // brim, wider than the crown
-  rect(g, h.x0 - 2, h.y1 - 1, h.x1 + 2, h.y1 - 1, P.org); // gold stripe
-  rect(g, 28, 1, 35, h.y0, P.red);                      // crest, a fin along the top
-  tri(g, 28, 1, 28, h.y0, 24, h.y0, P.red);             // swept forward, not a round plume
-  rect(g, 33, 1, 35, h.y0, P.plum);                     // crest shade
+  // The brim stops at RIG.helm.y1 and the eyes start at 23. That gap is the whole
+  // point: a helm over the face makes every avatar the same knight.
+  const h = RIG.helm, cx = RIG.head.cx;
+  ball(g, cx, h.y1 - 7, 12, 6, P.lgy, P.lav);           // domed crown
+  ellipse(g, cx, h.y1 - 1, 13.5, 1.6, P.lgy);           // brim, wider than the dome
+  ellipse(g, cx, h.y1 - 1, 13, 0.8, P.org);             // gold stripe
+  ball(g, cx, h.y0 + 1, 2.4, 4.5, P.red, P.plum);       // plume — TALL. A round ball on a
+  disc(g, cx - 1, h.y0, 1, P.pnk);                      // wide dome reads as a mushroom.
 }});
 
-S.push({ name: 'chest-knight', draw(g) {              // breastplate + pauldrons
+S.push({ name: 'chest-knight', draw(g) {              // breastplate
   const t = RIG.torso;
-  rect(g, t.x0 + 1, t.y0, t.x1 - 1, t.y1 - 1, P.lgy);   // plate
-  rect(g, t.cx + 3, t.y0, t.x1 - 1, t.y1 - 1, P.lav);   // hard shadow
-  tri(g, t.x0 + 1, t.y0, t.x0 + 4, t.y0, t.x0 + 1, t.y0 + 3, null);  // bevels match the body's shoulders
-  tri(g, t.x1 - 1, t.y0, t.x1 - 4, t.y0, t.x1 - 1, t.y0 + 3, null);
-  // Pauldrons: without them the bare arms poke straight out of the plate and the
-  // knight looks half-dressed. They reach past the torso zone on purpose — a layer
-  // may paint anywhere, it just may never be offset (ADR 0025).
-  rect(g, t.x0 - 3, t.y0 + 1, t.x0 + 3, t.y0 + 5, P.lgy);
-  rect(g, t.x1 - 3, t.y0 + 1, t.x1 + 3, t.y0 + 5, P.lav);
-  rect(g, t.x0, t.cy - 2, t.x1 - 1, t.cy, P.org);       // belt
-  rect(g, t.cx - 1, t.cy - 2, t.cx + 1, t.cy, P.yel);   // buckle
+  ball(g, t.cx, t.cy, t.rx, t.ry, P.lgy, P.lav);        // plate — the same ball as the tunic it covers
+  ellipse(g, t.cx, t.cy + 3, t.rx - 2, 1.4, P.org);     // belt
+  disc(g, t.cx, t.cy + 3, 1.6, P.yel);                  // buckle
+  disc(g, t.cx, t.cy - 3, 2.4, P.org);                  // crest boss
 }});
 
-S.push({ name: 'legs-knight', draw(g) {               // greaves, fill the legs zone
+S.push({ name: 'legs-knight', draw(g) {               // greaves over the stubby legs
   const l = RIG.legs;
-  rect(g, l.x0 + 2, l.y0, l.x0 + 6, l.y1 - 3, P.lgy);   // left greave
-  rect(g, l.x1 - 6, l.y0, l.x1 - 2, l.y1 - 3, P.lgy);   // right greave
-  rect(g, l.x1 - 4, l.y0, l.x1 - 2, l.y1 - 3, P.lav);   // hard shadow
-  rect(g, l.x0 + 2, l.y0 + 4, l.x0 + 6, l.y0 + 5, P.org);  // gold knee trim
-  rect(g, l.x1 - 6, l.y0 + 4, l.x1 - 2, l.y0 + 5, P.org);
-  rect(g, l.x0, l.y1 - 3, l.x0 + 7, l.y1, P.lgy);       // sabatons over the boots
-  rect(g, l.x1 - 7, l.y1 - 3, l.x1, l.y1, P.lgy);
+  ball(g, l.cx - 4, l.cy, 3.5, l.ry, P.lgy, P.lav);     // greaves — the same balls as the legs
+  ball(g, l.cx + 4, l.cy, 3.5, l.ry, P.lgy, P.lav);
+  ellipse(g, l.cx - 4, l.cy - 2, 3.5, 1, P.org);        // gold knee trim
+  ellipse(g, l.cx + 4, l.cy - 2, 3.5, 1, P.org);
+  ball(g, l.cx - 5.5, l.y1, 4, 2.4, P.lgy, P.lav);      // sabatons over the boots
+  ball(g, l.cx + 5.5, l.y1, 4, 2.4, P.lgy, P.lav);
 }});
 
 S.push({ name: 'weap-knight-sword', draw(g) {         // sword, gripped at RIG.handR
   const h = RIG.handR;
-  stroke(g, [[h.x, h.y], [h.x - 1, h.y - 18]], 2.6, 1.2, P.lgy);  // blade
-  stroke(g, [[h.x, h.y], [h.x - 1, h.y - 18]], 1.6, 0.6, P.crm);  // blade edge highlight
-  rect(g, h.x - 4, h.y - 2, h.x + 4, h.y, P.org);       // crossguard
-  ball(g, h.x, h.y + 3, 2, 2, P.org, P.brn);            // pommel
+  stroke(g, [[h.x, h.y - 3], [h.x, h.y - 20]], 2.6, 1.4, P.lgy);  // blade
+  stroke(g, [[h.x, h.y - 5], [h.x, h.y - 19]], 1.2, 0.6, P.crm);  // edge highlight
+  ellipse(g, h.x, h.y - 3, 5, 1.4, P.org);             // crossguard
+  ball(g, h.x, h.y + 1, 2, 2, P.org, P.brn);           // pommel
 }});
 
 S.push({ name: 'off-knight-shield', draw(g) {         // shield, held at RIG.handL
   const h = RIG.handL;
-  ball(g, h.x, h.y, 7, 9, P.lgy, P.lav);                // shield body
-  rect(g, h.x - 2, h.y - 6, h.x + 2, h.y + 6, P.org);   // vertical gold stripe
-  disc(g, h.x, h.y, 2, P.red);                          // boss / emblem
+  ball(g, h.x, h.y - 1, 7, 8.5, P.lgy, P.lav);         // shield body
+  ellipse(g, h.x, h.y - 1, 2, 6.5, P.org);             // vertical gold stripe
+  disc(g, h.x, h.y - 1, 2.2, P.red);                   // boss
 }});
 
 const COMPOSITES = [

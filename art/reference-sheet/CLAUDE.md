@@ -27,23 +27,29 @@ one corner of an otherwise empty 64px canvas, because compositing is stacking
 same-sized layers, not scaling one drawing. Gear layers also have no face; a helmet
 or a sword doesn't need eyes. Palette, outline and no-AA still apply.
 
-**The Rig is sharp, the mascots are round.** That is the whole difference, and it is
-deliberate — the mascot corpus is soft and cuddly, the Rig is a hero.
+**The Rig looks like everything else.** It is the standard round chibi armature —
+`player-kid`'s big head on a small body — not a style of its own.
 
-- **Don't use `ball()` on the Rig's body or face.** Its self-shading rim is what makes
-  a sprite read as a soft blob. The Rig is built from `rect`/`tri` with straight
-  bevelled shoulders, slim limbs, and a hard-edged shadow down one side.
-- **Don't use the `eyes()` face kit on the Rig.** Its 5px-wide ovals land as two navy
-  slabs on the Rig's narrower face and read as a bandit mask. Use `rigEyes()`.
+A sharper, angular, "more heroic" Rig was built and REJECTED. It looked fine alone
+and wrong in the game: the player stood next to 2,400 round chibi enemies and card
+sprites and read as a different game. Don't try it again. If an avatar needs to look
+cool, it comes from hair, palette and gear — never from a different silhouette.
+
+- **Use `ball()`, like every other sprite.** Round and soft is the house style.
+- **Use the normal face kit** (`eyes`, `smileArc`, `blush`) via `rigEyes()`.
 - **Call `rigBody()` and `rigFace()`.** An avatar varies its head, hair and palette and
   nothing else — that is what makes gear fit every avatar for one drawing instead of
   one drawing per avatar (ADR 0025). A new avatar that draws its own body has broken
   the Rig, even if it looks fine on its own.
-- **Nothing on an avatar's head may rise above y5.** `helm-knight`'s crown starts there;
-  a taller hair spike clips straight through it.
-- Proportions: `RIG.head` spans y 8-28 — a smaller head than the standard armature's
-  (which is about half the sprite). Chibi hero, on the same 64px canvas as everything
-  else, so the player matches the enemies and card art.
+- **The head is FLAT peach — pass no shadow colour.** `ball()`'s shade rim wraps under
+  the mouth and reads as a beard; `player-kid` has said so since batch 1.
+- **Nothing on an avatar's head may rise above `RIG.helm.y0`.** The helm's crown starts
+  there and anything taller clips through it.
+- **The helm stops at `RIG.helm.y1`; the eyes start at y23.** Read the zone, don't retype
+  it — a hand-typed brim already drifted a row past the line once. A helm that covers
+  the face makes every avatar the same knight, which defeats having avatars.
+- The Rig grows stubby legs that `player-kid` doesn't have, only because the leggings
+  slot needs somewhere to sit.
 
 ## The kit (in sprites.js)
 - `ball(g,cx,cy,rx,ry,base,shad,hi)` — self-shading ellipse (shadow rim bottom-right, light top-left). The workhorse.
