@@ -31450,22 +31450,24 @@ S.push({ name: 'fx-impact', draw(g) {         // battle FX: hero takes a hit
 // ball()-based and round, exactly like the mascot corpus. player-kid has no arms
 // at all — just hands floating beside the body — and the Rig keeps that. It grows
 // stubby legs only because leggings need somewhere to sit.
-function rigBody(g, tunic, tunicShade) {
+// Skin is a parameter so avatars aren't all one tone: pch/brn (light) or
+// brn/plum (deep). Defaults keep every existing avatar byte-identical.
+function rigBody(g, tunic, tunicShade, skin = P.pch, skinShade = P.brn) {
   const t = RIG.torso, l = RIG.legs;
   ball(g, t.cx, t.cy, t.rx, t.ry, tunic, tunicShade);                  // tunic
   ball(g, l.cx - 4, l.cy, 3.5, l.ry, P.dgy, P.navy);                   // stubby legs
   ball(g, l.cx + 4, l.cy, 3.5, l.ry, P.dgy, P.navy);
   ball(g, l.cx - 5.5, l.y1, 4, 2.4, P.brn, P.plum);                    // feet
   ball(g, l.cx + 5.5, l.y1, 4, 2.4, P.brn, P.plum);
-  ball(g, RIG.handL.x, RIG.handL.y, 3.2, 2.8, P.pch, P.brn);           // hands
-  ball(g, RIG.handR.x, RIG.handR.y, 3.2, 2.8, P.pch, P.brn);
+  ball(g, RIG.handL.x, RIG.handL.y, 3.2, 2.8, skin, skinShade);        // hands
+  ball(g, RIG.handR.x, RIG.handR.y, 3.2, 2.8, skin, skinShade);
 }
 
 // The shared head. FLAT peach — pass no shadow colour. ball()'s shade rim wraps
 // under the mouth and reads as a beard; player-kid has said so since batch 1.
-function rigFace(g) {
+function rigFace(g, skin = P.pch) {
   const h = RIG.head;
-  ball(g, h.cx, h.cy, h.rx, h.ry, P.pch);
+  ball(g, h.cx, h.cy, h.rx, h.ry, skin);
 }
 
 // The mascot face kit, unchanged: big navy eyes with a cream sparkle, mouth turns
