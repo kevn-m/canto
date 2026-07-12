@@ -17,6 +17,15 @@ struct ShopView: View {
     @State private var showingEdit = false
     @State private var showingAvatarPicker = false
 
+    // Seed the two the hero preview draws from, so the first frame already wears
+    // the right avatar and gear. reload() in onAppear refreshes them along with
+    // everything else; without this the preview renders the shipped kid wearing
+    // nothing and then changes into your character in front of you.
+    init() {
+        _avatarId = State(initialValue: GameStore.shared.avatarId())
+        _equipped = State(initialValue: GameStore.shared.equippedGear())
+    }
+
     var body: some View {
         ZStack {
             InnBackground()

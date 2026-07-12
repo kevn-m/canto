@@ -286,9 +286,12 @@ struct BattleView: View {
 
     // ImageRenderer (DesignSnapshotTests) never runs onAppear, so the deal
     // can't happen there - snapshots inject a hand instead. Live play leaves
-    // this empty and deals as before. Gear works the same way: passing
-    // previewEquipped skips the GameStore read entirely, so a snapshot
-    // doesn't need a seeded database to show equipped gear.
+    // this empty and deals as before. A snapshot can override the avatar and
+    // gear the same way, so it doesn't need a seeded database.
+    //
+    // The gear is read HERE, not in onAppear. Reading it later means the first
+    // frame renders the shipped kid wearing nothing, and the player watches their
+    // avatar and armour fade in on top - a costume change every time a floor loads.
     init(
         runState: Binding<RunState>, onVictory: @escaping () -> Void, onDefeat: @escaping () -> Void,
         onAbandon: @escaping () -> Void, previewHand: [CardRecord] = [],
@@ -299,9 +302,8 @@ struct BattleView: View {
         self.onDefeat = onDefeat
         self.onAbandon = onAbandon
         _hand = State(initialValue: previewHand)
-        _avatarId = State(initialValue: previewAvatarId)
-        _equipped = State(initialValue: previewEquipped ?? [:])
-        gearPreviewProvided = previewEquipped != nil
+        _avatarId = State(initialValue: previewAvatarId ?? GameStore.shared.avatarId())
+        _equipped = State(initialValue: previewEquipped ?? GameStore.shared.equippedGear())
     }
 
     @ObservedObject private var gameStore = GameStore.shared
@@ -324,8 +326,7 @@ struct BattleView: View {
     @State private var enemyLungeGeneration = 0
     @State private var confirmingAbandon = false
     @State private var avatarId: String?
-    @State private var equipped: [GearSlot: String] = [:]
-    private let gearPreviewProvided: Bool
+    @State private var equipped: [GearSlot: String]
 
     var body: some View {
         VStack(spacing: 20) {
@@ -356,10 +357,6 @@ struct BattleView: View {
             // Live play always lands here with an empty hand (fresh floor
             // identity); only an injected previewHand skips the deal.
             if hand.isEmpty { dealHand() }
-            if !gearPreviewProvided {
-                avatarId = gameStore.avatarId()
-                equipped = gameStore.equippedGear()
-            }
         }
         // Swiping the sheet away without grading is allowed on purpose:
         // dad arbitrates, and grade inflation is parenting, not a bug
