@@ -242,8 +242,10 @@ struct AvatarPickerView: View {
         NavigationStack {
             ZStack {
                 InnBackground()
-                AvatarGrid { dismiss() }
-                    .padding()
+                ScrollView {
+                    AvatarGrid { dismiss() }
+                        .padding()
+                }
             }
             .navigationTitle("Choose Hero")
         }

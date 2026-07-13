@@ -32151,6 +32151,381 @@ S.push({ name: 'off-priest-lantern', draw(g) {        // lantern, held at RIG.ha
   disc(g, h.x, h.y + 1, 1.4, P.crm);                    // light within
 }});
 
+/* --- content batch: avatars:long-hair (agent-designed) --- */
+
+S.push({ name: 'avatar-mei', draw(g) {        // long hair avatar; light skin, sleek black bob past the chin + straight fringe
+  rigBody(g, P.sky, P.lav);
+  rigFace(g);
+  const h = RIG.head;
+  ellipse(g, h.cx, h.cy - 9, 13, 6.5, P.navy);          // hair cap
+  rect(g, h.cx - 10, 20, h.cx + 10, 21, P.navy);        // straight fringe, above the eyes at y23
+  // Long sleek locks past the chin, below the helm brim. Navy is also the
+  // outline colour (see amara's braids), so a flat navy lock reads as helmet
+  // shadow, not hair, once the knight helm sits beside it — a plum shade rim
+  // gives each lock an interior so it still reads as mei under a full set.
+  ball(g, h.cx - 12.5, h.cy + 4, 2.4, 10, P.navy, P.plum);
+  ball(g, h.cx + 12.5, h.cy + 4, 2.4, 10, P.navy, P.plum);
+  rigEyes(g, 3, 1.4);
+  blush(g, h.cx - 10, 30); blush(g, h.cx + 10, 30);
+}});
+
+S.push({ name: 'avatar-freya', draw(g) {      // long hair avatar; light skin, golden side braid
+  rigBody(g, P.sky, P.lav);
+  rigFace(g);
+  const h = RIG.head;
+  ellipse(g, h.cx, h.cy - 9, 13, 6.5, P.yel);           // hair cap
+  ellipse(g, h.cx - 12.5, h.cy - 1, 2, 5, P.yel);       // short sideburn, braid-free side
+  ball(g, h.cx + 13, h.cy, 3.2, 3.6, P.yel, P.org);     // thick braid, stacked tapering balls
+  ball(g, h.cx + 13.5, h.cy + 7, 2.6, 3, P.yel, P.org);
+  ball(g, h.cx + 14, h.cy + 13, 2, 2.4, P.yel, P.org);
+  disc(g, h.cx + 14, h.cy + 15, 1, P.org);              // tie at the tip
+  rigEyes(g, 3, 1.4);
+  blush(g, h.cx - 10, 30); blush(g, h.cx + 10, 30);
+}});
+
+S.push({ name: 'avatar-priya', draw(g) {      // long hair avatar; deep skin, wavy dark hair + gold bindi
+  rigBody(g, P.plum, P.navy, P.brn, P.plum);
+  rigFace(g, P.brn);
+  const h = RIG.head;
+  ellipse(g, h.cx, h.cy - 9, 13, 6.5, P.navy);          // hair cap
+  // Wavy outer locks: offset stacked balls for a wave silhouette down each side.
+  // Navy is also the outline colour (see amara's braids), so each ball needs a
+  // plum shade rim or the strands vanish into the outline.
+  ball(g, h.cx - 12, h.cy + 1, 3, 3, P.navy, P.plum);
+  ball(g, h.cx - 14.5, h.cy + 6.5, 3, 3, P.navy, P.plum);
+  ball(g, h.cx - 12, h.cy + 12, 2.6, 2.8, P.navy, P.plum);
+  ball(g, h.cx + 12, h.cy + 1, 3, 3, P.navy, P.plum);
+  ball(g, h.cx + 14.5, h.cy + 6.5, 3, 3, P.navy, P.plum);
+  ball(g, h.cx + 12, h.cy + 12, 2.6, 2.8, P.navy, P.plum);
+  disc(g, h.cx, 21, 1, P.org);                          // gold bindi, forehead
+  rigEyes(g, 3, 1.4);
+}});
+
+S.push({ name: 'avatar-wren', draw(g) {       // long hair avatar; light skin, red swooping fringe + loose locks
+  rigBody(g, P.sky, P.lav);
+  rigFace(g);
+  const h = RIG.head;
+  ellipse(g, h.cx, h.cy - 9, 13, 6.5, P.red);           // hair cap
+  ellipse(g, h.cx - 6, h.cy - 13, 4, 2.6, P.red);       // swooping side fringe, swept left
+  ellipse(g, h.cx - 12.5, h.cy + 3, 2.2, 8, P.red);     // loose locks, both sides
+  ellipse(g, h.cx + 12.5, h.cy + 3, 2.2, 8, P.red);
+  rigEyes(g, 3, 1.4);
+  blush(g, h.cx - 10, 30); blush(g, h.cx + 10, 30);
+}});
+
+S.push({ name: 'avatar-talia', draw(g) {      // long hair avatar; deep skin, voluminous curls, crown clusters + hanging columns
+  rigBody(g, P.org, P.brn, P.brn, P.plum);
+  rigFace(g, P.brn);
+  const h = RIG.head;
+  // Crown clusters: curl balls hugging the head's upper sides, like koa's curls
+  // but denser and reaching further out for volume.
+  for (const [dx, dy] of [[-9, -11], [-13, -7], [-5, -14], [5, -14], [13, -7], [9, -11]]) {
+    ball(g, h.cx + dx, h.cy + dy, 2.8, 2.8, P.dgy);
+  }
+  // Hanging curl columns at the outer edges, below the helm brim.
+  ball(g, h.cx - 13, h.cy + 4, 2.6, 2.8, P.dgy);
+  ball(g, h.cx - 13.5, h.cy + 9, 2.4, 2.6, P.dgy);
+  ball(g, h.cx - 13.5, h.cy + 14, 2, 2.2, P.dgy);
+  ball(g, h.cx + 13, h.cy + 4, 2.6, 2.8, P.dgy);
+  ball(g, h.cx + 13.5, h.cy + 9, 2.4, 2.6, P.dgy);
+  ball(g, h.cx + 13.5, h.cy + 14, 2, 2.2, P.dgy);
+  rigEyes(g, 3.5, 1.6);
+  blush(g, h.cx - 10, 30); blush(g, h.cx + 10, 30);
+}});
+
+/* --- content batch: avatars:styles (agent-designed) --- */
+
+S.push({ name: 'avatar-zoe', draw(g) {                // long-hair avatar; light skin, bright high twin tails
+  rigBody(g, P.org, P.brn);
+  rigFace(g);
+  const h = RIG.head;
+  // Twin tails, mirrored — same swept-out shape as sage's single ponytail,
+  // doubled to both sides so zoe reads even from behind a full helm.
+  ellipse(g, h.cx, h.cy - 9, 13, 6.5, P.pnk);           // hair cap
+  ellipse(g, h.cx - 15, h.cy - 6, 3, 6.5, P.pnk);       // left tail, swept up and out
+  ellipse(g, h.cx - 18, h.cy + 1, 2.2, 4.5, P.pnk);
+  ellipse(g, h.cx + 15, h.cy - 6, 3, 6.5, P.pnk);       // right tail, mirrored
+  ellipse(g, h.cx + 18, h.cy + 1, 2.2, 4.5, P.pnk);
+  disc(g, h.cx - 13.5, h.cy - 8, 1.1, P.yel);           // tie, where each tail leaves the cap
+  disc(g, h.cx + 13.5, h.cy - 8, 1.1, P.yel);
+  rigEyes(g, 3, 1.4);
+  blush(g, h.cx - 10, 30); blush(g, h.cx + 10, 30);
+}});
+
+S.push({ name: 'avatar-nia', draw(g) {                // long-hair avatar; deep skin, long box braids
+  rigBody(g, P.sky, P.lav, P.brn, P.plum);
+  rigFace(g, P.brn);
+  const h = RIG.head;
+  // Three stacked-ball columns per side, like amara's braids but three thin
+  // ones instead of two thick — each column's balls overlap so no background
+  // shows through, and the columns overlap each other by ~1px for the same
+  // reason. The long middle column sits at the outer edge (x ~19, <= ~20) so
+  // it still reads past a chest plate; the other two are shorter accents.
+  ellipse(g, h.cx, h.cy - 9, 13, 6.5, P.dgy);           // cap
+  ball(g, h.cx - 9, h.cy - 3, 2, 3, P.dgy);             // short column, closest to the face
+  ball(g, h.cx - 9.5, h.cy + 2, 1.6, 2.2, P.dgy);
+  ball(g, h.cx - 12, h.cy - 1, 2, 3.2, P.dgy);          // long column, outer edge
+  ball(g, h.cx - 12.5, h.cy + 5, 1.8, 3, P.dgy);
+  ball(g, h.cx - 13, h.cy + 11, 1.5, 2.6, P.dgy);
+  ball(g, h.cx - 15.5, h.cy - 2, 1.8, 3, P.dgy);        // short column, outermost
+  ball(g, h.cx - 16, h.cy + 4, 1.5, 2.6, P.dgy);
+  ball(g, h.cx + 9, h.cy - 3, 2, 3, P.dgy);             // mirrored, right side
+  ball(g, h.cx + 9.5, h.cy + 2, 1.6, 2.2, P.dgy);
+  ball(g, h.cx + 12, h.cy - 1, 2, 3.2, P.dgy);
+  ball(g, h.cx + 12.5, h.cy + 5, 1.8, 3, P.dgy);
+  ball(g, h.cx + 13, h.cy + 11, 1.5, 2.6, P.dgy);
+  ball(g, h.cx + 15.5, h.cy - 2, 1.8, 3, P.dgy);
+  ball(g, h.cx + 16, h.cy + 4, 1.5, 2.6, P.dgy);
+  // The three columns touch, so nothing shows through — but that also means
+  // they'd read as one solid mass without a hint of where one strand ends and
+  // the next begins. These thin navy partings (drawn ON TOP, not gaps in the
+  // fill) are what actually says "braids" instead of "bob".
+  stroke(g, [[h.cx - 10.5, h.cy - 4], [h.cx - 11, h.cy + 2], [h.cx - 11.5, h.cy + 7]], 0.6, 0.6, P.navy);
+  stroke(g, [[h.cx - 13.75, h.cy - 3], [h.cx - 14, h.cy + 1]], 0.6, 0.6, P.navy);
+  stroke(g, [[h.cx + 10.5, h.cy - 4], [h.cx + 11, h.cy + 2], [h.cx + 11.5, h.cy + 7]], 0.6, 0.6, P.navy);
+  stroke(g, [[h.cx + 13.75, h.cy - 3], [h.cx + 14, h.cy + 1]], 0.6, 0.6, P.navy);
+  disc(g, h.cx - 13, h.cy + 13.5, 0.9, P.yel);          // bead pixels, tips of the long column
+  disc(g, h.cx + 13, h.cy + 13.5, 0.9, P.yel);
+  rigEyes(g, 3.4, 1.6);
+  blush(g, h.cx - 10, 30); blush(g, h.cx + 10, 30);
+}});
+
+S.push({ name: 'avatar-hana', draw(g) {               // long-hair avatar; light skin, side ponytail + blunt fringe
+  rigBody(g, P.red, P.plum);
+  rigFace(g);
+  const h = RIG.head;
+  ellipse(g, h.cx, h.cy - 9, 13, 6.5, P.brn);           // cap
+  rect(g, 21, 19, 42, 20, P.brn);                       // blunt fringe, straight edge, clear of the eyes at y23 — whole-number bounds, see CLAUDE.md's rect() footgun
+  ellipse(g, h.cx - 12.5, h.cy - 1, 2, 5, P.brn);       // short lock, left — the rest of the volume is on the right
+  // Ponytail gathered at the right ear (outer, so it reads under a helm) and
+  // swept down over that shoulder — the one asymmetric feature that is hana.
+  stroke(g, [[h.cx + 13, h.cy - 2], [h.cx + 15, h.cy + 6], [h.cx + 13, h.cy + 14], [h.cx + 8, h.cy + 20]], 3, 1.6, P.brn);
+  rigEyes(g, 3, 1.4);
+  blush(g, h.cx - 10, 30); blush(g, h.cx + 10, 30);
+}});
+
+S.push({ name: 'avatar-isla', draw(g) {               // long-hair avatar; light skin, half-up bun + headband
+  rigBody(g, P.lim, P.grn);
+  rigFace(g);
+  const h = RIG.head;
+  ellipse(g, h.cx, h.cy - 9, 13, 6.5, P.org);           // cap
+  ball(g, h.cx, 9, 3, 3, P.org);                        // small top bun, well clear of RIG.helm.y0 = 5
+  // Long loose locks at the outer edges, in two segments like yuki's, so the
+  // lower half still shows past a chest plate.
+  ellipse(g, h.cx - 12.5, h.cy + 2, 2.2, 9, P.org);
+  ellipse(g, h.cx - 12.5, h.cy + 9, 1.8, 5, P.org);
+  ellipse(g, h.cx + 12.5, h.cy + 2, 2.2, 9, P.org);
+  ellipse(g, h.cx + 12.5, h.cy + 9, 1.8, 5, P.org);
+  // Headband stripe sits just below RIG.helm.y1 (20) — the one thing that
+  // still reads as isla under a full helm.
+  rect(g, 19, 21, 44, 22, P.red);                       // whole-number bounds, see CLAUDE.md's rect() footgun
+  rigEyes(g, 3, 1.4);
+  blush(g, h.cx - 10, 30); blush(g, h.cx + 10, 30);
+}});
+
+S.push({ name: 'avatar-rosa', draw(g) {               // long-hair avatar; light skin, romantic waves + flower
+  rigBody(g, P.pnk, P.plum);
+  rigFace(g);
+  const h = RIG.head;
+  ellipse(g, h.cx, h.cy - 9, 13, 6.5, P.brn);           // cap
+  // Waves: each side is three overlapping ellipses stepped in and out, instead
+  // of one straight lock — that stagger is what reads as "wavy" not "straight".
+  ellipse(g, h.cx - 12.5, h.cy - 1, 2.4, 6, P.brn);
+  ellipse(g, h.cx - 14.5, h.cy + 5, 2.6, 4, P.brn);
+  ellipse(g, h.cx - 12, h.cy + 10, 2, 3.4, P.brn);
+  ellipse(g, h.cx + 12.5, h.cy - 1, 2.4, 6, P.brn);
+  ellipse(g, h.cx + 14.5, h.cy + 5, 2.6, 4, P.brn);
+  ellipse(g, h.cx + 12, h.cy + 10, 2, 3.4, P.brn);
+  // Flower, one temple only, below RIG.helm.y1 so it still shows under a full helm.
+  disc(g, h.cx - 11, 20, 1.6, P.pnk);
+  disc(g, h.cx - 11, 20, 0.7, P.yel);
+  rigEyes(g, 2.8, 1.2);
+  blush(g, h.cx - 10, 30); blush(g, h.cx + 10, 30);
+}});
+
+/* --- content batch: avatars:dbz-heroes (agent-designed) --- */
+
+S.push({ name: 'avatar-kaze', draw(g) {               // hero avatar; light skin, navy spike crown, warm grin
+  rigBody(g, P.red, P.plum);
+  rigFace(g);
+  const h = RIG.head;
+  ellipse(g, h.cx, h.cy - 8, 12, 5.5, P.navy);              // hair cap
+  tri(g, h.cx - 2, 10, h.cx + 2, 10, h.cx, 5, P.navy);            // centre spike, straight up
+  tri(g, h.cx, 10, h.cx + 2, 10, h.cx, 5, P.plum);                // shade half, same trick as the dolphin's fin
+  tri(g, h.cx - 8, 11, h.cx - 2, 10, h.cx - 6, 5, P.navy);        // left spike
+  tri(g, h.cx + 2, 10, h.cx + 8, 11, h.cx + 6, 5, P.navy);        // right spike
+  // Side locks: an ellipse lock reaching well below the helm brim (y20), like every
+  // other avatar's, plus a jagged tri tip so it still reads as spiky, not smooth hair.
+  ellipse(g, h.cx - 12.5, h.cy - 1, 2.4, 7, P.navy);
+  tri(g, h.cx - 15, h.cy + 4, h.cx - 10, h.cy + 2, h.cx - 17, h.cy + 9, P.navy);
+  ellipse(g, h.cx + 12.5, h.cy - 1, 2.4, 7, P.navy);
+  tri(g, h.cx + 15, h.cy + 4, h.cx + 10, h.cy + 2, h.cx + 17, h.cy + 9, P.navy);
+  rigEyes(g, 3.6, 1.7);                                     // warm grin
+  blush(g, h.cx - 10, 30); blush(g, h.cx + 10, 30);
+}});
+
+S.push({ name: 'avatar-vay', draw(g) {                // rival avatar; light skin, steep widow's-peak flame
+  rigBody(g, P.sky, P.lav);
+  rigFace(g);
+  const h = RIG.head;
+  ball(g, h.cx, h.cy - 7, 12.5, 6, P.sky, P.lav);           // high hairline cap
+  tri(g, h.cx - 2, 19, h.cx + 2, 19, h.cx, 13, P.sky);            // widow's-peak point, dips low centre
+  tri(g, h.cx - 6, 10, h.cx - 3, 10, h.cx - 4.5, 5, P.sky);       // spike, straight up
+  tri(g, h.cx - 2, 9, h.cx + 1, 9, h.cx - 0.5, 5, P.sky);         // spike, straight up
+  tri(g, h.cx + 3, 10, h.cx + 6, 10, h.cx + 4.5, 5, P.sky);       // spike, straight up
+  ellipse(g, h.cx - 12.5, h.cy - 1, 2.4, 7, P.sky);         // side lock, below the helm brim
+  tri(g, h.cx - 15, h.cy + 4, h.cx - 10, h.cy + 2, h.cx - 17, h.cy + 9, P.sky);
+  ellipse(g, h.cx + 12.5, h.cy - 1, 2.4, 7, P.sky);
+  tri(g, h.cx + 15, h.cy + 4, h.cx + 10, h.cy + 2, h.cx + 17, h.cy + 9, P.sky);
+  rigEyes(g, 2.6, 1.0);                                     // flatter, confident mouth
+}});
+
+S.push({ name: 'avatar-goldie', draw(g) {             // powered-up avatar; light skin, gold super spikes
+  rigBody(g, P.org, P.brn);
+  rigFace(g);
+  const h = RIG.head;
+  ellipse(g, h.cx, h.cy - 8, 12, 5.5, P.yel);               // hair cap
+  tri(g, h.cx - 3, 10, h.cx + 3, 10, h.cx, 5, P.yel);             // centre spike
+  tri(g, h.cx, 10, h.cx + 3, 10, h.cx, 5, P.org);                 // shade half
+  tri(g, h.cx - 9, 11, h.cx - 2, 10, h.cx - 7, 5, P.yel);         // left spike
+  tri(g, h.cx + 2, 10, h.cx + 9, 11, h.cx + 7, 5, P.yel);         // right spike
+  ellipse(g, h.cx - 12.5, h.cy - 1, 2.4, 7, P.yel);         // side lock, below the helm brim
+  tri(g, h.cx - 15, h.cy + 4, h.cx - 10, h.cy + 2, h.cx - 17, h.cy + 9, P.yel);
+  ellipse(g, h.cx + 12.5, h.cy - 1, 2.4, 7, P.yel);
+  tri(g, h.cx + 15, h.cy + 4, h.cx + 10, h.cy + 2, h.cx + 17, h.cy + 9, P.yel);
+  rigEyes(g, 4, 1.8);                                       // big grin
+  blush(g, h.cx - 10, 30); blush(g, h.cx + 10, 30);
+}});
+
+S.push({ name: 'avatar-onyx', draw(g) {               // deep-skin avatar; dark swept-back spike flame, calm mouth
+  rigBody(g, P.plum, P.navy, P.brn, P.plum);
+  rigFace(g, P.brn);
+  const h = RIG.head;
+  ellipse(g, h.cx, h.cy - 8, 12.5, 6, P.dgy);               // hair cap
+  tri(g, h.cx - 3, 9, h.cx + 1, 10, h.cx - 1, 5, P.dgy);          // short centre spike, swept back
+  // Side locks swept back and out — wider and lower than kaze's, reads as combed
+  // back. Ellipse lock below the helm brim, jagged tri tip so it still reads spiky.
+  ellipse(g, h.cx - 13, h.cy - 1, 2.6, 6.5, P.dgy);
+  tri(g, h.cx - 16, h.cy + 3, h.cx - 11, h.cy + 1, h.cx - 20, h.cy + 7, P.dgy);
+  ellipse(g, h.cx + 13, h.cy - 1, 2.6, 6.5, P.dgy);
+  tri(g, h.cx + 16, h.cy + 3, h.cx + 11, h.cy + 1, h.cx + 20, h.cy + 7, P.dgy);
+  rigEyes(g, 2.8, 1.1);                                     // calm, cool mouth
+}});
+
+S.push({ name: 'avatar-suki', draw(g) {               // light skin avatar; bright spiky twin tails
+  rigBody(g, P.pnk, P.plum);
+  rigFace(g);
+  const h = RIG.head;
+  ellipse(g, h.cx, h.cy - 8, 11, 5, P.pnk);                 // short hair cap
+  tri(g, h.cx - 2, 10, h.cx + 2, 10, h.cx, 6, P.pnk);             // small centre spike
+  tri(g, h.cx - 13, 15, h.cx - 12, 9, h.cx - 20, 12, P.pnk);      // left tail, upper spike
+  tri(g, h.cx - 12, 19, h.cx - 12, 13, h.cx - 22, 18, P.pnk);     // left tail, lower spike
+  tri(g, h.cx - 11, 12, h.cx - 12, 16, h.cx - 17, 15, P.plum);    // left tail shade sliver
+  tri(g, h.cx + 13, 15, h.cx + 12, 9, h.cx + 20, 12, P.pnk);      // right tail, upper spike
+  tri(g, h.cx + 12, 19, h.cx + 12, 13, h.cx + 22, 18, P.pnk);     // right tail, lower spike
+  tri(g, h.cx + 11, 12, h.cx + 12, 16, h.cx + 17, 15, P.plum);    // right tail shade sliver
+  rigEyes(g, 3, 1.4);
+  blush(g, h.cx - 10, 30); blush(g, h.cx + 10, 30);
+}});
+
+/* --- content batch: avatars:dbz-styles (agent-designed) --- */
+
+S.push({ name: 'avatar-ryo', draw(g) {                // spiky avatar; light skin, single front spike + red headband
+  rigBody(g, P.red, P.plum);
+  rigFace(g);
+  const h = RIG.head;
+  // One big front spike, wide-based and swept up-and-forward, plus a tucked
+  // shade tri behind it (same lean, not opposite) for volume — two tris
+  // leaning apart read as horns, so both sweep the same way. Peak stays at
+  // y5, the helm's y0 floor.
+  tri(g, 19, 13, 39, 13, 44, 5, P.brn);
+  tri(g, 25, 13, 39, 13, 42, 8, P.dgy);
+  tri(g, 19, 13, 30, 13, 25, 8, P.dgy);
+  // Jagged side locks, bold triangles hanging past the helm brim (y20) — what
+  // still reads "ryo" under a helm.
+  tri(g, 16, 14, 26, 17, 15, 26, P.brn);
+  tri(g, 18, 16, 25, 18, 18, 24, P.dgy);
+  tri(g, 47, 14, 37, 17, 48, 26, P.brn);
+  tri(g, 45, 16, 38, 18, 45, 24, P.dgy);
+  rect(g, 20, 20, 43, 21, P.red);                       // headband stripe, below y20 so it survives a helm
+  disc(g, 20, 20, 1, P.crm);                            // headband knot
+  rigEyes(g, 3, 1.4);
+}});
+
+S.push({ name: 'avatar-aki', draw(g) {                // spiky avatar; light skin, lavender spiked bob
+  rigBody(g, P.lav, P.plum);
+  rigFace(g);
+  const h = RIG.head;
+  // Chin-length bob: a flat cap (no spikes above y5 — this one's calm on top),
+  // side locks hanging well outside the eyes (x23.5-39.5, y23-29) down past
+  // the chin, each ending in a sharp point — the swordsman look.
+  ellipse(g, h.cx, h.cy - 8, 13, 6, P.lav);             // bob cap
+  tri(g, 16, 14, 23, 14, 18, 32, P.lav);                // left lock, sharp point at the chin
+  tri(g, 18, 15, 23, 15, 20, 28, P.plum);
+  tri(g, 47, 14, 40, 14, 45, 32, P.lav);                // right lock, sharp point at the chin
+  tri(g, 45, 15, 40, 15, 43, 28, P.plum);
+  rigEyes(g, 2.6, 1.0);                                 // calm mouth
+}});
+
+S.push({ name: 'avatar-zuri', draw(g) {               // spiky avatar; deep skin, spiky afro-flame
+  rigBody(g, P.org, P.brn, P.brn, P.plum);
+  rigFace(g, P.brn);
+  const h = RIG.head;
+  // Dense small spike bumps hugging the crown, plus 2-3 bolder spikes on top —
+  // a spiky afro, not a smooth dome. Bolder spikes stay within the y5 floor.
+  for (const [dx, dy] of [[-10, -8], [-6, -11], [-2, -12], [2, -12], [6, -11], [10, -8]]) {
+    tri(g, h.cx + dx - 2, h.cy + dy + 3, h.cx + dx + 2, h.cy + dy + 3, h.cx + dx, h.cy + dy, P.dgy);
+  }
+  tri(g, h.cx - 7, 11, h.cx - 1, 11, h.cx - 4, 5, P.dgy);   // bolder crown spike
+  tri(g, h.cx - 1, 11, h.cx + 5, 11, h.cx + 2, 5, P.dgy);   // bolder crown spike
+  tri(g, h.cx + 5, 11, h.cx + 11, 11, h.cx + 8, 6, P.dgy);  // bolder crown spike
+  ellipse(g, h.cx - 12.5, h.cy - 1, 2, 5, P.dgy);       // sideburns, below the helm brim
+  ellipse(g, h.cx + 12.5, h.cy - 1, 2, 5, P.dgy);
+  rigEyes(g, 4, 1.8);                                   // big smile
+  blush(g, h.cx - 10, 30); blush(g, h.cx + 10, 30);
+}});
+
+S.push({ name: 'avatar-nimbus', draw(g) {             // spiky avatar; light skin, wild sky-blue spikes + cloud sideburns
+  rigBody(g, P.sky, P.lav);
+  rigFace(g);
+  const h = RIG.head;
+  // Wild spikes at every angle — the messiest hair on the roster, spread evenly
+  // left-to-right instead of bunched on one side.
+  tri(g, 18, 13, 25, 13, 15, 6, P.sky);                 // far-left spike, leaning left
+  tri(g, 23, 12, 30, 12, 24, 5, P.sky);                  // left-of-centre, leaning up
+  tri(g, 29, 12, 36, 12, 36, 5, P.sky);                  // right-of-centre, leaning up
+  tri(g, 34, 13, 41, 13, 47, 7, P.sky);                  // far-right spike, leaning right
+  tri(g, 20, 14, 26, 14, 17, 19, P.lav);                 // low outward spike, sweeping past the head
+  tri(g, 39, 14, 45, 14, 48, 19, P.lav);                 // low outward spike, other side
+  // Cloud-puff sideburn pair: three small round lobes bunched wide-and-flat
+  // (wider than tall) reads as a cotton-ball cloud, not a floppy ear. Below
+  // the helm brim so nimbus still shows through a helm.
+  ball(g, h.cx - 12.5, h.cy + 2, 2.2, 1.6, P.crm, P.lgy);
+  ball(g, h.cx - 14.5, h.cy + 2.5, 1.6, 1.2, P.crm, P.lgy);
+  ball(g, h.cx - 10.5, h.cy + 3, 1.6, 1.2, P.crm, P.lgy);
+  ball(g, h.cx + 12.5, h.cy + 2, 2.2, 1.6, P.crm, P.lgy);
+  ball(g, h.cx + 14.5, h.cy + 2.5, 1.6, 1.2, P.crm, P.lgy);
+  ball(g, h.cx + 10.5, h.cy + 3, 1.6, 1.2, P.crm, P.lgy);
+  rigEyes(g, 3.6, 1.6);                                 // cheeky grin
+}});
+
+S.push({ name: 'avatar-tora', draw(g) {               // spiky avatar; light skin, orange-and-black tiger crown
+  rigBody(g, P.org, P.brn);
+  rigFace(g);
+  const h = RIG.head;
+  // Two-tone spike crown: org spikes with navy shade tris laid over their base,
+  // tiger vibe without stripes on the skin itself.
+  tri(g, 20, 12, 28, 12, 22, 5, P.org);
+  tri(g, 22, 12, 26, 12, 24, 8, P.navy);
+  tri(g, 27, 12, 36, 12, 31, 5, P.org);
+  tri(g, 29, 12, 34, 12, 31, 8, P.navy);
+  tri(g, 35, 12, 43, 12, 41, 5, P.org);
+  tri(g, 37, 12, 41, 12, 40, 8, P.navy);
+  tri(g, 18, 15, 23, 17, 17, 22, P.org);                // jagged side lock, below the crown
+  tri(g, 46, 15, 41, 17, 47, 22, P.org);
+  rigEyes(g, 3.8, 1.6);                                 // wide grin
+}});
+
 const COMPOSITES = [
   { name: 'composite-scout-bare',   layers: ['avatar-scout'] },
   { name: 'composite-scout-knight', layers: ['avatar-scout', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
@@ -32196,6 +32571,46 @@ const COMPOSITES = [
   { name: 'composite-nova-frost', layers: ['avatar-nova', 'legs-frost', 'chest-frost', 'weap-frost-runeblade', 'off-frost-shield', 'helm-frost'] },
   { name: 'composite-scout-priest', layers: ['avatar-scout', 'legs-priest', 'chest-priest', 'weap-priest-staff', 'off-priest-lantern', 'helm-priest'] },
   { name: 'composite-nova-priest', layers: ['avatar-nova', 'legs-priest', 'chest-priest', 'weap-priest-staff', 'off-priest-lantern', 'helm-priest'] },
+  { name: 'composite-mei-bare', layers: ['avatar-mei'] },
+  { name: 'composite-mei-knight', layers: ['avatar-mei', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-freya-bare', layers: ['avatar-freya'] },
+  { name: 'composite-freya-knight', layers: ['avatar-freya', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-priya-bare', layers: ['avatar-priya'] },
+  { name: 'composite-priya-knight', layers: ['avatar-priya', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-wren-bare', layers: ['avatar-wren'] },
+  { name: 'composite-wren-knight', layers: ['avatar-wren', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-talia-bare', layers: ['avatar-talia'] },
+  { name: 'composite-talia-knight', layers: ['avatar-talia', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-zoe-bare', layers: ['avatar-zoe'] },
+  { name: 'composite-zoe-knight', layers: ['avatar-zoe', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-nia-bare', layers: ['avatar-nia'] },
+  { name: 'composite-nia-knight', layers: ['avatar-nia', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-hana-bare', layers: ['avatar-hana'] },
+  { name: 'composite-hana-knight', layers: ['avatar-hana', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-isla-bare', layers: ['avatar-isla'] },
+  { name: 'composite-isla-knight', layers: ['avatar-isla', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-rosa-bare', layers: ['avatar-rosa'] },
+  { name: 'composite-rosa-knight', layers: ['avatar-rosa', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-kaze-bare', layers: ['avatar-kaze'] },
+  { name: 'composite-kaze-knight', layers: ['avatar-kaze', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-vay-bare', layers: ['avatar-vay'] },
+  { name: 'composite-vay-knight', layers: ['avatar-vay', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-goldie-bare', layers: ['avatar-goldie'] },
+  { name: 'composite-goldie-knight', layers: ['avatar-goldie', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-onyx-bare', layers: ['avatar-onyx'] },
+  { name: 'composite-onyx-knight', layers: ['avatar-onyx', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-suki-bare', layers: ['avatar-suki'] },
+  { name: 'composite-suki-knight', layers: ['avatar-suki', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-ryo-bare', layers: ['avatar-ryo'] },
+  { name: 'composite-ryo-knight', layers: ['avatar-ryo', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-aki-bare', layers: ['avatar-aki'] },
+  { name: 'composite-aki-knight', layers: ['avatar-aki', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-zuri-bare', layers: ['avatar-zuri'] },
+  { name: 'composite-zuri-knight', layers: ['avatar-zuri', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-nimbus-bare', layers: ['avatar-nimbus'] },
+  { name: 'composite-nimbus-knight', layers: ['avatar-nimbus', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
+  { name: 'composite-tora-bare', layers: ['avatar-tora'] },
+  { name: 'composite-tora-knight', layers: ['avatar-tora', 'legs-knight', 'chest-knight', 'weap-knight-sword', 'off-knight-shield', 'helm-knight'] },
 ];
 
   function renderGrid(name) {
