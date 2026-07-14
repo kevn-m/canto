@@ -27015,18 +27015,6 @@ S.push({ name: 'lid', draw(g) {              // 蓋 goi3 — pot lid
     blush(g, 23, 39); blush(g, 40, 39);
   }});
 
-S.push({ name: 'tobacco', draw(g) {          // 菸草 jin1 cou2 — tobacco leaves
-    stroke(g, [[CX, 56], [CX, 30]], 1.4, 1, P.brn);      // stem
-    ball(g, 22, 34, 8, 12, P.grn, P.plum);               // left leaf
-    ball(g, 42, 34, 8, 12, P.grn, P.plum);               // right leaf
-    ball(g, CX, 26, 8, 12, P.lim, P.grn);                // top leaf
-    stroke(g, [[22, 44], [22, 24]], 0.7, 0.7, P.lim);    // veins
-    stroke(g, [[42, 44], [42, 24]], 0.7, 0.7, P.lim);
-    stroke(g, [[CX, 36], [CX, 16]], 0.7, 0.7, P.grn);
-    eyes(g, CX, 30, 4);
-    smileArc(g, CX, 34, 1.9, 0.8);
-    blush(g, 25, 32); blush(g, 38, 32);
-  }});
 
 S.push({ name: 'rug', draw(g) {              // 地氈 dei6 zin1 — rug
     tri(g, 8, 44, 56, 44, 48, 30, P.red);                // rug top face
@@ -28156,18 +28144,6 @@ S.push({ name: 'gunpowder', draw(g) {        // 火藥 fo2 joek6 — powder keg
     blush(g, 22, 41); blush(g, 41, 41);
   }});
 
-S.push({ name: 'morphine', draw(g) {         // 嗎啡 maa1 fe1 — medicine vial
-    rrect(g, 24, 26, 40, 52, 3, P.brn);                  // vial shadow
-    rrect(g, 24, 25, 38, 50, 3, P.org);                  // amber glass
-    ellipse(g, CX, 40, 6, 9, P.yel);                     // liquid
-    ellipse(g, 28, 32, 2, 4, P.crm);                     // shine
-    rrect(g, 26, 18, 38, 26, 1, P.lgy);                  // metal cap
-    rect(g, 28, 14, 36, 19, P.dgy);                      // stopper
-    rect(g, 27, 34, 37, 44, P.crm);                      // label
-    stroke(g, [[31, 37], [31, 41]], 1, 1, P.red); stroke(g, [[28, 39], [34, 39]], 1, 1, P.red); // cross
-    eyes(g, 31, 46, 3);
-    smileArc(g, 31, 49, 1.5, 0.7);
-  }});
 
 
 S.push({ name: 'nylon', draw(g) {            // 尼龍 nei4 lung4 — nylon fabric
@@ -28223,17 +28199,6 @@ S.push({ name: 'fiberglass', draw(g) {       // 玻璃纖維 bo1 lei1 cim1 wai4 
     blush(g, 22, 40); blush(g, 40, 40);
   }});
 
-S.push({ name: 'steroids', draw(g) {         // 類固醇 leoi6 gu3 seon4 — vial
-    rrect(g, 22, 26, 38, 52, 3, P.grn);                  // vial shadow
-    rrect(g, 22, 25, 36, 50, 3, P.lim);                  // green glass
-    ellipse(g, 29, 40, 5, 8, P.crm);                     // liquid
-    rrect(g, 24, 18, 36, 26, 1, P.lgy);                  // cap
-    rect(g, 27, 14, 33, 19, P.dgy);                      // stopper
-    ball(g, 46, 44, 5, 4, P.crm, P.lgy);                 // loose capsule
-    rect(g, 43, 43, 46, 45, P.red);
-    eyes(g, 29, 45, 3);
-    smileArc(g, 29, 48, 1.4, 0.6);
-  }});
 
 S.push({ name: 'linoleum', draw(g) {         // 漆布 cat1 bou3 — linoleum
     tri(g, 8, 46, 56, 46, 44, 28, P.crm);                // floor perspective
@@ -28779,17 +28744,6 @@ S.push({ name: 'wrapping', draw(g) {         // 花紙 faa1 zi2 — wrapping pap
     smileArc(g, 21, 39, 1.4, 0.6);
   }});
 
-S.push({ name: 'snuff', draw(g) {            // 鼻煙 bei6 jin1 — snuff tin
-    ellipse(g, CX, 46, 16, 6, P.dgy);                    // tin body shadow
-    ellipse(g, CX, 44, 15, 5, P.brn);                    // tin body
-    ellipse(g, CX, 38, 15, 6, P.org);                    // lid
-    ellipse(g, CX, 37, 13, 5, P.yel);                    // lid top
-    disc(g, CX, 37, 2, P.brn);                           // emblem
-    ellipse(g, 44, 40, 4, 2, P.brn);                     // spilled powder
-    eyes(g, CX, 44, 4);
-    smileArc(g, CX, 47, 1.7, 0.8);
-    blush(g, 22, 45); blush(g, 41, 45);
-  }});
 
 S.push({ name: 'rind', draw(g) {             // 西瓜皮 sai1 gwaa1 pei4 — rind
     tri(g, 12, 46, 52, 46, CX, 22, P.grn);               // rind arc outer (green)
@@ -29164,17 +29118,6 @@ S.push({ name: 'spearhead', draw(g) {        // 矛頭 maau4 tau4 — spearhead
     blush(g, 25, 36); blush(g, 38, 36);
   }});
 
-S.push({ name: 'stimulant', draw(g) {        // 興奮劑 hing1 fan5 zai1 — stimulant vial
-    rrect(g, 22, 26, 38, 52, 3, P.lav);                  // vial shadow
-    rrect(g, 22, 25, 36, 50, 3, P.sky);                  // blue glass
-    ellipse(g, 29, 40, 5, 8, P.crm);                     // liquid
-    rrect(g, 24, 18, 36, 26, 1, P.lgy);                  // cap
-    rect(g, 27, 14, 33, 19, P.dgy);                      // stopper
-    ball(g, 46, 44, 5, 4, P.crm, P.lgy);                 // loose capsule
-    rect(g, 43, 43, 46, 45, P.yel);
-    eyes(g, 29, 45, 3);
-    smileArc(g, 29, 48, 1.4, 0.6);
-  }});
 
 
 S.push({ name: 'soundproofing', draw(g) {    // 隔音 gaak3 jam1 — soundproofing foam
@@ -29218,155 +29161,6 @@ S.push({ name: 'sepia', draw(g) {            // 墨汁 mak6 zap1 — sepia ink
     eyes(g, 30, 42, 4);
     smileArc(g, 30, 45, 1.7, 0.8);
     blush(g, 24, 44); blush(g, 37, 44);
-  }});
-
-
-S.push({ name: 'beer', draw(g) {             // 啤酒 be1 zau2 — beer mug
-    ball(g, CX, 18, 12, 5, P.crm, P.lgy);                // foam head
-    for (const p of [[24,15],[38,15],[31,13]]) disc(g, p[0], p[1], 2, P.crm); // foam blobs
-    rrect(g, 20, 22, 42, 54, 3, P.org);                  // mug beer
-    rect(g, 20, 22, 42, 24, P.crm);                      // foam line
-    ellipse(g, 25, 34, 2, 5, P.yel);                     // shine
-    for (const p of [[30,40],[36,46],[28,48]]) disc(g, p[0], p[1], 1, P.yel); // bubbles
-    rrect(g, 40, 30, 50, 46, 4, P.org); ellipse(g, 45, 38, 3, 5, null); // handle
-    eyes(g, 30, 38, 5);
-    smileArc(g, 30, 43, 2.2, 0.9);
-    blush(g, 23, 41); blush(g, 37, 41);
-  }});
-
-S.push({ name: 'wine', draw(g) {             // 酒 zau2 — wine glass
-    ball(g, CX, 26, 11, 12, P.crm, P.lgy);               // glass bowl
-    ellipse(g, CX, 30, 8, 8, P.red);                     // red wine
-    ellipse(g, CX, 22, 8, 3, P.plum);                    // wine surface
-    ellipse(g, 26, 24, 2, 4, P.crm);                     // shine
-    rect(g, 30, 36, 33, 52, P.lgy);                      // stem
-    ellipse(g, CX, 54, 9, 3, P.lgy);                     // base
-    eyes(g, CX, 30, 5);
-    smileArc(g, CX, 35, 2.2, 0.9);
-    blush(g, 22, 33); blush(g, 41, 33);
-  }});
-
-S.push({ name: 'champagne', draw(g) {        // 香檳 hoeng1 ban1 — champagne
-    disc(g, CX, 8, 3, P.brn);                            // cork flying
-    for (const p of [[24,16],[40,14],[31,12]]) disc(g, p[0], p[1], 1, P.crm); // fizz
-    ellipse(g, CX, 18, 6, 3, P.yel);                     // gold foil neck
-    rrect(g, 26, 20, 38, 54, 3, P.grn);                  // bottle
-    rect(g, 27, 22, 37, 26, P.yel);                      // foil
-    rect(g, 28, 34, 36, 46, P.crm);                      // label
-    ellipse(g, 29, 40, 1.6, 4, P.lim);                   // shine
-    eyes(g, 31, 40, 4);
-    smileArc(g, 31, 44, 1.6, 0.7);
-    blush(g, 27, 42); blush(g, 36, 42);
-  }});
-
-S.push({ name: 'cocktail', draw(g) {         // 雞尾酒 gai1 mei5 zau2 — cocktail
-    tri(g, 16, 24, 48, 24, CX, 40, P.pnk);               // glass bowl (V)
-    tri(g, 20, 26, 44, 26, CX, 38, P.red);               // drink
-    rect(g, 30, 40, 33, 52, P.lgy);                      // stem
-    ellipse(g, CX, 54, 8, 3, P.lgy);                     // base
-    stroke(g, [[40, 10], [36, 28]], 0.8, 0.8, P.brn);    // pick
-    disc(g, 40, 10, 2, P.grn);                           // olive
-    stroke(g, [[22, 12], [26, 24]], 0.8, 0.6, P.yel);    // umbrella stick
-    tri(g, 16, 12, 30, 12, 23, 6, P.org);                // umbrella
-    eyes(g, CX, 30, 4);
-    smileArc(g, CX, 34, 1.7, 0.8);
-    blush(g, 24, 32); blush(g, 39, 32);
-  }});
-
-S.push({ name: 'alcohol', draw(g) {          // 酒 zau2 — liquor bottle
-    rect(g, 28, 10, 35, 22, P.dgy);                      // neck
-    rect(g, 28, 8, 35, 12, P.brn);                       // cap
-    rrect(g, 20, 22, 44, 54, 4, P.brn);                  // bottle
-    rect(g, 24, 30, 40, 46, P.crm);                      // label
-    ellipse(g, 30, 38, 3, 4, P.red);                     // emblem
-    ellipse(g, 24, 30, 2, 6, P.org);                     // shine
-    eyes(g, 31, 48, 3);
-    smileArc(g, 31, 51, 1.5, 0.7);
-    blush(g, 26, 50); blush(g, 37, 50);
-  }});
-
-S.push({ name: 'bar', draw(g) {              // 酒吧 zau2 baa1 — bar
-    rect(g, 8, 14, 56, 34, P.brn);                       // back shelf
-    for (const x of [16, 24, 32, 40, 48]) { rrect(g, x, 18, x + 4, 32, 1, x%3?P.grn:P.red); } // bottles
-    rrect(g, 10, 38, 54, 56, 2, P.org);                  // bar counter
-    rect(g, 10, 38, 54, 41, P.yel);                      // counter top
-    rrect(g, 40, 30, 47, 40, 1, P.sky);                  // a glass on bar
-    eyes(g, 24, 46, 4);
-    smileArc(g, 24, 50, 1.8, 0.8);
-    blush(g, 18, 48); blush(g, 31, 48);
-  }});
-
-S.push({ name: 'bartender', draw(g) {        // 調酒師 tiu4 zau2 si1 — bartender
-    ball(g, 26, 58, 3.6, 2.4, P.navy, P.navy); ball(g, 38, 58, 3.6, 2.4, P.navy, P.navy); // feet
-    ball(g, CX, 49, 9, 7.5, P.crm, P.lgy);               // white shirt
-    rect(g, 30, 42, 33, 52, P.navy);                     // vest/tie line
-    tri(g, 28, 42, 35, 42, 31.5, 47, P.red);             // bowtie
-    ball(g, 46, 42, 3.4, 4, P.lgy, P.dgy);               // shaker
-    ball(g, 18, 48, 3, 2.6, P.pch, P.brn);               // hand
-    ball(g, CX, 24, 12, 12, P.pch, P.brn);               // head
-    ellipse(g, CX, 15, 11, 5, P.dgy);                    // hair
-    eyes(g, CX, 25, 6);
-    smileArc(g, CX, 31, 2.6, 1.2);
-    blush(g, CX - 9, 29); blush(g, CX + 9, 29);
-  }});
-
-S.push({ name: 'keg', draw(g) {              // 啤酒桶 be1 zau2 tung2 — keg
-    ellipse(g, CX, 18, 12, 3, P.lgy);                    // top
-    ball(g, CX, 36, 15, 18, P.lgy, P.dgy);               // metal barrel
-    rect(g, 16, 26, 47, 29, P.crm); rect(g, 16, 44, 47, 47, P.crm); // bands
-    rect(g, 42, 40, 52, 44, P.dgy);                      // tap spout
-    disc(g, 52, 42, 2, P.org);                           // tap handle
-    ellipse(g, 24, 30, 3, 6, P.crm);                     // shine
-    eyes(g, CX, 36, 5);
-    smileArc(g, CX, 41, 2.2, 0.9);
-    blush(g, 21, 39); blush(g, 42, 39);
-  }});
-
-S.push({ name: 'cigarette', draw(g) {        // 香煙 hoeng1 jin1 — cigarette
-    for (const x of [40, 44]) stroke(g, [[x, 20], [x + 3, 10], [x, 4]], 0.8, 0.5, P.lgy); // smoke
-    stroke(g, [[14, 48], [44, 22]], 3, 3, P.crm);        // cigarette body
-    stroke(g, [[14, 48], [22, 42]], 3, 3, P.org);        // filter
-    ball(g, 45, 21, 2.6, 2.6, P.red, P.plum);            // glowing tip
-    disc(g, 45, 21, 1, P.yel);
-    eyes(g, 28, 38, 4);
-    smileArc(g, 28, 41, 1.6, 0.7);
-    blush(g, 22, 40); blush(g, 34, 37);
-  }});
-
-S.push({ name: 'cigar', draw(g) {            // 雪茄 syut3 ke1 — cigar
-    for (const x of [42, 46]) stroke(g, [[x, 18], [x + 3, 8], [x, 3]], 0.8, 0.5, P.lgy); // smoke
-    stroke(g, [[14, 48], [46, 20]], 4.5, 4.5, P.brn);    // cigar body
-    stroke(g, [[16, 46], [22, 41]], 4.5, 4.5, P.dgy);    // mouth end
-    rect(g, 30, 30, 36, 38, P.red);                      // band
-    ball(g, 47, 19, 3, 3, P.org, P.red);                 // glowing tip
-    disc(g, 47, 19, 1.2, P.yel);
-    eyes(g, 28, 36, 4);
-    smileArc(g, 28, 39, 1.6, 0.7);
-    blush(g, 22, 38); blush(g, 34, 35);
-  }});
-
-S.push({ name: 'pipe', draw(g) {             // 煙斗 jin1 dau2 — pipe
-    for (const x of [22, 26] ) stroke(g, [[x, 26], [x + 3, 14], [x, 8]], 0.8, 0.5, P.lgy); // smoke
-    ball(g, 24, 34, 8, 8, P.brn, P.plum);                // bowl
-    disc(g, 24, 32, 5, P.dgy);                           // bowl opening
-    disc(g, 24, 33, 3, P.org);                           // ember
-    stroke(g, [[30, 40], [50, 44], [54, 40]], 2.4, 2, P.brn); // stem
-    ellipse(g, 20, 32, 2, 3, P.org);                     // shine
-    eyes(g, 24, 36, 4);
-    smileArc(g, 24, 39, 1.6, 0.7);
-    blush(g, 18, 38); blush(g, 30, 38);
-  }});
-
-S.push({ name: 'cocaine', draw(g) {          // 可卡因 ho2 kaat1 jan1 — cocaine
-    ellipse(g, CX, 46, 15, 8, P.lgy);                    // baggie shadow
-    rrect(g, 18, 24, 44, 50, 3, P.sky);                  // clear baggie
-    ellipse(g, CX, 42, 11, 6, P.crm);                    // white powder
-    for (const p of [[26,40],[36,40],[31,44]]) disc(g, p[0], p[1], 1.4, P.lgy); // powder texture
-    rect(g, 24, 22, 40, 26, P.lav);                      // tied top
-    disc(g, 31, 22, 2, P.dgy);                           // tie
-    eyes(g, CX, 42, 4);
-    smileArc(g, CX, 46, 1.7, 0.8);
-    blush(g, 23, 44); blush(g, 40, 44);
   }});
 
 S.push({ name: 'sword', draw(g) {            // 劍 gim3 — sword
@@ -29661,28 +29455,7 @@ S.push({ name: 'paintball', draw(g) {        // 彩彈 coi2 daan6 — paintball
     blush(g, 22, 36); blush(g, 41, 36);
   }});
 
-S.push({ name: 'poker', draw(g) {            // 撲克 pok3 hak1 — poker
-    rrect(g, 12, 22, 34, 52, 2, P.plum);                 // card 1 (tilted)
-    rrect(g, 22, 18, 44, 48, 2, P.crm);                  // card 2
-    tri(g, 30, 24, 36, 24, 33, 30, P.red);               // heart pip half
-    tri(g, 30, 24, 33, 30, 27, 28, P.red);
-    disc(g, 29, 25, 1.8, P.red); disc(g, 34, 25, 1.8, P.red);
-    disc(g, 44, 48, 8, P.red); disc(g, 44, 48, 5, P.crm); disc(g, 44, 48, 2.4, P.red); // poker chip
-    eyes(g, 33, 36, 4);
-    smileArc(g, 33, 40, 1.6, 0.7);
-    blush(g, 27, 38); blush(g, 40, 38);
-  }});
 
-S.push({ name: 'lottery', draw(g) {          // 彩票 coi2 piu3 — lottery ticket
-    rrect(g, 12, 20, 52, 48, 2, P.crm);                  // ticket
-    rect(g, 12, 20, 52, 26, P.red);                      // top banner
-    disc(g, 20, 23, 1.6, P.yel);                         // star
-    rrect(g, 16, 32, 34, 44, 1, P.lgy);                  // scratch panel
-    for (let x = 18; x < 33; x += 3) stroke(g, [[x, 34], [x + 2, 42]], 0.5, 0.5, P.dgy); // scratch texture
-    for (const p of [[40,34,P.sky],[46,34,P.red],[40,40,P.lim],[46,40,P.org]]) disc(g, p[0], p[1], 1.6, p[2]); // lotto dots
-    eyes(g, 24, 42, 3);
-    smileArc(g, 24, 45, 1.4, 0.6);
-  }});
 
 S.push({ name: 'explode', draw(g) {          // 爆炸 baau3 zaa3 — explode
     for (let a = 0; a < 12; a++) { const t = a/12*6.283, r = a%2 ? 24 : 15; tri(g, CX + Math.cos(t-0.2)*11, 34 + Math.sin(t-0.2)*11, CX + Math.cos(t+0.2)*11, 34 + Math.sin(t+0.2)*11, CX + Math.cos(t)*r, 34 + Math.sin(t)*r, P.org); } // burst spikes
@@ -29719,16 +29492,6 @@ S.push({ name: 'sarcophagus', draw(g) {      // 石棺 sek6 gun1 — sarcophagus
     blush(g, 26, 28); blush(g, 37, 28);
   }});
 
-S.push({ name: 'roulette', draw(g) {         // 輪盤 leon4 pun2 — roulette
-    disc(g, CX, 34, 20, P.brn);                          // wheel rim
-    for (let a = 0; a < 12; a++) { const t = a/12*6.283; ball(g, CX + Math.cos(t)*13, 34 + Math.sin(t)*13, 4, 4, a%2?P.red:P.navy, P.plum); } // pockets
-    disc(g, CX, 34, 8, P.yel);                           // hub
-    disc(g, CX, 34, 4, P.org);
-    for (let a = 0; a < 4; a++) { const t = a/4*6.283 + 0.4; stroke(g, [[CX, 34], [CX + Math.cos(t)*7, 34 + Math.sin(t)*7]], 0.7, 0.7, P.brn); } // spokes
-    disc(g, 46, 22, 2, P.crm);                           // ball
-    eyes(g, CX, 33, 3);
-    smileArc(g, CX, 36, 1.3, 0.6);
-  }});
 
 S.push({ name: 'trident', draw(g) {          // 三叉戟 saam1 caa1 gik1 — trident
     stroke(g, [[CX, 54], [CX, 24]], 2, 2, P.yel);        // shaft
@@ -29817,30 +29580,7 @@ S.push({ name: 'shipwreck', draw(g) {        // 遇難船 jyu6 naan6 syun4 — s
     blush(g, 21, 48); blush(g, 31, 47);
   }});
 
-S.push({ name: 'hookah', draw(g) {           // 水煙 seoi2 jin1 — hookah
-    ball(g, CX, 46, 11, 9, P.sky, P.lav);                // glass base
-    ellipse(g, 26, 42, 2, 4, P.crm);                     // shine
-    rect(g, 29, 20, 34, 38, P.dgy);                      // stem
-    for (const y of [24, 30]) ellipse(g, 31, y, 4, 2, P.lgy); // stem discs
-    ellipse(g, 31, 16, 6, 4, P.brn);                     // top bowl
-    disc(g, 31, 14, 2, P.org);                           // coal
-    stroke(g, [[40, 24], [52, 34], [50, 48]], 2, 1.6, P.red); // hose
-    disc(g, 50, 49, 2.4, P.plum);                        // mouthpiece
-    eyes(g, CX, 44, 4);
-    smileArc(g, CX, 48, 1.7, 0.8);
-    blush(g, 22, 46); blush(g, 41, 46);
-  }});
 
-S.push({ name: 'mahjong', draw(g) {          // 麻將 maa4 zoeng3 — mahjong
-    rrect(g, 14, 20, 32, 52, 2, P.grn);                  // tile 1 side
-    rrect(g, 14, 18, 32, 48, 2, P.crm);                  // tile 1 face
-    for (const y of [24, 30, 36]) stroke(g, [[19, y], [27, y]], 1, 0.8, P.grn); // bamboo strokes
-    rrect(g, 32, 22, 50, 54, 2, P.grn);                  // tile 2 side
-    rrect(g, 32, 20, 50, 50, 2, P.crm);                  // tile 2 face
-    for (const p of [[38,28],[44,28],[38,40],[44,40],[41,34]]) disc(g, p[0], p[1], 2, P.red); // circle dots
-    eyes(g, 23, 42, 3);
-    smileArc(g, 23, 45, 1.4, 0.6);
-  }});
 
 S.push({ name: 'clench', draw(g) {           // 握拳 aak1 kyun4 — clench (fist)
     for (const x of [10, 14]) stroke(g, [[x, 22], [x - 3, 18]], 1, 0.6, P.lgy); // motion marks
@@ -29925,17 +29665,6 @@ S.push({ name: 'flail', draw(g) {            // 連枷 lin4 gaa1 — flail
     smileArc(g, 42, 26, 1.4, 0.6);
   }});
 
-S.push({ name: 'breathalyzer', draw(g) {     // 呼氣測醉器 fu1 hei3 caak1 zeoi3 hei3 — breathalyzer
-    rrect(g, 20, 24, 42, 54, 3, P.navy);                 // device body
-    rrect(g, 23, 28, 39, 38, 1, P.lim);                  // readout screen
-    for (let x = 25; x < 38; x += 3) rect(g, x, 32, x + 1, 34, P.grn); // reading bars
-    disc(g, 27, 46, 2, P.red); disc(g, 35, 46, 2, P.lgy); // buttons
-    rect(g, 40, 16, 52, 22, P.sky);                      // mouthpiece tube
-    ellipse(g, 52, 19, 2, 4, P.lav);                     // mouthpiece end
-    eyes(g, 31, 48, 3);
-    smileArc(g, 31, 51, 1.4, 0.6);
-    blush(g, 25, 50); blush(g, 37, 50);
-  }});
 
 
   // --- Anatomy kit: a shared chibi base + a red ring on the part being named.

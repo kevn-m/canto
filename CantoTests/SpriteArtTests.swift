@@ -322,7 +322,7 @@ final class SpriteArtTests: XCTestCase {
             "handkerchief", "jelly", "kitchen", "leather", "lid", "mud", "mustard", "pin",
             "pocket", "pool", "pudding", "radio", "restaurant", "rug", "saddle", "salt",
             "sand", "sauce", "shower", "sponge", "statue", "steel", "sugar", "swamp",
-            "theater", "tobacco", "trailer", "tunnel", "underwear", "wax",
+            "theater", "trailer", "tunnel", "underwear", "wax",
             // Plain batch 02 (plain-02.tsv).
             "album", "altar", "bikini", "bolt", "braces", "brass", "brownie", "canvas",
             "cardboard", "cereal", "chalk", "checkbook", "cinnamon", "cocoa", "cork",
@@ -339,42 +339,38 @@ final class SpriteArtTests: XCTestCase {
             "racetrack", "raisin", "roller", "runway", "rye", "sawdust", "shawl",
             "shuttle", "spa", "spandex", "stuffing", "tailor", "tar", "titanium", "tofu",
             "vanilla", "velvet", "waterfall",
-            // Plain batch 03 flagged (gunpowder visible, morphine kid-mode-hidden).
-            "gunpowder", "morphine",
+            // Plain batch 03 flagged.
+            "gunpowder",
             // Plain batch 04 (plain-04.tsv).
             "albino", "ammonia", "asbestos", "beeswax", "bran", "cellophane", "chemicals",
             "chlorine", "corduroy", "cumin", "denim", "dew", "doorstop", "fiber",
             "fiberglass", "flannel", "formaldehyde", "fuzz", "linoleum", "mahogany",
             "malt", "miniskirt", "nylon", "pacemaker", "pellet", "pink", "platinum",
             "putty", "saline", "saltwater", "seasoning", "serum", "sheepskin", "silt",
-            "snakeskin", "sod", "steroids", "sulfur", "topsoil", "waistband", "yeast",
+            "snakeskin", "sod", "sulfur", "topsoil", "waistband", "yeast",
             // Plain batch 05 (plain-05.tsv).
             "acrylic", "buttonhole", "coolant", "cornstarch", "ethanol", "fluoride",
             "frankincense", "graphite", "helium", "indigo", "lacquer", "newsprint",
             "oxygen", "pigment", "pigtail", "polyester", "refugee", "rind", "runaway",
-            "sackcloth", "sharkskin", "snuff", "stationery", "suede", "sweetener",
+            "sackcloth", "sharkskin", "stationery", "suede", "sweetener",
             "tiller", "tortoiseshell", "tramp", "whey", "wrapping",
             // Plain batch 06 (plain-06.tsv).
             "bicarbonate", "bristle", "cyan", "ebony", "filings", "floodwater",
             "groundwater", "oilpaper", "permafrost", "planner", "sealant", "slush",
-            "spearhead", "stimulant", "talc", "veneer",
+            "spearhead", "talc", "veneer",
             // Plain batch 07 (plain-07.tsv).
             "polystyrene", "sepia", "soundproofing", "zigzag",
             // Flag batch 01 (flag-01.tsv).
-            "alcohol", "arrow", "axe", "bar", "bartender", "beer", "bow", "cannon",
-            "champagne", "cigar", "cigarette", "cocaine", "cocktail", "dagger",
-            "detonator", "grenade", "keg", "missile", "pipe", "slingshot", "sword",
-            "thief", "tomb", "wine",
+            "arrow", "axe", "bow", "cannon", "dagger", "detonator", "grenade",
+            "missile", "slingshot", "sword", "thief", "tomb",
             // Flag batch 02 (flag-02.tsv).
             "chisel", "cleaver", "club", "crossbow", "explode", "flamethrower", "harpoon",
-            "lottery", "paintball", "poker", "sickle", "troll", "vampire", "werewolf",
-            "zombie",
+            "paintball", "sickle", "troll", "vampire", "werewolf", "zombie",
             // Flag batch 03 (flag-03.tsv).
-            "clench", "executioner", "hookah", "horsewhip", "landmine", "landslide",
-            "mahjong", "matador", "roulette", "sarcophagus", "shipwreck",
-            "straightjacket", "trident", "tsunami",
+            "clench", "executioner", "horsewhip", "landmine", "landslide", "matador",
+            "sarcophagus", "shipwreck", "straightjacket", "trident", "tsunami",
             // Flag batch 04 (flag-04.tsv).
-            "barbed", "blaster", "breathalyzer", "flail", "grille", "unicorn",
+            "barbed", "blaster", "flail", "grille", "unicorn",
             // Anatomy batch 01 (anatomy-01.tsv) - shared body/head/hand base + highlight ring.
             "ankle", "arm", "bald", "beard", "body", "brain", "cheek", "chest", "claw",
             "elbow", "finger", "fist", "foot", "forehead", "heel", "jaw", "kidney",
@@ -413,6 +409,27 @@ final class SpriteArtTests: XCTestCase {
         ]
         for name in names {
             XCTAssertNotNil(SpriteArt.image(named: name), "\(name).png missing from the app bundle")
+        }
+    }
+
+    func test_ADR0027ContentSpritesAreNotBundled() throws {
+        let names = [
+            "alcohol", "bar", "bartender", "beer", "breathalyzer", "champagne",
+            "cigar", "cigarette", "cocaine", "cocktail", "hookah", "keg",
+            "lottery", "mahjong", "morphine", "pipe", "poker", "roulette",
+            "snuff", "steroids", "stimulant", "tobacco", "wine",
+        ]
+        let resourceURL = try XCTUnwrap(Bundle.main.resourceURL)
+        let bundledNames = Set(
+            FileManager.default.enumerator(at: resourceURL, includingPropertiesForKeys: nil)?
+                .compactMap { ($0 as? URL)?.lastPathComponent.lowercased() } ?? []
+        )
+
+        for name in names {
+            XCTAssertFalse(
+                bundledNames.contains("\(name).png"),
+                "Banned sprite remains in the app bundle"
+            )
         }
     }
 
