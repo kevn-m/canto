@@ -111,13 +111,63 @@ final class DictionaryStoreTests: XCTestCase {
     // Source-ordered, most-likely-first readings for one character - powers
     // PickEditorView's per-character candidate picker.
     func test_readingCandidates_returnsSourceOrderedCappedAtThree() {
-        let results = store.readingCandidates(forCharacter: "驚")
+        let results = store.readingCandidates(forCharacters: "驚")
         XCTAssertEqual(results, ["ging1", "geng1"])
         XCTAssertLessThanOrEqual(results.count, 3)
     }
 
     func test_readingCandidates_unknownCharacterReturnsEmpty() {
-        XCTAssertTrue(store.readingCandidates(forCharacter: "㐀").isEmpty)
+        XCTAssertTrue(store.readingCandidates(forCharacters: "㐀").isEmpty)
+    }
+
+    // Longest match wins: 食飯 is one dictionary entry, not two guessed characters.
+    func test_derivedReading_prefersLongestMatch() {
+        let reading = store.derivedReading(for: "食飯")
+        XCTAssertEqual(reading.segments.count, 1)
+        XCTAssertEqual(reading.segments[0].characters, "食飯")
+        XCTAssertEqual(reading.segments[0].candidates.first, "sik6 faan6")
+        XCTAssertEqual(reading.joined, "sik6 faan6")
+        XCTAssertFalse(reading.hasUnknown)
+    }
+
+    // A character the dictionary has never seen renders as a gap, not a crash
+    // and not a silent skip. 㐀 is known-absent.
+    func test_derivedReading_unknownCharacterIsGap() {
+        let reading = store.derivedReading(for: "食㐀飯")
+        XCTAssertEqual(reading.segments.map(\.characters), ["食", "㐀", "飯"])
+        XCTAssertTrue(reading.segments[1].candidates.isEmpty)
+        XCTAssertTrue(reading.hasUnknown)
+        XCTAssertTrue(reading.joined.contains("?"))
+    }
+
+    // Punctuation passes through: not unknown, not spanned by a probe.
+    func test_derivedReading_separatorsPassThrough() {
+        let reading = store.derivedReading(for: "真。")
+        XCTAssertEqual(reading.segments.map(\.characters), ["真", "。"])
+        XCTAssertEqual(reading.segments.map(\.isSeparator), [false, true])
+        XCTAssertEqual(reading.joined, "zan1。")
+        XCTAssertFalse(reading.hasUnknown)
+    }
+
+    func test_derivedReading_symbolWithVariationSelectorIsSeparator() {
+        let reading = store.derivedReading(for: "食❤️飯")
+        XCTAssertEqual(reading.segments.map(\.characters), ["食", "❤️", "飯"])
+        XCTAssertEqual(reading.segments.map(\.isSeparator), [false, true, false])
+        XCTAssertEqual(reading.joined, "sik6❤️faan6")
+        XCTAssertFalse(reading.hasUnknown)
+    }
+
+    func test_derivedReading_capsCompoundProbesAtEightCharacters() {
+        let reading = store.derivedReading(for: "中華人民共和國主席")
+        XCTAssertLessThanOrEqual(reading.segments.map { $0.characters.count }.max() ?? 0, 8)
+    }
+
+    // Single-character fallback still carries up to 3 candidates for the editor.
+    func test_derivedReading_singleCharacterKeepsCandidates() {
+        let reading = store.derivedReading(for: "驚")
+        XCTAssertEqual(reading.segments.count, 1)
+        XCTAssertFalse(reading.segments[0].candidates.isEmpty)
+        XCTAssertLessThanOrEqual(reading.segments[0].candidates.count, 3)
     }
 
     func test_opensReadOnly_writeAttemptThrows() throws {

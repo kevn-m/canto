@@ -192,7 +192,7 @@ struct LookupView: View {
                     onKeep: keep,
                     onCamera: { pendingCameraSense = $0 },
                     onSpeakCharacters: { speaker.speak($0) },
-                    readingCandidates: { store.readingCandidates(forCharacter: $0) },
+                    readingCandidates: { store.readingCandidates(forCharacters: $0) },
                     onKeepCustom: keepCustom
                 )
                 if result.senses.isEmpty {

@@ -8,6 +8,45 @@ struct LookupResult {
     let isWordFallback: Bool
 }
 
+/// A machine-assembled reading for an unmapped Pick (ADR 0028). Display-only:
+/// it never enters history or the Deck without per-Segment confirmation.
+struct DerivedReading: Equatable {
+    struct Segment: Equatable {
+        let characters: String
+        let candidates: [String]
+        let isSeparator: Bool
+    }
+
+    let segments: [Segment]
+
+    /// Best candidate per Segment joined with spaces; "?" for unknowns;
+    /// separators rendered as their own characters, unspaced.
+    var joined: String {
+        var output = ""
+        for (index, segment) in segments.enumerated() {
+            if segment.isSeparator {
+                output += segment.characters
+            } else {
+                if index > 0, !segments[index - 1].isSeparator {
+                    output += " "
+                }
+                output += segment.candidates.first ?? "?"
+            }
+        }
+        return output
+    }
+
+    var hasUnknown: Bool {
+        segments.contains { !$0.isSeparator && $0.candidates.isEmpty }
+    }
+
+    /// True when at least one Segment has a real reading - gates whether the
+    /// row shows a derived reading or falls back to "No reading yet".
+    var hasAnyReading: Bool {
+        segments.contains { !$0.candidates.isEmpty }
+    }
+}
+
 /// Reads the bundled read-only dict.sqlite. Ranking here must match
 /// `senses_for` in scripts/build_dict.py exactly — that Python function is
 /// the behavioural oracle, not an approximation to riff on.
@@ -179,14 +218,14 @@ final class DictionaryStore {
         return out
     }
 
-    /// Candidate readings for ONE character, most-likely first (same source
+    /// Candidate readings for fixed characters, most-likely first (same source
     /// order as everywhere else). Cap 3. Empty when the character is unknown.
-    func readingCandidates(forCharacter character: String) -> [String] {
+    func readingCandidates(forCharacters characters: String) -> [String] {
         var seen = Set<String>()
         var out: [String] = []
         do {
             try dbQueue.read { db in
-                let cursor = try Row.fetchCursor(db, sql: Self.readingCandidatesSQL, arguments: [character])
+                let cursor = try Row.fetchCursor(db, sql: Self.readingCandidatesSQL, arguments: [characters])
                 while let row = try cursor.next() {
                     let jp: String = row["jyutping"]
                     if seen.contains(jp) { continue }
@@ -199,6 +238,71 @@ final class DictionaryStore {
             NSLog("DictionaryStore readingCandidates failed: %@", String(describing: error))
         }
         return out
+    }
+
+    /// Greedy longest-substring segmentation of an unmapped Pick's characters.
+    /// Probes cap at 8 characters and never span a separator.
+    func derivedReading(for characters: String) -> DerivedReading {
+        let chars = characters.map(String.init)
+        var segments: [DerivedReading.Segment] = []
+        var i = 0
+        var runEnd = 0
+        while i < chars.count {
+            if Self.isSeparator(chars[i]) {
+                segments.append(.init(characters: chars[i], candidates: [], isSeparator: true))
+                i += 1
+                runEnd = i
+                continue
+            }
+
+            if i >= runEnd {
+                runEnd = i
+                while runEnd < chars.count, !Self.isSeparator(chars[runEnd]) {
+                    runEnd += 1
+                }
+            }
+
+            var matched = false
+            for length in stride(from: min(8, runEnd - i), through: 2, by: -1) {
+                let substring = chars[i..<(i + length)].joined()
+                let candidates = readingCandidates(forCharacters: substring)
+                if !candidates.isEmpty {
+                    segments.append(.init(
+                        characters: substring,
+                        candidates: candidates,
+                        isSeparator: false
+                    ))
+                    i += length
+                    matched = true
+                    break
+                }
+            }
+
+            if !matched {
+                let single = chars[i]
+                segments.append(.init(
+                    characters: single,
+                    candidates: readingCandidates(forCharacters: single),
+                    isSeparator: false
+                ))
+                i += 1
+            }
+        }
+        return DerivedReading(segments: segments)
+    }
+
+    private static let separatorSet = CharacterSet.whitespacesAndNewlines
+        .union(.punctuationCharacters)
+        .union(.symbols)
+
+    private static func isSeparator(_ string: String) -> Bool {
+        !string.isEmpty && string.unicodeScalars.allSatisfy { scalar in
+            let value = scalar.value
+            return separatorSet.contains(scalar)
+                || value == 0x200D
+                || (0xFE00...0xFE0F).contains(value)
+                || (0xE0100...0xE01EF).contains(value)
+        }
     }
 
     private static func dedupKey(_ sense: Sense) -> String {

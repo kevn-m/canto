@@ -244,6 +244,7 @@ def build_db():
     insert_all(db, cedict_entries)
     insert_all(db, wordshk_entries)
     db.execute("CREATE INDEX idx_english_token ON english_index(token)")
+    db.execute("CREATE INDEX idx_traditional ON senses(traditional)")
 
     # Popularity tiebreak: literary junk chars (啜, 觱) live in few compounds,
     # everyday chars (食, 狗, 飲) in many. Multi-char entries get a mid constant.
