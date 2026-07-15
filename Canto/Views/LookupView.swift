@@ -191,7 +191,13 @@ struct LookupView: View {
                     onTap: listen(to:),
                     onKeep: keep,
                     onCamera: { pendingCameraSense = $0 },
-                    onSpeakCharacters: { speaker.speak($0) },
+                    onSpeakCharacters: { characters in
+                        if speaker.voiceAvailable {
+                            speaker.speak(characters)
+                        } else {
+                            showVoiceUnavailableAlert = true
+                        }
+                    },
                     readingCandidates: { store.readingCandidates(forCharacters: $0) },
                     onKeepCustom: keepCustom
                 )
@@ -290,12 +296,32 @@ struct LookupView: View {
             let characters = await translator.translate(trimmed)
             // A slow answer for the previous word must not pin onto the current
             // one: cancellation catches it, the query check is the belt-and-braces.
-            guard !Task.isCancelled, trimmed == lastLoggedQuery else { return }
-            let senses = characters.map { store.pickSenses(forCharacters: $0, query: trimmed) } ?? []
-            await MainActor.run {
-                if let characters {
-                    pick = Pick(characters: characters, senses: senses)
+            let isCurrent = await MainActor.run { trimmed == lastLoggedQuery }
+            guard !Task.isCancelled, isCurrent else { return }
+            guard let characters else {
+                await MainActor.run {
+                    guard !Task.isCancelled, trimmed == lastLoggedQuery else { return }
+                    pickPending = false
                 }
+                return
+            }
+
+            let store = store
+            let dataTask = Task.detached { () -> (senses: [Sense], derived: DerivedReading?) in
+                let senses = store.pickSenses(forCharacters: characters, query: trimmed)
+                guard !Task.isCancelled else { return (senses, nil) }
+                let derived = senses.isEmpty ? try? store.derivedReading(for: characters) : nil
+                return (senses, derived)
+            }
+            let data = await withTaskCancellationHandler {
+                await dataTask.value
+            } onCancel: {
+                dataTask.cancel()
+            }
+
+            await MainActor.run {
+                guard !Task.isCancelled, trimmed == lastLoggedQuery else { return }
+                pick = Pick(characters: characters, senses: data.senses, derived: data.derived)
                 pickPending = false
             }
         }

@@ -242,12 +242,14 @@ final class DictionaryStore {
 
     /// Greedy longest-substring segmentation of an unmapped Pick's characters.
     /// Probes cap at 8 characters and never span a separator.
-    func derivedReading(for characters: String) -> DerivedReading {
+    func derivedReading(for characters: String) throws -> DerivedReading {
         let chars = characters.map(String.init)
         var segments: [DerivedReading.Segment] = []
         var i = 0
         var runEnd = 0
         while i < chars.count {
+            try Task.checkCancellation()
+
             if Self.isSeparator(chars[i]) {
                 segments.append(.init(characters: chars[i], candidates: [], isSeparator: true))
                 i += 1
@@ -264,6 +266,7 @@ final class DictionaryStore {
 
             var matched = false
             for length in stride(from: min(8, runEnd - i), through: 2, by: -1) {
+                try Task.checkCancellation()
                 let substring = chars[i..<(i + length)].joined()
                 let candidates = readingCandidates(forCharacters: substring)
                 if !candidates.isEmpty {
@@ -279,6 +282,7 @@ final class DictionaryStore {
             }
 
             if !matched {
+                try Task.checkCancellation()
                 let single = chars[i]
                 segments.append(.init(
                     characters: single,

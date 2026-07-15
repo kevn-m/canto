@@ -65,11 +65,24 @@ struct PickSectionView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     googleBadge
                     Text(pick.characters)
-                        .font(.system(size: 40, weight: .bold))
+                        .font(.system(size: pick.characters.count > 8 ? 26 : 40, weight: .bold))
                         .foregroundStyle(GameTheme.navy)
-                    Text("No reading yet")
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
-                        .foregroundStyle(GameTheme.lavender)
+                        .fixedSize(horizontal: false, vertical: true)
+                    if let derived = pick.derived, derived.hasAnyReading {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(derived.joined)
+                                .font(.system(size: 14, weight: .medium, design: .rounded))
+                                .italic()
+                                .foregroundStyle(GameTheme.lavender)
+                            Text("unconfirmed — check by ear before keeping")
+                                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                .foregroundStyle(GameTheme.lavender.opacity(0.7))
+                        }
+                    } else {
+                        Text("No reading yet")
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .foregroundStyle(GameTheme.lavender)
+                    }
                 }
                 Spacer()
                 Button {
@@ -109,6 +122,8 @@ struct PickSectionView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .cardFrame()
+        .contentShape(Rectangle())
+        .onTapGesture { onSpeakCharacters(pick.characters) }
     }
 
     private var pendingRow: some View {

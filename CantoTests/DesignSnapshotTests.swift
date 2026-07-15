@@ -185,7 +185,7 @@ final class DesignSnapshotTests: XCTestCase {
         ])
         snapshotOnInn("pick-mapped") {
             PickSectionView(
-                pick: Pick(characters: "驚", senses: [sense]),
+                pick: Pick(characters: "驚", senses: [sense], derived: nil),
                 pickPending: false, selectedSenseId: nil, keptSenseId: nil, customKept: false,
                 onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }, onSpeakCharacters: { _ in },
                 readingCandidates: { _ in [] }, onKeepCustom: { _ in }
@@ -197,7 +197,55 @@ final class DesignSnapshotTests: XCTestCase {
     func test_pickUnmappedRenders() {
         snapshotOnInn("pick-unmapped") {
             PickSectionView(
-                pick: Pick(characters: "冇譜", senses: []),
+                pick: Pick(
+                    characters: "我想食飯，我仲想飲水",
+                    senses: [],
+                    derived: DerivedReading(segments: [
+                        .init(characters: "我想", candidates: ["ngo5 soeng2"], isSeparator: false),
+                        .init(characters: "食飯", candidates: ["sik6 faan6"], isSeparator: false),
+                        .init(characters: "，", candidates: [], isSeparator: true),
+                        .init(characters: "我", candidates: ["ngo5"], isSeparator: false),
+                        .init(characters: "仲想", candidates: ["zung6 soeng2"], isSeparator: false),
+                        .init(characters: "飲水", candidates: ["jam2 seoi2"], isSeparator: false),
+                    ])
+                ),
+                pickPending: false, selectedSenseId: nil, keptSenseId: nil, customKept: false,
+                onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }, onSpeakCharacters: { _ in },
+                readingCandidates: { _ in [] }, onKeepCustom: { _ in }
+            )
+            .padding()
+        }
+    }
+
+    func test_pickUnmappedGapRenders() {
+        snapshotOnInn("pick-unmapped-gap") {
+            PickSectionView(
+                pick: Pick(
+                    characters: "食飯X",
+                    senses: [],
+                    derived: DerivedReading(segments: [
+                        .init(characters: "食飯", candidates: ["sik6 faan6"], isSeparator: false),
+                        .init(characters: "X", candidates: [], isSeparator: false),
+                    ])
+                ),
+                pickPending: false, selectedSenseId: nil, keptSenseId: nil, customKept: false,
+                onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }, onSpeakCharacters: { _ in },
+                readingCandidates: { _ in [] }, onKeepCustom: { _ in }
+            )
+            .padding()
+        }
+    }
+
+    func test_pickUnmappedNoReadingRenders() {
+        snapshotOnInn("pick-unmapped-no-reading") {
+            PickSectionView(
+                pick: Pick(
+                    characters: "X",
+                    senses: [],
+                    derived: DerivedReading(segments: [
+                        .init(characters: "X", candidates: [], isSeparator: false),
+                    ])
+                ),
                 pickPending: false, selectedSenseId: nil, keptSenseId: nil, customKept: false,
                 onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }, onSpeakCharacters: { _ in },
                 readingCandidates: { _ in [] }, onKeepCustom: { _ in }

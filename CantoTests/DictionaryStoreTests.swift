@@ -121,8 +121,8 @@ final class DictionaryStoreTests: XCTestCase {
     }
 
     // Longest match wins: 食飯 is one dictionary entry, not two guessed characters.
-    func test_derivedReading_prefersLongestMatch() {
-        let reading = store.derivedReading(for: "食飯")
+    func test_derivedReading_prefersLongestMatch() throws {
+        let reading = try store.derivedReading(for: "食飯")
         XCTAssertEqual(reading.segments.count, 1)
         XCTAssertEqual(reading.segments[0].characters, "食飯")
         XCTAssertEqual(reading.segments[0].candidates.first, "sik6 faan6")
@@ -132,8 +132,8 @@ final class DictionaryStoreTests: XCTestCase {
 
     // A character the dictionary has never seen renders as a gap, not a crash
     // and not a silent skip. 㐀 is known-absent.
-    func test_derivedReading_unknownCharacterIsGap() {
-        let reading = store.derivedReading(for: "食㐀飯")
+    func test_derivedReading_unknownCharacterIsGap() throws {
+        let reading = try store.derivedReading(for: "食㐀飯")
         XCTAssertEqual(reading.segments.map(\.characters), ["食", "㐀", "飯"])
         XCTAssertTrue(reading.segments[1].candidates.isEmpty)
         XCTAssertTrue(reading.hasUnknown)
@@ -141,33 +141,53 @@ final class DictionaryStoreTests: XCTestCase {
     }
 
     // Punctuation passes through: not unknown, not spanned by a probe.
-    func test_derivedReading_separatorsPassThrough() {
-        let reading = store.derivedReading(for: "真。")
+    func test_derivedReading_separatorsPassThrough() throws {
+        let reading = try store.derivedReading(for: "真。")
         XCTAssertEqual(reading.segments.map(\.characters), ["真", "。"])
         XCTAssertEqual(reading.segments.map(\.isSeparator), [false, true])
         XCTAssertEqual(reading.joined, "zan1。")
         XCTAssertFalse(reading.hasUnknown)
     }
 
-    func test_derivedReading_symbolWithVariationSelectorIsSeparator() {
-        let reading = store.derivedReading(for: "食❤️飯")
+    func test_derivedReading_symbolWithVariationSelectorIsSeparator() throws {
+        let reading = try store.derivedReading(for: "食❤️飯")
         XCTAssertEqual(reading.segments.map(\.characters), ["食", "❤️", "飯"])
         XCTAssertEqual(reading.segments.map(\.isSeparator), [false, true, false])
         XCTAssertEqual(reading.joined, "sik6❤️faan6")
         XCTAssertFalse(reading.hasUnknown)
     }
 
-    func test_derivedReading_capsCompoundProbesAtEightCharacters() {
-        let reading = store.derivedReading(for: "中華人民共和國主席")
+    func test_derivedReading_capsCompoundProbesAtEightCharacters() throws {
+        let reading = try store.derivedReading(for: "中華人民共和國主席")
         XCTAssertLessThanOrEqual(reading.segments.map { $0.characters.count }.max() ?? 0, 8)
     }
 
     // Single-character fallback still carries up to 3 candidates for the editor.
-    func test_derivedReading_singleCharacterKeepsCandidates() {
-        let reading = store.derivedReading(for: "驚")
+    func test_derivedReading_singleCharacterKeepsCandidates() throws {
+        let reading = try store.derivedReading(for: "驚")
         XCTAssertEqual(reading.segments.count, 1)
         XCTAssertFalse(reading.segments[0].candidates.isEmpty)
         XCTAssertLessThanOrEqual(reading.segments[0].candidates.count, 3)
+    }
+
+    // Cancelled work must never look like a complete reading to its caller.
+    func test_derivedReading_cancelledTaskThrowsInsteadOfReturningPartialReading() async {
+        let store = store!
+        let task = Task.detached { () -> Bool in
+            try? await Task.sleep(nanoseconds: 10_000_000)
+            do {
+                _ = try store.derivedReading(for: String(repeating: "食", count: 100))
+                return false
+            } catch is CancellationError {
+                return true
+            } catch {
+                return false
+            }
+        }
+        task.cancel()
+
+        let threwCancellation = await task.value
+        XCTAssertTrue(threwCancellation)
     }
 
     func test_opensReadOnly_writeAttemptThrows() throws {
