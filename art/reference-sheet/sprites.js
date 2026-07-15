@@ -2463,13 +2463,13 @@
   }});
 
   S.push({ name: 'banana', draw(g) {
-    stroke(g, [[15, 44], [13, 30], [20, 19], [33, 14], [46, 18]], 7.5, 5, P.org); // shadow body
-    stroke(g, [[15, 43], [12, 29], [19, 18], [32, 13], [45, 17]], 6.5, 4, P.yel); // banana body
-    disc(g, 15, 45, 2.2, P.brn);                          // bottom tip
-    disc(g, 47, 18, 2.2, P.brn);                          // stem tip
-    eyes(g, 23, 31, 6);
-    smileArc(g, 23, 37, 3, 1.3);
-    blush(g, 15, 35); blush(g, 31, 35);
+    stroke(g, [[15, 22], [18, 36], [CX, 43], [45, 36], [49, 22]], 7.5, 6, P.org); // curved shadow body
+    stroke(g, [[15, 21], [18, 35], [CX, 42], [45, 35], [49, 21]], 6.5, 5, P.yel); // curved body
+    disc(g, 14, 20, 2.2, P.brn);                          // stem tip
+    disc(g, 50, 20, 2.2, P.brn);                          // bottom tip
+    eyes(g, CX, 37, 6);
+    smileArc(g, CX, 43, 3, 1.3);
+    blush(g, 20, 40); blush(g, 43, 40);
   }});
 
   S.push({ name: 'passport', draw(g) {
@@ -3955,23 +3955,23 @@
   }});
 
   S.push({ name: 'camel', draw(g) {
-    stroke(g, [[15,45],[8,39],[7,33]], 1.8,1.2,P.brn); // tail
-    disc(g,7,32,2.5,P.brn);
-    ball(g, 21,33, 8,12,P.org,P.brn);                  // two humps
-    ball(g, 34,31, 8,13,P.org,P.brn);
-    stroke(g, [[27,31],[28,38],[30,32]], 1.2,1.2,P.brn);
-    ball(g, 29,46, 18,9,P.org,P.brn);                  // horizontal body
-    for (const x of [18,28,39,46]) ball(g,x,56,3.5,4,P.org,P.brn);
-    stroke(g, [[41,44],[47,37],[46,28],[49,21]], 6,4.5,P.navy); // curved neck
-    stroke(g, [[41,44],[47,37],[46,28],[49,21]], 4.8,3.5,P.org);
-    ellipse(g, 44,13, 3.5,4.5,P.org); ellipse(g, 55,13, 3.5,4.5,P.org); // rounded ears
-    ellipse(g, 44,13, 1.8,2.6,P.pch); ellipse(g, 55,13, 1.8,2.6,P.pch);
-    ball(g, 50,21, 10,9,P.org,P.brn);                   // wide three-quarter head
-    ball(g, 57,25, 5.5,4.5,P.pch,P.brn);                // soft projecting muzzle
-    disc(g, 59,24,1,P.navy);
-    eyes(g, 48,22,5.8);
-    smileArc(g, 55,29,2.8,1.3);
-    blush(g, 41,26); blush(g, 57,28);
+    stroke(g, [[15,45],[9,40],[8,34]], 1.2,.9,P.org); // short tail
+    disc(g,8,33,1.8,P.brn);
+    ball(g, 20,35, 7.5,9,P.org,P.brn);                  // rear hump
+    ball(g, 32,33, 7.5,10,P.org,P.brn);                 // front hump
+    ball(g, 29,47, 18,9,P.org,P.brn);                   // long body
+    ball(g,20,56,3.8,3.6,P.org,P.brn);                  // near legs
+    ball(g,39,56,3.8,3.6,P.org,P.brn);
+    stroke(g, [[40,44],[45,37],[44,28],[47,21]], 5.6,4.2,P.navy); // upright neck outline
+    stroke(g, [[40,44],[45,37],[44,28],[47,21]], 4.4,3.2,P.org);  // upright neck
+    ellipse(g, 43,14, 2.4,3.2,P.org); ellipse(g, 53,14, 2.4,3.2,P.org); // small ears
+    ellipse(g, 43,14, 1.1,1.8,P.pch); ellipse(g, 53,14, 1.1,1.8,P.pch);
+    ball(g, 48,21, 9,9,P.org,P.brn);                    // front-facing head
+    ball(g, 48,28, 5.5,3.6,P.pch,P.brn);                // centered muzzle
+    g.set(46,28,P.navy); g.set(50,28,P.navy);
+    eyes(g, 48,21,5.2);
+    smileArc(g, 48,31,2.4,1.1);
+    blush(g, 40,27); blush(g, 56,27);
   }});
 
   S.push({ name: 'garlic', draw(g) {
