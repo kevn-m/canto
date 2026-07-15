@@ -188,7 +188,7 @@ final class DesignSnapshotTests: XCTestCase {
                 pick: Pick(characters: "驚", senses: [sense], derived: nil),
                 pickPending: false, selectedSenseId: nil, keptSenseId: nil, customKept: false,
                 onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }, onSpeakCharacters: { _ in },
-                readingCandidates: { _ in [] }, onKeepCustom: { _ in }
+                onKeepCustom: { _ in }
             )
             .padding()
         }
@@ -211,7 +211,7 @@ final class DesignSnapshotTests: XCTestCase {
                 ),
                 pickPending: false, selectedSenseId: nil, keptSenseId: nil, customKept: false,
                 onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }, onSpeakCharacters: { _ in },
-                readingCandidates: { _ in [] }, onKeepCustom: { _ in }
+                onKeepCustom: { _ in }
             )
             .padding()
         }
@@ -230,7 +230,7 @@ final class DesignSnapshotTests: XCTestCase {
                 ),
                 pickPending: false, selectedSenseId: nil, keptSenseId: nil, customKept: false,
                 onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }, onSpeakCharacters: { _ in },
-                readingCandidates: { _ in [] }, onKeepCustom: { _ in }
+                onKeepCustom: { _ in }
             )
             .padding()
         }
@@ -248,7 +248,7 @@ final class DesignSnapshotTests: XCTestCase {
                 ),
                 pickPending: false, selectedSenseId: nil, keptSenseId: nil, customKept: false,
                 onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }, onSpeakCharacters: { _ in },
-                readingCandidates: { _ in [] }, onKeepCustom: { _ in }
+                onKeepCustom: { _ in }
             )
             .padding()
         }
@@ -260,7 +260,7 @@ final class DesignSnapshotTests: XCTestCase {
                 pick: nil,
                 pickPending: false, selectedSenseId: nil, keptSenseId: nil, customKept: false,
                 onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }, onSpeakCharacters: { _ in },
-                readingCandidates: { _ in [] }, onKeepCustom: { _ in }
+                onKeepCustom: { _ in }
             )
             .padding()
         }
@@ -269,8 +269,12 @@ final class DesignSnapshotTests: XCTestCase {
     func test_pickEditorRenders() {
         snapshotOnInn("pick-editor") {
             PickEditorView(
-                characters: "冇譜",
-                candidates: { char in char == "冇" ? ["mou5"] : ["pou2"] },
+                characters: "食飯，飲水",
+                segments: [
+                    .init(characters: "食飯", candidates: ["sik6 faan6", "zi6 faan6"], isSeparator: false),
+                    .init(characters: "，", candidates: [], isSeparator: true),
+                    .init(characters: "飲水", candidates: ["jam2 seoi2"], isSeparator: false),
+                ],
                 onSpeak: { _ in },
                 onKeep: { _ in }
             )
@@ -278,6 +282,66 @@ final class DesignSnapshotTests: XCTestCase {
             .cardFrame()
             .padding()
         }
+    }
+
+    func test_pickEditorLongSentenceRenders() {
+        snapshotOnInn("pick-editor-long") {
+            PickEditorView(
+                characters: "我想食飯，我仲想飲水",
+                segments: [
+                    .init(characters: "我想", candidates: ["ngo5 soeng2"], isSeparator: false),
+                    .init(characters: "食飯", candidates: ["sik6 faan6"], isSeparator: false),
+                    .init(characters: "，", candidates: [], isSeparator: true),
+                    .init(characters: "我", candidates: ["ngo5"], isSeparator: false),
+                    .init(characters: "仲想", candidates: ["zung6 soeng2"], isSeparator: false),
+                    .init(characters: "飲水", candidates: ["jam2 seoi2"], isSeparator: false),
+                ],
+                onSpeak: { _ in },
+                onKeep: { _ in }
+            )
+            .padding(16)
+            .cardFrame()
+            .padding()
+        }
+    }
+
+    func test_pickEditorSavedReading_excludesSeparatorSegments() {
+        let segments: [DerivedReading.Segment] = [
+            .init(characters: "食飯", candidates: ["sik6 faan6"], isSeparator: false),
+            .init(characters: "，", candidates: [], isSeparator: true),
+            .init(characters: "飲水", candidates: ["jam2 seoi2"], isSeparator: false),
+        ]
+
+        XCTAssertEqual(
+            PickEditorView.joinedJyutping(
+                segments: segments,
+                selections: ["sik6 faan6", "", "jam2 seoi2"]
+            ),
+            "sik6 faan6 jam2 seoi2"
+        )
+    }
+
+    func test_pickEditorKeepGate_ignoresSeparatorsButBlocksUnknownOrEmptyReadings() {
+        let matched: DerivedReading.Segment = .init(
+            characters: "食飯", candidates: ["sik6 faan6"], isSeparator: false
+        )
+        let separator: DerivedReading.Segment = .init(
+            characters: "，", candidates: [], isSeparator: true
+        )
+        let unknown: DerivedReading.Segment = .init(
+            characters: "X", candidates: [], isSeparator: false
+        )
+
+        XCTAssertFalse(PickEditorView.hasUnknownSegment(in: [separator]))
+        XCTAssertTrue(PickEditorView.hasUnknownSegment(in: [separator, unknown]))
+        XCTAssertFalse(PickEditorView.canKeep(segments: [], selections: []))
+        XCTAssertFalse(PickEditorView.canKeep(segments: [separator], selections: [""]))
+        XCTAssertFalse(PickEditorView.canKeep(segments: [unknown], selections: [""]))
+        XCTAssertTrue(
+            PickEditorView.canKeep(
+                segments: [matched, separator], selections: ["sik6 faan6", ""]
+            )
+        )
     }
 
     func test_innBackgroundRenders() {

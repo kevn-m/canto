@@ -2,46 +2,67 @@ import SwiftUI
 
 // Bare view so DesignSnapshotTests can render it without owning an
 // OnlineTranslator or firing a Task (ImageRenderer runs onAppear).
-// Lets Kevin's ear pick a jyutping reading per character for an unmapped
+// Lets Kevin's ear pick a jyutping reading per derived Segment for an unmapped
 // Pick, since CantoneseSpeaker speaks the characters, not the jyutping -
 // audio alone can't prove a derived reading.
 struct PickEditorView: View {
     let characters: String
+    let segments: [DerivedReading.Segment]
     let onSpeak: (String) -> Void
     let onKeep: (String) -> Void
 
-    private let characterList: [String]
-    private let optionsByChar: [String: [String]]
     @State private var selections: [String]
 
-    init(characters: String, candidates: (String) -> [String], onSpeak: @escaping (String) -> Void, onKeep: @escaping (String) -> Void) {
+    init(
+        characters: String,
+        segments: [DerivedReading.Segment],
+        onSpeak: @escaping (String) -> Void,
+        onKeep: @escaping (String) -> Void
+    ) {
         self.characters = characters
+        self.segments = segments
         self.onSpeak = onSpeak
         self.onKeep = onKeep
-        let chars = characters.map(String.init)
-        characterList = chars
-        // One DB read per unique character, reused for seeding and rendering
-        // (dedups repeated characters in the Pick too).
-        var opts: [String: [String]] = [:]
-        for char in Set(chars) { opts[char] = candidates(char) }
-        optionsByChar = opts
-        _selections = State(initialValue: chars.map { opts[$0]?.first ?? "" })
+        _selections = State(initialValue: segments.map { $0.candidates.first ?? "" })
     }
 
-    private var hasUnknownCharacter: Bool {
-        characterList.contains { (optionsByChar[$0] ?? []).isEmpty }
+    private var canKeep: Bool {
+        Self.canKeep(segments: segments, selections: selections)
     }
 
     private var joinedJyutping: String {
-        selections.filter { !$0.isEmpty }.joined(separator: " ")
+        Self.joinedJyutping(segments: segments, selections: selections)
+    }
+
+    static func hasUnknownSegment(in segments: [DerivedReading.Segment]) -> Bool {
+        segments.contains { !$0.isSeparator && $0.candidates.isEmpty }
+    }
+
+    static func canKeep(
+        segments: [DerivedReading.Segment],
+        selections: [String]
+    ) -> Bool {
+        !hasUnknownSegment(in: segments)
+            && !joinedJyutping(segments: segments, selections: selections)
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .isEmpty
+    }
+
+    static func joinedJyutping(
+        segments: [DerivedReading.Segment],
+        selections: [String]
+    ) -> String {
+        zip(segments, selections)
+            .filter { !$0.0.isSeparator && !$0.1.isEmpty }
+            .map(\.1)
+            .joined(separator: " ")
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 12) {
-                ForEach(Array(characterList.enumerated()), id: \.offset) { index, char in
-                    characterSegment(char, index: index)
-                }
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) { segmentViews }
+                VStack(alignment: .leading, spacing: 12) { segmentViews }
             }
 
             Text(joinedJyutping)
@@ -65,9 +86,16 @@ struct PickEditorView: View {
                     onKeep(joinedJyutping)
                 }
                 .buttonStyle(GameButtonStyle(compact: true))
-                .disabled(hasUnknownCharacter)
-                .opacity(hasUnknownCharacter ? 0.4 : 1)
+                .disabled(!canKeep)
+                .opacity(canKeep ? 1 : 0.4)
             }
+        }
+    }
+
+    @ViewBuilder
+    private var segmentViews: some View {
+        ForEach(segments.indices, id: \.self) { index in
+            segmentView(segments[index], index: index)
         }
     }
 
@@ -75,20 +103,21 @@ struct PickEditorView: View {
     // style is UIKit-backed and ImageRenderer draws it as a "no entry"
     // placeholder, the same trap as NavigationStack (see repo CLAUDE.md).
     @ViewBuilder
-    private func characterSegment(_ char: String, index: Int) -> some View {
-        let options = optionsByChar[char] ?? []
+    private func segmentView(_ segment: DerivedReading.Segment, index: Int) -> some View {
         let selected = selections.indices.contains(index) ? selections[index] : ""
         VStack(spacing: 4) {
-            Text(char)
+            Text(segment.characters)
                 .font(.system(size: 30, weight: .bold))
-                .foregroundStyle(GameTheme.navy)
-            if options.isEmpty {
-                Text("unknown character")
-                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .foregroundStyle(segment.isSeparator ? GameTheme.navy.opacity(0.35) : GameTheme.navy)
+            if segment.isSeparator {
+                EmptyView()
+            } else if segment.candidates.isEmpty {
+                Text("?")
+                    .font(GameTheme.title(16))
                     .foregroundStyle(GameTheme.red)
             } else {
                 VStack(spacing: 2) {
-                    ForEach(options, id: \.self) { option in
+                    ForEach(segment.candidates, id: \.self) { option in
                         Button {
                             selections[index] = option
                         } label: {

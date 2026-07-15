@@ -171,8 +171,9 @@ ADR 0002 forbids machine-guessed romanisation and the API has none anyway.
 
 Tapping a Sense is listen-only; one explicit **Keep** records it to history and the
 Deck (ADR 0013). A Pick whose characters aren't in the dictionary is **unmapped**:
-audio-only until a per-character reading is ear-picked in the editor (Slice 6). When
-Google is wrong or absent, "Show more" (`browseSenses`) reveals the full ranked list.
+it shows an unconfirmed longest-substring reading, speaks its characters on tap, and
+requires the per-Segment editor before Keep. When Google is wrong or absent, "Show
+more" (`browseSenses`) reveals the full ranked list.
 
 ## Speech notes
 

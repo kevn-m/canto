@@ -81,6 +81,16 @@ final class LogStoreTests: XCTestCase {
         XCTAssertNil(rows[0].chosenSenseId)
     }
 
+    // A malformed editor state must not seed an unreviewable Deck card.
+    func test_setChosenCustom_rejectsEmptyJyutping() {
+        let store = LogStore(directory: tempDir)
+        let id = store.record(heard: "unmapped word", matched: true, viaVoice: false)
+        XCTAssertNotNil(id)
+
+        XCTAssertFalse(store.setChosenCustom(lookupId: id!, traditional: "冇譜", jyutping: "  "))
+        XCTAssertTrue(store.lookupsWithChosenSense(afterId: 0).isEmpty)
+    }
+
     // Listening to a sense must never record it: recording only happens on
     // an explicit Keep (see LookupView.listen(to:) vs keep(_:)).
     func test_recordWithoutSetChosenSense_hasNoChosenSense() {

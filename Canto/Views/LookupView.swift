@@ -198,7 +198,6 @@ struct LookupView: View {
                             showVoiceUnavailableAlert = true
                         }
                     },
-                    readingCandidates: { store.readingCandidates(forCharacters: $0) },
                     onKeepCustom: keepCustom
                 )
                 if result.senses.isEmpty {

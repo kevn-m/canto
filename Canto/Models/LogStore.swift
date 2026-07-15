@@ -111,6 +111,10 @@ final class LogStore {
     /// (chosen_traditional/chosen_jyutping), never chosen_sense_id.
     @discardableResult
     func setChosenCustom(lookupId: Int64, traditional: String, jyutping: String) -> Bool {
+        guard !jyutping.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            NSLog("LogStore setChosenCustom rejected an empty jyutping")
+            return false
+        }
         guard let dbQueue else { return false }
         do {
             try dbQueue.write { db in

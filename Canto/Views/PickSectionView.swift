@@ -13,7 +13,6 @@ struct PickSectionView: View {
     let onKeep: (Sense) -> Void
     let onCamera: (Sense) -> Void
     let onSpeakCharacters: (String) -> Void
-    let readingCandidates: (String) -> [String]
     let onKeepCustom: (String) -> Void
 
     @State private var showingEditor = false
@@ -110,7 +109,7 @@ struct PickSectionView: View {
             if showingEditor, !customKept {
                 PickEditorView(
                     characters: pick.characters,
-                    candidates: readingCandidates,
+                    segments: pick.derived?.segments ?? [],
                     onSpeak: onSpeakCharacters,
                     onKeep: { jyutping in
                         onKeepCustom(jyutping)
