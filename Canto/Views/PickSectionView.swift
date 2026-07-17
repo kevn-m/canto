@@ -95,7 +95,8 @@ struct PickSectionView: View {
                             keptSenseId: keptSenseId,
                             onTap: onTap,
                             onKeep: onKeep,
-                            onCamera: onCamera
+                            onCamera: onCamera,
+                            enchanted: true
                         )
                     }
                 }
@@ -195,7 +196,7 @@ struct PickSectionView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .cardFrame()
+        .cardFrame(enchanted: true)
         .contentShape(Rectangle())
         .onTapGesture { onSpeakCharacters(pick.characters) }
     }
@@ -213,7 +214,7 @@ struct PickSectionView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .cardFrame()
+        .cardFrame(enchanted: true)
     }
 
     private func upsellCard(_ offer: PremiumOffer) -> some View {
@@ -247,7 +248,7 @@ struct PickSectionView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .cardFrame()
+        .cardFrame(enchanted: true)
     }
 
     private var attentionCard: some View {
@@ -266,7 +267,7 @@ struct PickSectionView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .cardFrame()
+        .cardFrame(enchanted: true)
     }
 
     private var unavailableCard: some View {
@@ -280,7 +281,7 @@ struct PickSectionView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .cardFrame()
+        .cardFrame(enchanted: true)
     }
 
     // No Retry on purpose: the daily character quota resets on Google's
@@ -297,6 +298,6 @@ struct PickSectionView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .cardFrame()
+        .cardFrame(enchanted: true)
     }
 }

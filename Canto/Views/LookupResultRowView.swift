@@ -10,6 +10,8 @@ struct LookupResultRowView: View {
     let onTap: (Sense) -> Void
     let onKeep: (Sense) -> Void
     let onCamera: (Sense) -> Void
+    // The Pick layer's rows wear the enchanted frame; dictionary rows never do.
+    var enchanted = false
 
     private var isSelected: Bool { sense.id == selectedSenseId }
     private var isKept: Bool { sense.id == keptSenseId }
@@ -22,7 +24,7 @@ struct LookupResultRowView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .cardFrame(selected: isSelected)
+        .cardFrame(selected: isSelected, enchanted: enchanted)
         .contentShape(Rectangle())
         .onTapGesture { onTap(sense) }
     }

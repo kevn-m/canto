@@ -250,6 +250,15 @@ final class DesignSnapshotTests: XCTestCase {
         var result: LookupResult?
         var presentation: PickPresentation = .hidden
 
+        // Same dedup as LookupView.displayedSenses: the list hides what the
+        // Pick already pins.
+        private var displayedSenses: [Sense] {
+            let base = result?.senses ?? []
+            guard case .available(let pick) = presentation, !pick.senses.isEmpty else { return base }
+            let pinnedIds = Set(pick.senses.map(\.id))
+            return base.filter { !pinnedIds.contains($0.id) }
+        }
+
         var body: some View {
             ZStack {
                 InnBackground()
@@ -264,7 +273,7 @@ final class DesignSnapshotTests: XCTestCase {
                     }
                     LookupResultsColumn(
                         result: result,
-                        displayedSenses: result?.senses ?? [],
+                        displayedSenses: displayedSenses,
                         showMoreVisible: !(result?.senses.isEmpty ?? true),
                         presentation: presentation,
                         selectedSenseId: nil, keptSenseId: nil, customKept: false,

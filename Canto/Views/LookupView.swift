@@ -149,8 +149,15 @@ struct LookupView: View {
         }
     }
 
+    // A Pick sense that also ranks offline would render twice, and selection
+    // (keyed on sense id) would highlight both copies — so the list hides
+    // what the Pick already pins. Display-level only; the offline ranking
+    // itself is never touched (ADR 0012).
     private var displayedSenses: [Sense] {
-        browsing ? browsedSenses : (result?.senses ?? [])
+        let base = browsing ? browsedSenses : (result?.senses ?? [])
+        guard case .available(let pick) = pickPresentation, !pick.senses.isEmpty else { return base }
+        let pinnedIds = Set(pick.senses.map(\.id))
+        return base.filter { !pinnedIds.contains($0.id) }
     }
 
     private var showMoreVisible: Bool {

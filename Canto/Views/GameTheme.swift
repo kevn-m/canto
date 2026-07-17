@@ -400,11 +400,25 @@ private struct FloorShadow: View {
 
 // The card face: cream front, gold double border, drop shadow. Used by the
 // hand's mini cards and CardPlayView's big card. `selected` brightens the
-// border and adds a gold glow so a tapped row reads as picked.
+// border and adds a gold glow so a tapped row reads as picked. `enchanted`
+// swaps the gold for lavender with an arcane glow — the Pick layer's frame,
+// so the conjured answer never dresses like the inn's own dictionary rows.
+// Selection still wins: a tapped enchanted row glows yellow like any other.
 struct CardFrame: ViewModifier {
     var face: Color = GameTheme.cream
     var cornerRadius: CGFloat = 18
     var selected = false
+    var enchanted = false
+
+    private var borderColor: Color {
+        if selected { return GameTheme.yellow }
+        return enchanted ? GameTheme.lavender : GameTheme.gold
+    }
+
+    private var glowColor: Color {
+        if selected { return GameTheme.gold.opacity(0.7) }
+        return enchanted ? GameTheme.lavender.opacity(0.55) : .black.opacity(0.45)
+    }
 
     func body(content: Content) -> some View {
         content
@@ -413,21 +427,28 @@ struct CardFrame: ViewModifier {
                     .fill(face)
                     .overlay(
                         RoundedRectangle(cornerRadius: cornerRadius)
-                            .strokeBorder(selected ? GameTheme.yellow : GameTheme.gold, lineWidth: selected ? 5 : 4)
+                            .strokeBorder(borderColor, lineWidth: selected ? 5 : 4)
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: cornerRadius - 5)
-                            .strokeBorder(GameTheme.navy.opacity(0.25), lineWidth: 1.5)
+                            .strokeBorder(
+                                (enchanted && !selected ? GameTheme.lavender : GameTheme.navy).opacity(0.25),
+                                lineWidth: 1.5
+                            )
                             .padding(5)
                     )
             )
-            .shadow(color: selected ? GameTheme.gold.opacity(0.7) : .black.opacity(0.45), radius: selected ? 10 : 6, y: selected ? 0 : 5)
+            .shadow(
+                color: glowColor,
+                radius: selected ? 10 : (enchanted ? 9 : 6),
+                y: selected || enchanted ? 0 : 5
+            )
     }
 }
 
 extension View {
-    func cardFrame(face: Color = GameTheme.cream, cornerRadius: CGFloat = 18, selected: Bool = false) -> some View {
-        modifier(CardFrame(face: face, cornerRadius: cornerRadius, selected: selected))
+    func cardFrame(face: Color = GameTheme.cream, cornerRadius: CGFloat = 18, selected: Bool = false, enchanted: Bool = false) -> some View {
+        modifier(CardFrame(face: face, cornerRadius: cornerRadius, selected: selected, enchanted: enchanted))
     }
 }
 
