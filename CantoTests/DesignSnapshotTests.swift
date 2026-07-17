@@ -178,91 +178,251 @@ final class DesignSnapshotTests: XCTestCase {
         }
     }
 
+    private func pickSection(_ presentation: PickPresentation, customKept: Bool = false) -> some View {
+        PickSectionView(
+            presentation: presentation,
+            selectedSenseId: nil, keptSenseId: nil, customKept: customKept,
+            onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }, onSpeakCharacters: { _ in },
+            onKeepCustom: { _ in }
+        )
+        .padding()
+    }
+
     func test_pickMappedRenders() {
         let sense = Sense(row: [
             "id": 1, "traditional": "驚", "simplified": nil, "jyutping": "geng1",
             "pinyin": nil, "gloss": "scared", "source": 0, "popularity": 5,
         ])
         snapshotOnInn("pick-mapped") {
-            PickSectionView(
-                pick: Pick(characters: "驚", senses: [sense], derived: nil),
-                pickPending: false, selectedSenseId: nil, keptSenseId: nil, customKept: false,
-                onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }, onSpeakCharacters: { _ in },
-                onKeepCustom: { _ in }
-            )
-            .padding()
+            pickSection(.available(Pick(characters: "驚", senses: [sense], derived: nil)))
         }
     }
 
     func test_pickUnmappedRenders() {
         snapshotOnInn("pick-unmapped") {
-            PickSectionView(
-                pick: Pick(
+            pickSection(.available(Pick(
+                characters: "我想食飯，我仲想飲水",
+                senses: [],
+                derived: DerivedReading(segments: [
+                    .init(characters: "我想", candidates: ["ngo5 soeng2"], isSeparator: false),
+                    .init(characters: "食飯", candidates: ["sik6 faan6"], isSeparator: false),
+                    .init(characters: "，", candidates: [], isSeparator: true),
+                    .init(characters: "我", candidates: ["ngo5"], isSeparator: false),
+                    .init(characters: "仲想", candidates: ["zung6 soeng2"], isSeparator: false),
+                    .init(characters: "飲水", candidates: ["jam2 seoi2"], isSeparator: false),
+                ])
+            )))
+        }
+    }
+
+    func test_pickUnmappedGapRenders() {
+        snapshotOnInn("pick-unmapped-gap") {
+            pickSection(.available(Pick(
+                characters: "食飯X",
+                senses: [],
+                derived: DerivedReading(segments: [
+                    .init(characters: "食飯", candidates: ["sik6 faan6"], isSeparator: false),
+                    .init(characters: "X", candidates: [], isSeparator: false),
+                ])
+            )))
+        }
+    }
+
+    func test_pickUnmappedNoReadingRenders() {
+        snapshotOnInn("pick-unmapped-no-reading") {
+            pickSection(.available(Pick(
+                characters: "X",
+                senses: [],
+                derived: DerivedReading(segments: [
+                    .init(characters: "X", candidates: [], isSeparator: false),
+                ])
+            )))
+        }
+    }
+
+    // The bare results column, not LookupContentView: ImageRenderer draws
+    // TextField as a no-entry placeholder and ScrollView as a sliver
+    // (verified 2026-07-17), so the header and scroll chrome are gated on
+    // device instead. The fixtures are static — not listening, no arriving
+    // Pick — so frame zero is the design.
+    private struct LookupFixture: View {
+        var inlineError: String?
+        var result: LookupResult?
+        var presentation: PickPresentation = .hidden
+
+        var body: some View {
+            ZStack {
+                InnBackground()
+                VStack(spacing: 0) {
+                    if let inlineError {
+                        Text(inlineError)
+                            .font(GameTheme.title(14))
+                            .foregroundStyle(GameTheme.red)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 24)
+                            .padding(.top, 6)
+                    }
+                    LookupResultsColumn(
+                        result: result,
+                        displayedSenses: result?.senses ?? [],
+                        showMoreVisible: !(result?.senses.isEmpty ?? true),
+                        presentation: presentation,
+                        selectedSenseId: nil, keptSenseId: nil, customKept: false,
+                        onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in },
+                        onSpeakCharacters: { _ in }, onKeepCustom: { _ in }
+                    )
+                    Spacer(minLength: 0)
+                }
+            }
+        }
+    }
+
+    private var offlineSenses: [Sense] {
+        [
+            Sense(row: [
+                "id": 1, "traditional": "食", "simplified": nil, "jyutping": "sik6",
+                "pinyin": nil, "gloss": "to eat", "source": 0, "popularity": 5,
+            ]),
+            Sense(row: [
+                "id": 2, "traditional": "食嘢", "simplified": nil, "jyutping": "sik6 je5",
+                "pinyin": nil, "gloss": "to eat something", "source": 0, "popularity": 4,
+            ]),
+        ]
+    }
+
+    private var eatResult: LookupResult {
+        LookupResult(senses: offlineSenses, isWordFallback: false)
+    }
+
+    private var mappedPick: Pick {
+        Pick(characters: "食", senses: [offlineSenses[0]], derived: nil)
+    }
+
+    private var unmappedPick: Pick {
+        Pick(
+            characters: "我想食飯",
+            senses: [],
+            derived: DerivedReading(segments: [
+                .init(characters: "我想", candidates: ["ngo5 soeng2"], isSeparator: false),
+                .init(characters: "食飯", candidates: ["sik6 faan6"], isSeparator: false),
+            ])
+        )
+    }
+
+    private var trialOffer: PremiumOffer {
+        PremiumOffer(
+            displayName: "Canto Plus", displayPrice: "A$2.99",
+            billingPeriod: "month", trialText: "1 week free"
+        )
+    }
+
+    private var subscribeOffer: PremiumOffer {
+        PremiumOffer(
+            displayName: "Canto Plus", displayPrice: "A$2.99",
+            billingPeriod: "month", trialText: nil
+        )
+    }
+
+    func test_lookupIdleRenders() {
+        snapshot("lookup-idle") { LookupFixture() }
+    }
+
+    func test_lookupCheckingAccessRenders() {
+        snapshot("lookup-checking-access") {
+            LookupFixture(result: eatResult, presentation: .checkingAccess)
+        }
+    }
+
+    func test_lookupCheckingRenders() {
+        snapshot("lookup-checking") {
+            LookupFixture(result: eatResult, presentation: .checking)
+        }
+    }
+
+    func test_lookupPickMappedRenders() {
+        snapshot("lookup-pick-mapped") {
+            LookupFixture(result: eatResult, presentation: .available(mappedPick))
+        }
+    }
+
+    func test_lookupPickUnmappedRenders() {
+        snapshot("lookup-pick-unmapped") {
+            LookupFixture(
+                result: LookupResult(senses: [], isWordFallback: false),
+                presentation: .available(unmappedPick)
+            )
+        }
+    }
+
+    func test_lookupTrialUpsellRenders() {
+        snapshot("lookup-trial-upsell") {
+            LookupFixture(result: eatResult, presentation: .upsell(trialOffer))
+        }
+    }
+
+    func test_lookupSubscribeUpsellRenders() {
+        snapshot("lookup-subscribe-upsell") {
+            LookupFixture(result: eatResult, presentation: .upsell(subscribeOffer))
+        }
+    }
+
+    func test_lookupSubscriptionAttentionRenders() {
+        snapshot("lookup-subscription-attention") {
+            LookupFixture(result: eatResult, presentation: .subscriptionNeedsAttention)
+        }
+    }
+
+    func test_lookupNetworkUnavailableRenders() {
+        snapshot("lookup-network-unavailable") {
+            LookupFixture(result: eatResult, presentation: .unavailable)
+        }
+    }
+
+    func test_lookupQuotaUnavailableRenders() {
+        snapshot("lookup-quota-unavailable") {
+            LookupFixture(result: eatResult, presentation: .unavailableToday)
+        }
+    }
+
+    func test_lookupNoOfflineResultsRenders() {
+        snapshot("lookup-no-offline-results") {
+            LookupFixture(
+                result: LookupResult(senses: [], isWordFallback: false),
+                presentation: .unavailable
+            )
+        }
+    }
+
+    func test_lookupInputTooLongRendersOnASmallPhone() {
+        snapshot("lookup-input-too-long-375", width: 375) {
+            LookupFixture(inlineError: "Keep the lookup under 60 characters.")
+        }
+    }
+
+    // The unmapped editor at the narrowest phone still sold. The editor's
+    // open state lives inside PickSectionView, so this renders the editor
+    // component directly — same approach as the 393-width editor tests.
+    func test_lookupPickUnmappedLongEditorRendersOnASmallPhone() {
+        snapshot("lookup-pick-unmapped-long-375", width: 375) {
+            ZStack {
+                InnBackground()
+                PickEditorView(
                     characters: "我想食飯，我仲想飲水",
-                    senses: [],
-                    derived: DerivedReading(segments: [
+                    segments: [
                         .init(characters: "我想", candidates: ["ngo5 soeng2"], isSeparator: false),
                         .init(characters: "食飯", candidates: ["sik6 faan6"], isSeparator: false),
                         .init(characters: "，", candidates: [], isSeparator: true),
                         .init(characters: "我", candidates: ["ngo5"], isSeparator: false),
                         .init(characters: "仲想", candidates: ["zung6 soeng2"], isSeparator: false),
                         .init(characters: "飲水", candidates: ["jam2 seoi2"], isSeparator: false),
-                    ])
-                ),
-                pickPending: false, selectedSenseId: nil, keptSenseId: nil, customKept: false,
-                onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }, onSpeakCharacters: { _ in },
-                onKeepCustom: { _ in }
-            )
-            .padding()
-        }
-    }
-
-    func test_pickUnmappedGapRenders() {
-        snapshotOnInn("pick-unmapped-gap") {
-            PickSectionView(
-                pick: Pick(
-                    characters: "食飯X",
-                    senses: [],
-                    derived: DerivedReading(segments: [
-                        .init(characters: "食飯", candidates: ["sik6 faan6"], isSeparator: false),
-                        .init(characters: "X", candidates: [], isSeparator: false),
-                    ])
-                ),
-                pickPending: false, selectedSenseId: nil, keptSenseId: nil, customKept: false,
-                onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }, onSpeakCharacters: { _ in },
-                onKeepCustom: { _ in }
-            )
-            .padding()
-        }
-    }
-
-    func test_pickUnmappedNoReadingRenders() {
-        snapshotOnInn("pick-unmapped-no-reading") {
-            PickSectionView(
-                pick: Pick(
-                    characters: "X",
-                    senses: [],
-                    derived: DerivedReading(segments: [
-                        .init(characters: "X", candidates: [], isSeparator: false),
-                    ])
-                ),
-                pickPending: false, selectedSenseId: nil, keptSenseId: nil, customKept: false,
-                onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }, onSpeakCharacters: { _ in },
-                onKeepCustom: { _ in }
-            )
-            .padding()
-        }
-    }
-
-    func test_pickOfflineMarkerRenders() {
-        snapshotOnInn("pick-offline") {
-            PickSectionView(
-                pick: nil,
-                pickPending: false, selectedSenseId: nil, keptSenseId: nil, customKept: false,
-                onTap: { _ in }, onKeep: { _ in }, onCamera: { _ in }, onSpeakCharacters: { _ in },
-                onKeepCustom: { _ in }
-            )
-            .padding()
+                    ],
+                    onSpeak: { _ in },
+                    onKeep: { _ in }
+                )
+                .padding(16)
+                .cardFrame()
+                .padding()
+            }
         }
     }
 

@@ -10,6 +10,7 @@ struct LookupView: View {
     @State private var lastHandledListenRequest = 0
     @FocusState private var queryFieldFocused: Bool
     @State private var result: LookupResult?
+    @State private var inlineError: String?
     @State private var selectedSenseId: Int64?
     @State private var keptSenseId: Int64?
     @State private var customPickKept = false
@@ -17,8 +18,7 @@ struct LookupView: View {
     @State private var lastLookupId: Int64?
     @State private var lastLoggedQuery: String?
     @State private var pendingCameraSense: Sense?
-    @State private var pick: Pick?
-    @State private var pickPending = false
+    @State private var pickPresentation: PickPresentation = .hidden
     @State private var pickTask: Task<Void, Never>?
     @State private var browsing = false
     @State private var browsedSenses: [Sense] = []
@@ -31,35 +31,34 @@ struct LookupView: View {
     @State private var speechListener = SpeechListener()
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Explicit prompt colour: dark mode draws the default placeholder
-            // with vibrancy, which smears against the cream field.
-            TextField(
-                "", text: $query,
-                prompt: Text("Type an English word").foregroundStyle(GameTheme.navy.opacity(0.45))
-            )
-                .textFieldStyle(GameTextFieldStyle())
-                .focused($queryFieldFocused)
-                .padding(.horizontal)
-                .padding(.top, 8)
-                .onSubmit { runLookup(viaVoice: false) }
-                .onChange(of: speechListener.heardText) { _, newValue in
-                    if speechListener.isListening {
-                        query = newValue
-                    }
+        LookupContentView(
+            query: $query,
+            queryFieldFocused: $queryFieldFocused,
+            inlineError: inlineError,
+            isListening: speechListener.isListening,
+            result: result,
+            displayedSenses: displayedSenses,
+            showMoreVisible: showMoreVisible,
+            presentation: pickPresentation,
+            selectedSenseId: selectedSenseId,
+            keptSenseId: keptSenseId,
+            customKept: customPickKept,
+            onSubmit: { runLookup(viaVoice: false) },
+            onMicTap: toggleListening,
+            onTap: listen(to:),
+            onKeep: keep,
+            onCamera: { pendingCameraSense = $0 },
+            onSpeakCharacters: { characters in
+                if speaker.voiceAvailable {
+                    speaker.speak(characters)
+                } else {
+                    showVoiceUnavailableAlert = true
                 }
-
-            micButton
-
-            resultsView
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(InnBackground())
-        // Tapping blank space should dismiss the keyboard, not just move
-        // focus — a background tap catcher covers Spacer areas the TextField
-        // itself doesn't own.
-        .contentShape(Rectangle())
-        .onTapGesture { queryFieldFocused = false }
+            },
+            onKeepCustom: keepCustom,
+            onRetry: retryPick,
+            onShowMore: showMore
+        )
         .navigationTitle("Canto")
         .alert("Cantonese voice not installed", isPresented: $showVoiceUnavailableAlert) {
             Button("OK", role: .cancel) {}
@@ -80,6 +79,14 @@ struct LookupView: View {
         }
         .onChange(of: listenRequest) { _, token in
             handleListenRequest(token)
+        }
+        .onChange(of: query) { _, _ in
+            inlineError = nil
+        }
+        .onChange(of: speechListener.heardText) { _, newValue in
+            if speechListener.isListening {
+                query = newValue
+            }
         }
         // Battle audio claims .playback; a still-running mic tap (.record)
         // would be yanked out from under the engine when a tab switch lands
@@ -127,17 +134,6 @@ struct LookupView: View {
         gameStore.setPhoto(cardId: cardId, filename: filename)
     }
 
-    private var micButton: some View {
-        Button(action: toggleListening) {
-            Image(systemName: "mic.fill")
-                .font(.system(size: 32))
-                .padding()
-                .foregroundStyle(speechListener.isListening ? GameTheme.red : GameTheme.gold)
-                .symbolEffect(.pulse, isActive: speechListener.isListening)
-        }
-        .accessibilityLabel(speechListener.isListening ? "Stop listening" : "Start listening")
-    }
-
     private var speechErrorBinding: Binding<Bool> {
         Binding(
             get: { speechListener.errorMessage != nil },
@@ -153,102 +149,51 @@ struct LookupView: View {
         }
     }
 
-    @ViewBuilder
-    private var resultsView: some View {
-        if let result {
-            VStack(spacing: 0) {
-                PickSectionView(
-                    pick: pick,
-                    pickPending: pickPending,
-                    selectedSenseId: selectedSenseId,
-                    keptSenseId: keptSenseId,
-                    customKept: customPickKept,
-                    onTap: listen(to:),
-                    onKeep: keep,
-                    onCamera: { pendingCameraSense = $0 },
-                    onSpeakCharacters: { characters in
-                        if speaker.voiceAvailable {
-                            speaker.speak(characters)
-                        } else {
-                            showVoiceUnavailableAlert = true
-                        }
-                    },
-                    onKeepCustom: keepCustom
-                )
-                if result.senses.isEmpty {
-                    Spacer()
-                    Text("No results")
-                        .font(GameTheme.title(20))
-                        .foregroundStyle(GameTheme.cream.opacity(0.7))
-                    Spacer()
-                } else {
-                    List {
-                        ForEach(displayedSenses) { sense in
-                            LookupResultRowView(
-                                sense: sense,
-                                selectedSenseId: selectedSenseId,
-                                keptSenseId: keptSenseId,
-                                onTap: listen(to:),
-                                onKeep: keep,
-                                onCamera: { pendingCameraSense = $0 }
-                            )
-                            .listRowBackground(Color.clear)
-                            .listRowSeparator(.hidden)
-                            .listRowInsets(EdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16))
-                        }
-                        if !browsing, !result.isWordFallback {
-                            Button {
-                                // Fetch once, on the tap. Only switch to the
-                                // browse list if it actually loaded — an empty
-                                // result means a read error, and blanking the
-                                // screen is worse than leaving the top-5 up.
-                                let more = store.browseSenses(lastLoggedQuery ?? "")
-                                if !more.isEmpty {
-                                    browsedSenses = more
-                                    browsing = true
-                                }
-                            } label: {
-                                Text("Show more")
-                                    .font(GameTheme.title(16))
-                                    .frame(maxWidth: .infinity, alignment: .center)
-                                    .foregroundStyle(GameTheme.cream.opacity(0.65))
-                            }
-                            .listRowBackground(Color.clear)
-                            .listRowSeparator(.hidden)
-                            .accessibilityLabel("Show more results")
-                        }
-                    }
-                    .listStyle(.plain)
-                    .scrollContentBackground(.hidden)
-                }
-            }
-        } else {
-            Spacer()
-        }
-    }
-
     private var displayedSenses: [Sense] {
         browsing ? browsedSenses : (result?.senses ?? [])
     }
 
+    private var showMoreVisible: Bool {
+        guard let result else { return false }
+        return !browsing && !result.isWordFallback && !result.senses.isEmpty
+    }
+
+    private func showMore() {
+        // Fetch once, on the tap. Only switch to the browse list if it
+        // actually loaded — an empty result means a read error, and blanking
+        // the screen is worse than leaving the top-5 up.
+        let more = store.browseSenses(lastLoggedQuery ?? "")
+        if !more.isEmpty {
+            browsedSenses = more
+            browsing = true
+        }
+    }
+
     private func runLookup(viaVoice: Bool) {
-        let trimmed = query.trimmingCharacters(in: .whitespaces)
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             result = nil
+            inlineError = nil
             lastLookupId = nil
             lastLoggedQuery = nil
             pickTask?.cancel()
-            pick = nil
-            pickPending = false
+            pickPresentation = .hidden
             customPickKept = false
             browsing = false
             browsedSenses = []
+            return
+        }
+        // Lookups are words; the cap bounds the Google bill per call and the
+        // proxy rejects longer anyway (ADR 0031). No query, no log row, no Pick.
+        guard trimmed.unicodeScalars.count <= 60 else {
+            inlineError = "Keep the lookup under 60 characters."
             return
         }
         // A double-fired onSubmit would log the same intent twice, leaving a
         // phantom "abandoned" row in the miss log — skip exact repeats while
         // their results are still on screen.
         if trimmed == lastLoggedQuery, result != nil { return }
+        inlineError = nil
         result = store.lookup(trimmed)
         selectedSenseId = nil
         keptSenseId = nil
@@ -262,10 +207,26 @@ struct LookupView: View {
         )
         lastLoggedQuery = trimmed
 
+        requestPick(for: trimmed)
+    }
+
+    // Retry re-runs only the Pick for the query already on screen — it never
+    // creates a second Lookup log row.
+    private func retryPick() {
+        guard let lastLoggedQuery else { return }
+        requestPick(for: lastLoggedQuery)
+    }
+
+    // Keyless builds hide the Pick layer entirely for now; the premium
+    // access mapping (upsell/attention states) arrives with PremiumStore in
+    // the plan's slice 4.
+    private func requestPick(for trimmed: String) {
         pickTask?.cancel()
-        pick = nil
-        pickPending = translator.isEnabled
-        guard translator.isEnabled else { return }
+        guard translator.isEnabled else {
+            pickPresentation = .hidden
+            return
+        }
+        pickPresentation = .checking
         pickTask = Task {
             let characters = await translator.translate(trimmed)
             // A slow answer for the previous word must not pin onto the current
@@ -275,7 +236,7 @@ struct LookupView: View {
             guard let characters else {
                 await MainActor.run {
                     guard !Task.isCancelled, trimmed == lastLoggedQuery else { return }
-                    pickPending = false
+                    pickPresentation = .unavailable
                 }
                 return
             }
@@ -295,8 +256,9 @@ struct LookupView: View {
 
             await MainActor.run {
                 guard !Task.isCancelled, trimmed == lastLoggedQuery else { return }
-                pick = Pick(characters: characters, senses: data.senses, derived: data.derived)
-                pickPending = false
+                pickPresentation = .available(
+                    Pick(characters: characters, senses: data.senses, derived: data.derived)
+                )
             }
         }
     }
@@ -327,12 +289,210 @@ struct LookupView: View {
     }
 
     private func keepCustom(_ jyutping: String) {
-        guard let lastLookupId, let pick else {
+        guard let lastLookupId, case .available(let pick) = pickPresentation else {
             NSLog("keepCustom: no lookup row to attach to; keep dropped")
             return
         }
         if logStore.setChosenCustom(lookupId: lastLookupId, traditional: pick.characters, jyutping: jyutping) {
             customPickKept = true
         }
+    }
+}
+
+// The visual half of the screen: fixed query/mic header, then one scroll of
+// Pick state + offline Senses. Pure — no lookup, logging, network, audio,
+// StoreKit, or camera work — so DesignSnapshotTests can render every state
+// with injected data. Not a separate file: it's half of one screen.
+struct LookupContentView: View {
+    @Binding var query: String
+    var queryFieldFocused: FocusState<Bool>.Binding
+    let inlineError: String?
+    let isListening: Bool
+    let result: LookupResult?
+    let displayedSenses: [Sense]
+    let showMoreVisible: Bool
+    let presentation: PickPresentation
+    let selectedSenseId: Int64?
+    let keptSenseId: Int64?
+    let customKept: Bool
+    let onSubmit: () -> Void
+    let onMicTap: () -> Void
+    let onTap: (Sense) -> Void
+    let onKeep: (Sense) -> Void
+    let onCamera: (Sense) -> Void
+    let onSpeakCharacters: (String) -> Void
+    let onKeepCustom: (String) -> Void
+    var onStartTrial: () -> Void = {}
+    var onSubscribe: () -> Void = {}
+    var onRestore: () -> Void = {}
+    var onManage: () -> Void = {}
+    var onRetry: () -> Void = {}
+    var onShowMore: () -> Void = {}
+
+    var body: some View {
+        VStack(spacing: 0) {
+            header
+            if let inlineError {
+                Text(inlineError)
+                    .font(GameTheme.title(14))
+                    .foregroundStyle(GameTheme.red)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 24)
+                    .padding(.top, 6)
+            }
+            resultsScroll
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(InnBackground())
+        // Tapping blank space should dismiss the keyboard, not just move
+        // focus — a background tap catcher covers Spacer areas the TextField
+        // itself doesn't own.
+        .contentShape(Rectangle())
+        .onTapGesture { queryFieldFocused.wrappedValue = false }
+    }
+
+    // One card row: query field plus the mic. The trailing edge deliberately
+    // has room for the future Reverse Lookup direction control — no
+    // placeholder rendered now.
+    private var header: some View {
+        HStack(spacing: 12) {
+            // Explicit prompt colour: dark mode draws the default placeholder
+            // with vibrancy, which smears against the cream field.
+            TextField(
+                "", text: $query,
+                prompt: Text("Type an English word").foregroundStyle(GameTheme.navy.opacity(0.45))
+            )
+            .textFieldStyle(GameTextFieldStyle())
+            .focused(queryFieldFocused)
+            .onSubmit(onSubmit)
+
+            Button(action: onMicTap) {
+                Image(systemName: "mic.fill")
+                    .font(.system(size: 24))
+                    .foregroundStyle(isListening ? GameTheme.red : GameTheme.gold)
+                    .symbolEffect(.pulse, isActive: isListening)
+                    .frame(width: 44, height: 44)
+            }
+            .accessibilityLabel(isListening ? "Stop listening" : "Start listening")
+        }
+        .padding(.horizontal)
+        .padding(.top, 8)
+    }
+
+    @ViewBuilder
+    private var resultsScroll: some View {
+        if result != nil || !isHidden {
+            ScrollView {
+                LookupResultsColumn(
+                    result: result,
+                    displayedSenses: displayedSenses,
+                    showMoreVisible: showMoreVisible,
+                    presentation: presentation,
+                    selectedSenseId: selectedSenseId,
+                    keptSenseId: keptSenseId,
+                    customKept: customKept,
+                    onTap: onTap,
+                    onKeep: onKeep,
+                    onCamera: onCamera,
+                    onSpeakCharacters: onSpeakCharacters,
+                    onKeepCustom: onKeepCustom,
+                    onStartTrial: onStartTrial,
+                    onSubscribe: onSubscribe,
+                    onRestore: onRestore,
+                    onManage: onManage,
+                    onRetry: onRetry,
+                    onShowMore: onShowMore
+                )
+            }
+            .scrollDismissesKeyboard(.interactively)
+        } else {
+            Spacer()
+        }
+    }
+
+    private var isHidden: Bool {
+        if case .hidden = presentation { return true }
+        return false
+    }
+}
+
+// One lookup's content: Pick state card, offline Senses, Show more. Split
+// from LookupContentView's ScrollView so DesignSnapshotTests can render it
+// bare — ImageRenderer draws ScrollView as a sliver and TextField as a
+// no-entry placeholder (the repo's known traps), so the header and scroll
+// chrome are device-verified instead.
+struct LookupResultsColumn: View {
+    let result: LookupResult?
+    let displayedSenses: [Sense]
+    let showMoreVisible: Bool
+    let presentation: PickPresentation
+    let selectedSenseId: Int64?
+    let keptSenseId: Int64?
+    let customKept: Bool
+    let onTap: (Sense) -> Void
+    let onKeep: (Sense) -> Void
+    let onCamera: (Sense) -> Void
+    let onSpeakCharacters: (String) -> Void
+    let onKeepCustom: (String) -> Void
+    var onStartTrial: () -> Void = {}
+    var onSubscribe: () -> Void = {}
+    var onRestore: () -> Void = {}
+    var onManage: () -> Void = {}
+    var onRetry: () -> Void = {}
+    var onShowMore: () -> Void = {}
+
+    var body: some View {
+        LazyVStack(spacing: 10) {
+            PickSectionView(
+                presentation: presentation,
+                selectedSenseId: selectedSenseId,
+                keptSenseId: keptSenseId,
+                customKept: customKept,
+                onTap: onTap,
+                onKeep: onKeep,
+                onCamera: onCamera,
+                onSpeakCharacters: onSpeakCharacters,
+                onKeepCustom: onKeepCustom,
+                onStartTrial: onStartTrial,
+                onSubscribe: onSubscribe,
+                onRestore: onRestore,
+                onManage: onManage,
+                onRetry: onRetry
+            )
+            if let result {
+                if result.senses.isEmpty {
+                    // The Pick/upsell/failure card above stays visible; this
+                    // only describes the bundled dictionary.
+                    Text("No offline results")
+                        .font(GameTheme.title(20))
+                        .foregroundStyle(GameTheme.cream.opacity(0.7))
+                        .padding(.top, 40)
+                } else {
+                    ForEach(displayedSenses) { sense in
+                        LookupResultRowView(
+                            sense: sense,
+                            selectedSenseId: selectedSenseId,
+                            keptSenseId: keptSenseId,
+                            onTap: onTap,
+                            onKeep: onKeep,
+                            onCamera: onCamera
+                        )
+                        .padding(.horizontal)
+                    }
+                    if showMoreVisible {
+                        Button(action: onShowMore) {
+                            Text("Show more")
+                                .font(GameTheme.title(16))
+                                .frame(maxWidth: .infinity, alignment: .center)
+                                .foregroundStyle(GameTheme.cream.opacity(0.65))
+                        }
+                        .accessibilityLabel("Show more results")
+                    }
+                }
+            }
+            // Breathing room above the floating tab bar.
+            Color.clear.frame(height: 24)
+        }
+        .padding(.top, 6)
     }
 }
