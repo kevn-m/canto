@@ -162,6 +162,56 @@ final class LogStore {
         }
     }
 
+    enum LogStoreError: Error, LocalizedError {
+        case notOpen
+
+        var errorDescription: String? { "The history database isn't open." }
+    }
+
+    // Everything, for the game snapshot — History is part of the state.
+    func allLookups() -> [LookupRecord] {
+        guard let dbQueue else { return [] }
+        do {
+            return try dbQueue.read { db in
+                try LookupRecord.fetchAll(db, sql: "SELECT * FROM lookups ORDER BY id ASC")
+            }
+        } catch {
+            NSLog("LogStore allLookups failed: %@", String(describing: error))
+            return []
+        }
+    }
+
+    // Snapshot import. Throws, unlike the rest of LogStore: restored data is
+    // hand-carried and a swallowed failure would silently drop History.
+    // One transaction; inserts in createdAt order so fresh AUTOINCREMENT ids
+    // stay chronological. Returns the highest new id, for the syncDeck
+    // checkpoint.
+    func replaceAllLookups(_ lookups: [GameSnapshot.Lookup]) throws -> Int64 {
+        guard let dbQueue else { throw LogStoreError.notOpen }
+        return try dbQueue.write { db in
+            try db.execute(sql: "DELETE FROM lookups")
+            // Tracked per insert: after an empty import lastInsertedRowID
+            // would report a stale id from an earlier write, not 0.
+            var maxId: Int64 = 0
+            for lookup in lookups.sorted(by: { $0.createdAt < $1.createdAt }) {
+                try db.execute(
+                    sql: """
+                        INSERT INTO lookups
+                          (heard_text, matched, chosen_sense_id, chosen_traditional, chosen_jyutping, via_voice, created_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                        """,
+                    arguments: [
+                        lookup.heardText, lookup.matched, lookup.chosenSenseId,
+                        lookup.chosenTraditional, lookup.chosenJyutping,
+                        lookup.viaVoice, lookup.createdAt,
+                    ]
+                )
+                maxId = db.lastInsertedRowID
+            }
+            return maxId
+        }
+    }
+
     // Feeds GameStore.syncDeck: lookups the player actually chose a sense
     // for, ascending so the checkpoint in game.sqlite's meta table can walk
     // forward from the last imported id.

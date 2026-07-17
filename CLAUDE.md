@@ -115,9 +115,12 @@ ImageRenderer — no simulator navigation, no seeded database. The loop:
 2. Grep the output for `SNAPSHOT_DIR:` and open/Read the PNGs there.
 3. Critique, edit, re-render. Add a snapshot test for any new screen.
 
-Three traps, learned the hard way: ImageRenderer DOES run `onAppear` (that's
+Four traps, learned the hard way: ImageRenderer DOES run `onAppear` (that's
 why `BattleView` takes a `previewHand`), it renders `NavigationStack` as a
-"no entry" placeholder (snapshot bare views), and a brand-new test file needs
+"no entry" placeholder (snapshot bare views), `List` draws the same
+placeholder (verified 2026-07-17 — even `List { Text("row") }` alone; the
+settings snapshot has been blind since some SDK bump, so List screens need
+an on-device look), and a brand-new test file needs
 `xcodegen generate` before it exists to the scheme. The tests only assert
 "renders without failing" — the design judgment is on whoever reads the PNGs.
 Kevin's standing rules for these screens: no emoji (use sprites), no silent

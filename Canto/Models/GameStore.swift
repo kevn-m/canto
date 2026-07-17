@@ -28,6 +28,7 @@ private enum GameStoreError: Error, LocalizedError {
     case unknownGear(String)
     case gearNotOwned(String)
     case unknownAvatar(String)
+    case reviewWithoutCard(String)
 
     var errorDescription: String? {
         switch self {
@@ -38,6 +39,7 @@ private enum GameStoreError: Error, LocalizedError {
         case .unknownGear(let id): return "\(id) isn't a real piece of gear."
         case .gearNotOwned(let id): return "Can't equip \(id) - it hasn't been bought yet."
         case .unknownAvatar(let id): return "\(id) isn't a real avatar."
+        case .reviewWithoutCard(let traditional): return "The snapshot has a review for \(traditional) but no matching card."
         }
     }
 }
@@ -461,6 +463,142 @@ final class GameStore: ObservableObject {
         }
         if let filename, !photos.delete(filename: filename) {
             NSLog("deleteCard: photo file delete failed for card %lld", cardId)
+        }
+    }
+
+    // MARK: - Snapshot (ADR 0020)
+
+    // The game.sqlite half of a snapshot. Reviews carry (traditional,
+    // jyutping), not card ids — ids are AUTOINCREMENT and die in the import
+    // remap. The checkpoint meta key stays home for the same reason.
+    func snapshotRows() -> GameSnapshot.GameRows {
+        readValue(default: GameSnapshot.GameRows(
+            cards: [], ledger: [], reviews: [], runs: [], shopItems: [], badges: [], gear: [], meta: [:]
+        )) { db in
+            let cards = try Row.fetchAll(db, sql: """
+                SELECT c.traditional, c.jyutping, c.english, c.benched, c.created_at, cs.box, cs.due_on
+                FROM cards c
+                JOIN card_states cs ON cs.card_id = c.id AND cs.player = 'kid'
+                ORDER BY c.id
+                """).map { row in
+                GameSnapshot.Card(
+                    traditional: row["traditional"], jyutping: row["jyutping"], english: row["english"],
+                    benched: row["benched"], createdAt: row["created_at"], box: row["box"], dueOn: row["due_on"]
+                )
+            }
+            let ledger = try Row.fetchAll(db, sql: "SELECT amount, reason, created_at FROM bux_ledger ORDER BY id").map {
+                GameSnapshot.LedgerEntry(amount: $0["amount"], reason: $0["reason"], createdAt: $0["created_at"])
+            }
+            let reviews = try Row.fetchAll(db, sql: """
+                SELECT c.traditional, c.jyutping, r.result, r.reviewed_at
+                FROM reviews r JOIN cards c ON c.id = r.card_id
+                ORDER BY r.id
+                """).map { row in
+                GameSnapshot.Review(
+                    traditional: row["traditional"], jyutping: row["jyutping"],
+                    result: row["result"], reviewedAt: row["reviewed_at"]
+                )
+            }
+            let runs = try Row.fetchAll(db, sql: "SELECT run_date, state_json, finished FROM runs WHERE finished = 1 ORDER BY id").map {
+                GameSnapshot.Run(runDate: $0["run_date"], stateJson: $0["state_json"], finished: $0["finished"])
+            }
+            let shopItems = try Row.fetchAll(db, sql: "SELECT name, price, archived FROM shop_items ORDER BY id").map {
+                GameSnapshot.ShopItem(name: $0["name"], price: $0["price"], archived: $0["archived"])
+            }
+            let badges = try Row.fetchAll(db, sql: "SELECT badge_id, earned_at FROM badges ORDER BY badge_id").map {
+                GameSnapshot.Badge(badgeId: $0["badge_id"], earnedAt: $0["earned_at"])
+            }
+            let gear = try Row.fetchAll(db, sql: "SELECT gear_id, acquired_at FROM gear ORDER BY gear_id").map {
+                GameSnapshot.GearItem(gearId: $0["gear_id"], acquiredAt: $0["acquired_at"])
+            }
+            var meta: [String: String] = [:]
+            for row in try Row.fetchAll(db, sql: "SELECT key, value FROM meta WHERE key != 'last_imported_lookup_id'") {
+                meta[row["key"]] = row["value"]
+            }
+            return GameSnapshot.GameRows(
+                cards: cards, ledger: ledger, reviews: reviews, runs: runs,
+                shopItems: shopItems, badges: badges, gear: gear, meta: meta
+            )
+        }
+    }
+
+    // Replace-all restore of game.sqlite from a snapshot, in one transaction:
+    // a mid-import failure rolls the whole thing back and sets lastError
+    // (ADR 0009) — nothing half-written. `lastLogId` is the highest id
+    // LogStore.replaceAllLookups just created, so syncDeck doesn't re-import
+    // restored History as duplicate cards. Old card photos are deleted after
+    // the transaction commits, like resetEverything.
+    func importSnapshot(_ payload: GameSnapshot.Payload, lastLogId: Int64) {
+        let filenames: [String] = writeValue(default: []) { db in
+            let oldPhotos = try String.fetchAll(
+                db, sql: "SELECT photo_filename FROM cards WHERE photo_filename IS NOT NULL")
+            for table in ["reviews", "card_states", "cards", "runs", "bux_ledger", "shop_items", "badges", "gear", "meta"] {
+                try db.execute(sql: "DELETE FROM \(table)")
+            }
+
+            var cardIds: [String: Int64] = [:]
+            for card in payload.cards {
+                try db.execute(
+                    sql: "INSERT INTO cards (traditional, jyutping, english, benched, created_at) VALUES (?, ?, ?, ?, ?)",
+                    arguments: [card.traditional, card.jyutping, card.english, card.benched, card.createdAt]
+                )
+                let cardId = db.lastInsertedRowID
+                cardIds["\(card.traditional)|\(card.jyutping)"] = cardId
+                try db.execute(
+                    sql: "INSERT INTO card_states (card_id, player, box, due_on) VALUES (?, 'kid', ?, ?)",
+                    arguments: [cardId, card.box, card.dueOn]
+                )
+            }
+            for review in payload.reviews {
+                guard let cardId = cardIds["\(review.traditional)|\(review.jyutping)"] else {
+                    throw GameStoreError.reviewWithoutCard(review.traditional)
+                }
+                try db.execute(
+                    sql: "INSERT INTO reviews (card_id, player, result, reviewed_at) VALUES (?, 'kid', ?, ?)",
+                    arguments: [cardId, review.result, review.reviewedAt]
+                )
+            }
+            for entry in payload.ledger {
+                try db.execute(
+                    sql: "INSERT INTO bux_ledger (amount, reason, created_at) VALUES (?, ?, ?)",
+                    arguments: [entry.amount, entry.reason, entry.createdAt]
+                )
+            }
+            for run in payload.runs where run.finished {
+                try db.execute(
+                    sql: "INSERT INTO runs (run_date, state_json, finished) VALUES (?, ?, 1)",
+                    arguments: [run.runDate, run.stateJson]
+                )
+            }
+            for item in payload.shopItems {
+                try db.execute(
+                    sql: "INSERT INTO shop_items (name, price, archived) VALUES (?, ?, ?)",
+                    arguments: [item.name, item.price, item.archived]
+                )
+            }
+            for badge in payload.badges {
+                try db.execute(
+                    sql: "INSERT INTO badges (badge_id, earned_at) VALUES (?, ?)",
+                    arguments: [badge.badgeId, badge.earnedAt]
+                )
+            }
+            for gear in payload.gear {
+                try db.execute(
+                    sql: "INSERT INTO gear (gear_id, acquired_at) VALUES (?, ?)",
+                    arguments: [gear.gearId, gear.acquiredAt]
+                )
+            }
+            for (key, value) in payload.meta where key != "last_imported_lookup_id" {
+                try db.execute(sql: "INSERT INTO meta (key, value) VALUES (?, ?)", arguments: [key, value])
+            }
+            try db.execute(
+                sql: "INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)",
+                arguments: ["last_imported_lookup_id", String(lastLogId)]
+            )
+            return oldPhotos
+        }
+        for name in filenames where !photos.delete(filename: name) {
+            NSLog("importSnapshot: photo delete failed for %@", name)
         }
     }
 
