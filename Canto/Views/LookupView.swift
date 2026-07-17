@@ -59,7 +59,6 @@ struct LookupView: View {
             onRetry: retryPick,
             onShowMore: showMore
         )
-        .navigationTitle("Canto")
         .alert("Cantonese voice not installed", isPresented: $showVoiceUnavailableAlert) {
             Button("OK", role: .cancel) {}
         } message: {
@@ -338,18 +337,31 @@ struct LookupContentView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            // Idle: the field floats mid-wall — this Spacer balances the one
+            // resultsScroll shows when idle. The first result collapses both
+            // and the field springs to the top with the results underneath.
+            if isIdle { Spacer() }
             header
             if let inlineError {
                 Text(inlineError)
                     .font(GameTheme.title(14))
                     .foregroundStyle(GameTheme.red)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .frame(maxWidth: .infinity, alignment: isIdle ? .center : .leading)
                     .padding(.horizontal, 24)
                     .padding(.top, 6)
             }
             resultsScroll
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(alignment: .bottom) {
+            if isIdle {
+                SleepingPalView()
+                    .padding(.bottom, 6)
+                    .transition(.opacity)
+                    .allowsHitTesting(false)
+            }
+        }
+        .animation(.spring(response: 0.45, dampingFraction: 0.85), value: isIdle)
         .background(InnBackground())
         // Tapping blank space should dismiss the keyboard, not just move
         // focus — a background tap catcher covers Spacer areas the TextField
@@ -383,7 +395,9 @@ struct LookupContentView: View {
             .accessibilityLabel(isListening ? "Stop listening" : "Start listening")
         }
         .padding(.horizontal)
-        .padding(.top, 8)
+        // Top state clears the InnBackground lanterns (hung at 15% of screen
+        // height); centred idle doesn't need the offset.
+        .padding(.top, isIdle ? 0 : 72)
     }
 
     @ViewBuilder
@@ -420,6 +434,42 @@ struct LookupContentView: View {
     private var isHidden: Bool {
         if case .hidden = presentation { return true }
         return false
+    }
+
+    // Nothing looked up yet: no offline result and no Pick activity.
+    private var isIdle: Bool { result == nil && isHidden }
+}
+
+// The pal asleep by the hearth while the inn is quiet: slow breathing, sleep
+// bubbles bobbing with the breath. Decoration only — never intercepts touches.
+private struct SleepingPalView: View {
+    @State private var breathing = false
+
+    var body: some View {
+        if let sprite = SpriteArt.image(named: "pal-dragonling-sleep") {
+            Image(uiImage: sprite)
+                .resizable()
+                .interpolation(.none)
+                .frame(width: 104, height: 104)
+                .scaleEffect(x: breathing ? 1.02 : 1.0, y: breathing ? 1.05 : 0.99, anchor: .bottom)
+                .overlay(alignment: .topLeading) {
+                    bubble(size: 6, x: 22, y: 26)
+                    bubble(size: 9, x: 10, y: 8)
+                }
+                .onAppear {
+                    withAnimation(.easeInOut(duration: 2.4).repeatForever(autoreverses: true)) {
+                        breathing = true
+                    }
+                }
+        }
+    }
+
+    private func bubble(size: CGFloat, x: CGFloat, y: CGFloat) -> some View {
+        Circle()
+            .fill(GameTheme.sky)
+            .overlay(Circle().strokeBorder(GameTheme.navy, lineWidth: 1.5))
+            .frame(width: size, height: size)
+            .offset(x: x, y: y + (breathing ? -4 : 3))
     }
 }
 

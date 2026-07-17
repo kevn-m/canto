@@ -31116,6 +31116,21 @@ S.push({ name: 'pal-dragonling', draw(g) {           // tiny companion baby drag
   blush(g, CX - 13, 33); blush(g, CX + 13, 33);
 }});
 
+S.push({ name: 'pal-dragonling-sleep', draw(g) {      // the pal curled up asleep (Lookup idle; bubbles animate in SwiftUI)
+  stroke(g, [[49, 51], [55, 47], [57, 41]], 1.6, 1.2, P.lim); // tail curled round the back
+  tri(g, 47, 41, 39, 39, 45, 32, P.lim);              // one wing folded over the back
+  ball(g, 38, 49, 15, 8, P.lim, P.grn);               // curled body, lying
+  ball(g, 29, 54, 3.6, 2.6, P.lim, P.grn);            // front paw tucked in
+  tri(g, 15, 31, 18, 29, 13, 22, P.yel);              // horns peeking over the resting head
+  tri(g, 26, 30, 29, 28, 29, 20, P.yel);
+  ball(g, 21, 41, 12, 11, P.lim);                     // head flat — a shade rim reads as a beard
+  ball(g, 20, 45, 5.5, 3.8, P.pch);                   // muzzle
+  smileArc(g, 14, 40, 2.4, 1.1);                      // closed sleepy eyes (same idiom as 'sleep')
+  smileArc(g, 27, 39, 2.4, 1.1);
+  smileArc(g, 20, 46, 2, 0.8);                        // peaceful smile
+  blush(g, 11, 43); blush(g, 30, 42);
+}});
+
 S.push({ name: 'streak-flame', draw(g) {             // UI: day-count flame icon
   // Round base tapering to one flicked tip — the silhouette must read as
   // fire at 30px, where the old twin-horned egg read as a red blob.

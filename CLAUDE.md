@@ -86,6 +86,12 @@ install. Needs one-time setup — an App Store Connect API key, an app record, a
   (stdlib Python). New sounds: add to the script, run it, copy the WAV here,
   add an `SFXPlayer.Effect` case, `xcodegen generate`. `SFXTests` iterates
   every case, so a missing or undecodable WAV fails the build.
+- `Canto/Resources/Assets.xcassets/` — the app icon (pal-dragonling + speech
+  bubble on plum), rendered by `art/app-icon/render_icon.js` straight into the
+  appiconset as an opaque 1024px PNG. To change colourway or mascot: edit
+  `CHOSEN` in that script, re-run it (any cwd), check the `preview-*.png`s it
+  writes next to itself. The 64px composition blits the mascot from the sprite
+  recipes, so a sprite change flows into the icon on re-render.
 - `scripts/build_dict.py` — builds `dict.sqlite` from `data/`
 - `scripts/spike_translate.py` — the Slice 0 gate: checks the Translate API answers the
   burned words as well as the Translate UI (stdlib; reads `TRANSLATE_API_KEY`, else `secrets.json`)

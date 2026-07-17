@@ -23,6 +23,7 @@ targets:
       - path: Canto/Resources/dict.sqlite
       - path: Canto/Resources/Sprites
       - path: Canto/Resources/SFX
+      - path: Canto/Resources/Assets.xcassets
     dependencies:
       - package: GRDB
         product: GRDB
@@ -63,6 +64,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.kevinmok.cantoapp
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         SWIFT_VERSION: 5.0
         TARGETED_DEVICE_FAMILY: "1"
         DEVELOPMENT_TEAM: 56NFU58N9Q

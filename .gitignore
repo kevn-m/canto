@@ -13,3 +13,4 @@ scripts/testflight.env
 art/*
 !art/style.md
 !art/reference-sheet/
+!art/app-icon/
