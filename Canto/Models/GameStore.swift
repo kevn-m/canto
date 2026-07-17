@@ -312,6 +312,31 @@ final class GameStore: ObservableObject {
         }
     }
 
+    // Deals the starter pack straight into the Deck — not as fake lookups;
+    // History stays a log of real lookups (ADR 0023). INSERT OR IGNORE +
+    // UNIQUE(traditional, jyutping) makes it idempotent and dedupes against
+    // words the player later Keeps.
+    func addStarterCards(_ words: [StarterPack.Word]) {
+        let createdAt = ISO8601DateFormatter().string(from: Date())
+        write { db in
+            for word in words {
+                try db.execute(
+                    sql: "INSERT OR IGNORE INTO cards (traditional, jyutping, english, created_at) VALUES (?, ?, ?, ?)",
+                    arguments: [
+                        word.traditional, word.jyutping,
+                        word.english.lowercased().trimmingCharacters(in: .whitespacesAndNewlines),
+                        createdAt,
+                    ]
+                )
+                guard db.changesCount > 0 else { continue }
+                try db.execute(
+                    sql: "INSERT INTO card_states (card_id, player) VALUES (?, 'kid')",
+                    arguments: [db.lastInsertedRowID]
+                )
+            }
+        }
+    }
+
     func deck() -> [DeckEntry] {
         readValue(default: []) { db in
             let rows = try Row.fetchAll(db, sql: """

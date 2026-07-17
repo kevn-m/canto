@@ -107,6 +107,38 @@ final class GameStoreTests: XCTestCase {
         XCTAssertEqual(entry.dueOn, "1970-01-01")
     }
 
+    // MARK: - addStarterCards
+
+    func test_addStarterCards_runningTwiceAddsNothing() {
+        let store = GameStore(directory: tempDir)
+        store.addStarterCards(StarterPack.words)
+        XCTAssertEqual(store.deck().count, StarterPack.words.count)
+
+        store.addStarterCards(StarterPack.words)
+        XCTAssertEqual(store.deck().count, StarterPack.words.count)
+    }
+
+    func test_addStarterCards_laterNaturalKeepOfAStarterWordDoesNotDuplicate() {
+        let store = GameStore(directory: tempDir)
+        store.addStarterCards(StarterPack.words)
+
+        let log = LogStore(directory: tempDir)
+        makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
+        store.syncDeck(from: log)
+
+        XCTAssertEqual(store.deck().count, StarterPack.words.count)
+    }
+
+    func test_addStarterCards_startsEveryCardInBoxZero() {
+        let store = GameStore(directory: tempDir)
+        store.addStarterCards(StarterPack.words)
+
+        for entry in store.deck() {
+            XCTAssertEqual(entry.box, 0)
+            XCTAssertEqual(entry.dueOn, "1970-01-01")
+        }
+    }
+
     // MARK: - recordReview
 
     func test_recordReview_hitClimbsBoxAndAppendsReviewRow() throws {

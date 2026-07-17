@@ -344,6 +344,53 @@ final class DesignSnapshotTests: XCTestCase {
         )
     }
 
+    // Bare pages on the inn backdrop, not OnboardingView itself: the
+    // container's voice check reads the simulator's installed voices, which
+    // would make the rendered state machine-dependent.
+    func test_onboardingWelcomeRenders() {
+        snapshot("onboarding-welcome") {
+            ZStack {
+                InnBackground()
+                OnboardingWelcomePage(onNext: {})
+            }
+        }
+    }
+
+    func test_onboardingVoiceRendersBothStates() {
+        snapshot("onboarding-voice-available") {
+            ZStack {
+                InnBackground()
+                OnboardingVoicePage(voiceAvailable: true, onHearSample: {}, onNext: {})
+            }
+        }
+        snapshot("onboarding-voice-missing") {
+            ZStack {
+                InnBackground()
+                OnboardingVoicePage(voiceAvailable: false, onHearSample: {}, onNext: {})
+            }
+        }
+    }
+
+    func test_onboardingPackRenders() {
+        snapshot("onboarding-pack") {
+            ZStack {
+                InnBackground()
+                OnboardingPackPage(onAdd: {}, onSkip: {})
+            }
+        }
+    }
+
+    // The pack grid on the narrowest phone still sold: five 52pt sprite
+    // columns fit at 393 but can crowd at 375 - render it and look.
+    func test_onboardingPackRendersOnASmallPhone() {
+        snapshot("onboarding-pack-small", width: 375) {
+            ZStack {
+                InnBackground()
+                OnboardingPackPage(onAdd: {}, onSkip: {})
+            }
+        }
+    }
+
     func test_innBackgroundRenders() {
         snapshot("inn-background") {
             InnBackground()

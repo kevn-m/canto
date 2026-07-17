@@ -17,6 +17,8 @@ struct LookupView: View {
     @State private var pickTask: Task<Void, Never>?
     @State private var browsing = false
     @State private var browsedSenses: [Sense] = []
+    @AppStorage("hasOnboarded") private var hasOnboarded = false
+    @State private var showOnboarding = false
 
     @Environment(\.scenePhase) private var scenePhase
 
@@ -97,6 +99,12 @@ struct LookupView: View {
                     query = text
                     runLookup(viaVoice: true)
                 }
+                // Checked before startListeningIfRequested consumes the flag:
+                // an Action Button launch goes straight to the mic and the
+                // sheet waits for the next ordinary launch.
+                if !hasOnboarded, !LaunchIntent.shared.shouldStartListening {
+                    showOnboarding = true
+                }
                 startListeningIfRequested()
             }
             .onChange(of: scenePhase) { _, newPhase in
@@ -110,6 +118,17 @@ struct LookupView: View {
             .onChange(of: LaunchIntent.shared.shouldStartListening) { _, requested in
                 if requested {
                     startListeningIfRequested()
+                }
+            }
+            .fullScreenCover(isPresented: $showOnboarding) {
+                OnboardingView(speaker: speaker) { acceptPack in
+                    if acceptPack {
+                        GameStore.shared.addStarterCards(StarterPack.words)
+                        // No silent transitions: the coin marks the Deck filling.
+                        SFXPlayer.shared.play(.coin)
+                    }
+                    hasOnboarded = true
+                    showOnboarding = false
                 }
             }
             .fullScreenCover(item: $pendingCameraSense) { sense in
@@ -149,6 +168,9 @@ struct LookupView: View {
     // re-triggering the mic.
     private func startListeningIfRequested() {
         guard LaunchIntent.shared.consume() else { return }
+        // The intent wins over onboarding; the sheet returns next launch
+        // because hasOnboarded stays false.
+        showOnboarding = false
         speechListener.start()
     }
 
