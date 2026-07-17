@@ -101,23 +101,16 @@ struct TowerEntryView: View {
         // space above the fight.
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            // Only from day 2 onward - a "1" every single day is noise.
+        // Not a toolbar item: iOS 26 clips each item to its glass circle,
+        // which cut the count badge off the flame (seen on device).
+        // Only from day 2 onward - a "1" every single day is noise.
+        .overlay(alignment: .topLeading) {
             if streak >= 2 {
-                // iOS 26 wraps every toolbar item in a glass circle, which
-                // makes the flame read as one more button. Hide it; earlier
-                // iOS draws no per-item background to begin with.
-                if #available(iOS 26.0, *) {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        StreakFlameChip(streak: streak)
-                    }
-                    .sharedBackgroundVisibility(.hidden)
-                } else {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        StreakFlameChip(streak: streak)
-                    }
-                }
+                StreakFlameChip(streak: streak)
+                    .padding(.leading, 16)
             }
+        }
+        .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 NavigationLink {
                     DeckView()
@@ -163,8 +156,7 @@ struct TowerEntryView: View {
 }
 
 // The streak as a HUD ornament: the count sits ON the flame like a
-// notification badge, and hit testing is off, so it can't read as one more
-// toolbar button next to the deck/shop/trophy ones (which all are).
+// notification badge, and hit testing is off, so it can't read as a button.
 struct StreakFlameChip: View {
     let streak: Int
 

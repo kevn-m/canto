@@ -31117,14 +31117,17 @@ S.push({ name: 'pal-dragonling', draw(g) {           // tiny companion baby drag
 }});
 
 S.push({ name: 'streak-flame', draw(g) {             // UI: day-count flame icon
-  tri(g, 24, 22, 31, 28, 28, 10, P.red);              // flame tips
-  tri(g, 40, 24, 34, 28, 37, 12, P.red);
-  ball(g, CX, 36, 15, 20, P.red, P.plum);             // outer flame
-  ball(g, CX, 40, 10, 14, P.org, P.red);              // mid flame
-  ball(g, CX, 44, 6, 9, P.yel, P.org);                // inner flame
-  eyes(g, CX, 38, 6);
-  smileArc(g, CX, 44, 3, 1.2);
-  blush(g, CX - 11, 42); blush(g, CX + 11, 42);
+  // Round base tapering to one flicked tip — the silhouette must read as
+  // fire at 30px, where the old twin-horned egg read as a red blob.
+  stroke(g, [[CX + 1, 30], [CX - 1, 20], [CX + 5, 9]], 8, 1.5, P.red); // main lick
+  stroke(g, [[22, 36], [18, 28], [20, 21]], 4, 1, P.red);              // side lick
+  ball(g, CX, 42, 15, 15, P.red, P.plum);             // body
+  ball(g, CX, 45, 10, 10, P.org, P.red);              // mid flame
+  stroke(g, [[CX + 1, 38], [CX + 1, 32], [CX + 2, 26]], 6, 1, P.org); // inner lick, after the mid ball so its shade rim can't speckle through
+  ball(g, CX, 48, 6, 6, P.yel, P.org);                // core
+  eyes(g, CX, 43, 6);
+  smileArc(g, CX, 49, 3, 1.2);
+  blush(g, CX - 11, 47); blush(g, CX + 11, 47);
 }});
 
 S.push({ name: 'shelf-trophy', draw(g) {             // UI: opens the badge shelf
