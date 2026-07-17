@@ -2,7 +2,12 @@ import SwiftUI
 import UIKit
 
 struct LookupView: View {
+    // Bumped by AppShellView when the Action Button intent fires; each new
+    // token starts the mic once. Default 0 for previews/tests.
+    var listenRequest: Int = 0
+
     @State private var query = ""
+    @State private var lastHandledListenRequest = 0
     @FocusState private var queryFieldFocused: Bool
     @State private var result: LookupResult?
     @State private var selectedSenseId: Int64?
@@ -17,10 +22,6 @@ struct LookupView: View {
     @State private var pickTask: Task<Void, Never>?
     @State private var browsing = false
     @State private var browsedSenses: [Sense] = []
-    @AppStorage("hasOnboarded") private var hasOnboarded = false
-    @State private var showOnboarding = false
-
-    @Environment(\.scenePhase) private var scenePhase
 
     private let store = DictionaryStore.shared
     private let logStore = LogStore.shared
@@ -30,117 +31,81 @@ struct LookupView: View {
     @State private var speechListener = SpeechListener()
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                TextField("Type an English word", text: $query)
-                    .textFieldStyle(GameTextFieldStyle())
-                    .focused($queryFieldFocused)
-                    .padding(.horizontal)
-                    .padding(.top, 8)
-                    .onSubmit { runLookup(viaVoice: false) }
-                    .onChange(of: speechListener.heardText) { _, newValue in
-                        if speechListener.isListening {
-                            query = newValue
-                        }
+        VStack(spacing: 0) {
+            // Explicit prompt colour: dark mode draws the default placeholder
+            // with vibrancy, which smears against the cream field.
+            TextField(
+                "", text: $query,
+                prompt: Text("Type an English word").foregroundStyle(GameTheme.navy.opacity(0.45))
+            )
+                .textFieldStyle(GameTextFieldStyle())
+                .focused($queryFieldFocused)
+                .padding(.horizontal)
+                .padding(.top, 8)
+                .onSubmit { runLookup(viaVoice: false) }
+                .onChange(of: speechListener.heardText) { _, newValue in
+                    if speechListener.isListening {
+                        query = newValue
                     }
+                }
 
-                micButton
+            micButton
 
-                resultsView
+            resultsView
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(InnBackground())
+        // Tapping blank space should dismiss the keyboard, not just move
+        // focus — a background tap catcher covers Spacer areas the TextField
+        // itself doesn't own.
+        .contentShape(Rectangle())
+        .onTapGesture { queryFieldFocused = false }
+        .navigationTitle("Canto")
+        .alert("Cantonese voice not installed", isPresented: $showVoiceUnavailableAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Download the Cantonese voice in Settings → Accessibility → Spoken Content to hear lookups read aloud.")
+        }
+        .alert("Voice input unavailable", isPresented: speechErrorBinding) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(speechListener.errorMessage ?? "")
+        }
+        .onAppear {
+            speechListener.onFinish = { text in
+                query = text
+                runLookup(viaVoice: true)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(InnBackground())
-            // Tapping blank space (or the bottom menu) should dismiss the
-            // keyboard, not just move focus — a background tap catcher
-            // covers Spacer areas the TextField itself doesn't own.
-            .contentShape(Rectangle())
-            .onTapGesture { queryFieldFocused = false }
-            .navigationTitle("Canto")
-            .toolbar {
-                ToolbarItemGroup(placement: .bottomBar) {
-                    NavigationLink {
-                        TowerEntryView()
-                    } label: {
-                        Image(systemName: "shield.lefthalf.filled")
-                    }
-                    .accessibilityLabel("Tower")
-                    // Battle audio claims .playback; a still-running mic tap
-                    // (.record) would be yanked out from under the engine.
-                    .simultaneousGesture(TapGesture().onEnded {
-                        if speechListener.isListening {
-                            speechListener.cancel()
-                        }
-                    })
-                    Spacer()
-                    NavigationLink("History") {
-                        HistoryView()
-                    }
-                    Spacer()
-                    NavigationLink {
-                        SettingsView()
-                    } label: {
-                        Image(systemName: "gearshape.fill")
-                    }
-                    .accessibilityLabel("Settings")
-                }
-            }
-            .alert("Cantonese voice not installed", isPresented: $showVoiceUnavailableAlert) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text("Download the Cantonese voice in Settings → Accessibility → Spoken Content to hear lookups read aloud.")
-            }
-            .alert("Voice input unavailable", isPresented: speechErrorBinding) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text(speechListener.errorMessage ?? "")
-            }
-            .onAppear {
-                speechListener.onFinish = { text in
-                    query = text
-                    runLookup(viaVoice: true)
-                }
-                // Checked before startListeningIfRequested consumes the flag:
-                // an Action Button launch goes straight to the mic and the
-                // sheet waits for the next ordinary launch.
-                if !hasOnboarded, !LaunchIntent.shared.shouldStartListening {
-                    showOnboarding = true
-                }
-                startListeningIfRequested()
-            }
-            .onChange(of: scenePhase) { _, newPhase in
-                if newPhase == .active {
-                    startListeningIfRequested()
-                }
-            }
-            // With openAppWhenRun, iOS foregrounds the app BEFORE running
-            // perform(), so the flag can be set after scenePhase already went
-            // .active — watching the flag itself covers that ordering.
-            .onChange(of: LaunchIntent.shared.shouldStartListening) { _, requested in
-                if requested {
-                    startListeningIfRequested()
-                }
-            }
-            .fullScreenCover(isPresented: $showOnboarding) {
-                OnboardingView(speaker: speaker) { acceptPack in
-                    if acceptPack {
-                        GameStore.shared.addStarterCards(StarterPack.words)
-                        // No silent transitions: the coin marks the Deck filling.
-                        SFXPlayer.shared.play(.coin)
-                    }
-                    hasOnboarded = true
-                    showOnboarding = false
-                }
-            }
-            .fullScreenCover(item: $pendingCameraSense) { sense in
-                CameraPicker { image in
-                    pendingCameraSense = nil
-                    if let image {
-                        attachPhoto(image, to: sense)
-                    }
-                }
-                .ignoresSafeArea()
+            handleListenRequest(listenRequest)
+        }
+        .onChange(of: listenRequest) { _, token in
+            handleListenRequest(token)
+        }
+        // Battle audio claims .playback; a still-running mic tap (.record)
+        // would be yanked out from under the engine when a tab switch lands
+        // in the Tower.
+        .onDisappear {
+            if speechListener.isListening {
+                speechListener.cancel()
             }
         }
+        .fullScreenCover(item: $pendingCameraSense) { sense in
+            CameraPicker { image in
+                pendingCameraSense = nil
+                if let image {
+                    attachPhoto(image, to: sense)
+                }
+            }
+            .ignoresSafeArea()
+        }
+    }
+
+    // One mic start per token: re-appearing with an already-handled token
+    // (an ordinary tab switch back to Lookup) must not re-trigger recording.
+    private func handleListenRequest(_ token: Int) {
+        guard token != lastHandledListenRequest else { return }
+        lastHandledListenRequest = token
+        speechListener.start()
     }
 
     // Snapping a photo before the deck's next sync would leave nothing to
@@ -160,18 +125,6 @@ struct LookupView: View {
             return
         }
         gameStore.setPhoto(cardId: cardId, filename: filename)
-    }
-
-    // The Action Button intent can cold-launch the app (onAppear runs) or
-    // foreground an already-running one (only scenePhase changes), so both
-    // paths call this. consume() guards against an ordinary foreground
-    // re-triggering the mic.
-    private func startListeningIfRequested() {
-        guard LaunchIntent.shared.consume() else { return }
-        // The intent wins over onboarding; the sheet returns next launch
-        // because hasOnboarded stays false.
-        showOnboarding = false
-        speechListener.start()
     }
 
     private var micButton: some View {

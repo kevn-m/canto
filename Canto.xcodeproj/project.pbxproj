@@ -472,6 +472,7 @@
 		3360C6E09E7AF1C0BEBC29BF /* avatar-sage.png in Resources */ = {isa = PBXBuildFile; fileRef = 7F842482FBFE54205A96FB19 /* avatar-sage.png */; };
 		3361FC3384DD450DB71E198B /* fern.png in Resources */ = {isa = PBXBuildFile; fileRef = 1F6EC087EFF3F5686BC3A4BA /* fern.png */; };
 		33884B38E983E82EE7914A8A /* laptop.png in Resources */ = {isa = PBXBuildFile; fileRef = F7F59289458B8AD15B83FBE8 /* laptop.png */; };
+		3391EF9521AB173E9994336B /* AppShellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C29752803495C1272217AD /* AppShellView.swift */; };
 		339DE4B8BF0FAC92269E63F3 /* puffball.png in Resources */ = {isa = PBXBuildFile; fileRef = 977665F845251A6675512C25 /* puffball.png */; };
 		33A0B9A7B3D15A16933D08E1 /* coach.png in Resources */ = {isa = PBXBuildFile; fileRef = 61F6B2A6788AF61C6FE00A25 /* coach.png */; };
 		33A2ED7BFF76BD7EE928EAAB /* lamp.png in Resources */ = {isa = PBXBuildFile; fileRef = 34EF47B718837EE99E6AB4E2 /* lamp.png */; };
@@ -2780,6 +2781,7 @@
 		15A2E621F6984812321AC982 /* DesignSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSnapshotTests.swift; sourceTree = "<group>"; };
 		15A748DF7BE77159D764B34B /* clothespin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = clothespin.png; sourceTree = "<group>"; };
 		15BA90E37E9FB5871556BBBD /* nostril.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = nostril.png; sourceTree = "<group>"; };
+		15C29752803495C1272217AD /* AppShellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShellView.swift; sourceTree = "<group>"; };
 		15D16C06EAE778AACDEBD862 /* mustache.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mustache.png; sourceTree = "<group>"; };
 		15D8E17FD08F4475B6833A31 /* pumice.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pumice.png; sourceTree = "<group>"; };
 		15DE9B27BEB5F354D2C8BE9C /* pantyhose.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pantyhose.png; sourceTree = "<group>"; };
@@ -5157,6 +5159,7 @@
 		2A206BE175F12AE7E56E98A7 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				15C29752803495C1272217AD /* AppShellView.swift */,
 				393F4F5E0E275958554819CA /* BadgesView.swift */,
 				51BC4C3491C15749FE543B01 /* BattleView.swift */,
 				84CA9D806C07C1BF39769FE6 /* CameraPicker.swift */,
@@ -10378,6 +10381,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3391EF9521AB173E9994336B /* AppShellView.swift in Sources */,
 				BDDDD83F5A1FEBB206620A7D /* AvatarCatalog.swift in Sources */,
 				F1F34A24DF7ED5DCE1ED23A0 /* BadgeEngine.swift in Sources */,
 				9C9246800234BE8CE1FA0660 /* BadgesView.swift in Sources */,

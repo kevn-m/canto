@@ -4,7 +4,7 @@ import SwiftUI
 struct CantoApp: App {
     var body: some Scene {
         WindowGroup {
-            LookupView()
+            AppShellView()
         }
     }
 }
