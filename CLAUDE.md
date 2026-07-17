@@ -164,7 +164,10 @@ which still pays.
 Every lookup also asks Cloud Translation v2 (`OnlineTranslator`) for the word's
 Cantonese characters, in parallel with the instant offline list. The dictionary
 supplies the jyutping and gloss for those characters, and the result — the
-**Pick** — pins above the offline list with a "Google" badge (ADR 0012). The
+**Pick** — pins above the offline list with a gold "Pick" badge plus a quiet
+"translated by Google" caption (ADR 0012; renamed 2026-07-17 — the Google-first
+badge read as a sponsored ad, and Cloud Translation's attribution terms only
+require the caption, not the branding). The
 offline ranking is never touched; the Pick is a separate pinned layer (`pickSenses`
 sits beside `top5`, not inside it).
 

@@ -88,7 +88,7 @@ struct PickSectionView: View {
             } else {
                 ForEach(pick.senses) { sense in
                     VStack(alignment: .leading, spacing: 4) {
-                        googleBadge
+                        badgeRow
                         LookupResultRowView(
                             sense: sense,
                             selectedSenseId: selectedSenseId,
@@ -103,10 +103,28 @@ struct PickSectionView: View {
         }
     }
 
-    private var googleBadge: some View {
-        Label("Google", systemImage: "globe")
+    // The feature is the Pick (glossary), not "Google" — a sky-blue Google
+    // label read as a sponsored ad. The quiet caption satisfies Cloud
+    // Translation's mandatory attribution (docs.cloud.google.com/translate/
+    // attribution) without making it the branding.
+    private var pickBadge: some View {
+        Label("Pick", systemImage: "sparkles")
             .font(GameTheme.title(12))
-            .foregroundStyle(GameTheme.sky)
+            .foregroundStyle(GameTheme.gold)
+    }
+
+    private var attribution: some View {
+        Text("translated by Google")
+            .font(.system(size: 10, weight: .medium, design: .rounded))
+            .foregroundStyle(GameTheme.cream.opacity(0.45))
+    }
+
+    private var badgeRow: some View {
+        HStack {
+            pickBadge
+            Spacer()
+            attribution
+        }
     }
 
     @ViewBuilder
@@ -114,7 +132,7 @@ struct PickSectionView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    googleBadge
+                    pickBadge
                     Text(pick.characters)
                         .font(.system(size: pick.characters.count > 8 ? 26 : 40, weight: .bold))
                         .foregroundStyle(GameTheme.navy)
@@ -169,6 +187,11 @@ struct PickSectionView: View {
                     }
                 )
             }
+
+            Text("translated by Google")
+                .font(.system(size: 10, weight: .medium, design: .rounded))
+                .foregroundStyle(GameTheme.navy.opacity(0.4))
+                .frame(maxWidth: .infinity, alignment: .trailing)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -195,8 +218,8 @@ struct PickSectionView: View {
 
     private func upsellCard(_ offer: PremiumOffer) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            googleBadge
-            Text(offer.trialText == nil ? "Unlock Google Pick" : "Try Google Pick")
+            pickBadge
+            Text(offer.trialText == nil ? "Unlock the Pick" : "Try the Pick")
                 .font(GameTheme.title(20))
                 .foregroundStyle(GameTheme.navy)
             if let trialText = offer.trialText {
