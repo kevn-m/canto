@@ -87,18 +87,15 @@ struct PickSectionView: View {
                 unmappedRow(pick)
             } else {
                 ForEach(pick.senses) { sense in
-                    VStack(alignment: .leading, spacing: 4) {
-                        badgeRow
-                        LookupResultRowView(
-                            sense: sense,
-                            selectedSenseId: selectedSenseId,
-                            keptSenseId: keptSenseId,
-                            onTap: onTap,
-                            onKeep: onKeep,
-                            onCamera: onCamera,
-                            gilded: true
-                        )
-                    }
+                    LookupResultRowView(
+                        sense: sense,
+                        selectedSenseId: selectedSenseId,
+                        keptSenseId: keptSenseId,
+                        onTap: onTap,
+                        onKeep: onKeep,
+                        onCamera: onCamera,
+                        pickStyled: true
+                    )
                 }
             }
         }
@@ -112,20 +109,6 @@ struct PickSectionView: View {
         Label("Pick", systemImage: "sparkles")
             .font(GameTheme.title(12))
             .foregroundStyle(GameTheme.gold)
-    }
-
-    private var attribution: some View {
-        Text("translated by Google")
-            .font(.system(size: 10, weight: .medium, design: .rounded))
-            .foregroundStyle(GameTheme.cream.opacity(0.45))
-    }
-
-    private var badgeRow: some View {
-        HStack {
-            pickBadge
-            Spacer()
-            attribution
-        }
     }
 
     @ViewBuilder

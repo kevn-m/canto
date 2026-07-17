@@ -10,21 +10,36 @@ struct LookupResultRowView: View {
     let onTap: (Sense) -> Void
     let onKeep: (Sense) -> Void
     let onCamera: (Sense) -> Void
-    // The Pick layer's rows wear the gilded frame; dictionary rows never do.
-    var gilded = false
+    // The Pick layer's rows wear the gilded frame and carry the badge +
+    // attribution INSIDE the card (a line floating above the frame read as a
+    // section header for the whole list); dictionary rows never do.
+    var pickStyled = false
 
     private var isSelected: Bool { sense.id == selectedSenseId }
     private var isKept: Bool { sense.id == keptSenseId }
 
     var body: some View {
-        HStack(spacing: 10) {
-            SenseRowView(sense: sense)
-            Spacer(minLength: 0)
-            trailing
+        VStack(alignment: .leading, spacing: 6) {
+            if pickStyled {
+                HStack {
+                    Label("Pick", systemImage: "sparkles")
+                        .font(GameTheme.title(12))
+                        .foregroundStyle(GameTheme.gold)
+                    Spacer()
+                    Text("translated by Google")
+                        .font(.system(size: 10, weight: .medium, design: .rounded))
+                        .foregroundStyle(GameTheme.navy.opacity(0.4))
+                }
+            }
+            HStack(spacing: 10) {
+                SenseRowView(sense: sense)
+                Spacer(minLength: 0)
+                trailing
+            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .cardFrame(selected: isSelected, gilded: gilded)
+        .cardFrame(selected: isSelected, gilded: pickStyled)
         .contentShape(Rectangle())
         .onTapGesture { onTap(sense) }
     }
