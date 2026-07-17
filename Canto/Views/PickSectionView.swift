@@ -96,7 +96,7 @@ struct PickSectionView: View {
                             onTap: onTap,
                             onKeep: onKeep,
                             onCamera: onCamera,
-                            enchanted: true
+                            gilded: true
                         )
                     }
                 }
@@ -196,7 +196,7 @@ struct PickSectionView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .cardFrame(enchanted: true)
+        .cardFrame(gilded: true)
         .contentShape(Rectangle())
         .onTapGesture { onSpeakCharacters(pick.characters) }
     }
@@ -214,7 +214,7 @@ struct PickSectionView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .cardFrame(enchanted: true)
+        .cardFrame(gilded: true)
     }
 
     private func upsellCard(_ offer: PremiumOffer) -> some View {
@@ -248,7 +248,7 @@ struct PickSectionView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .cardFrame(enchanted: true)
+        .cardFrame(gilded: true)
     }
 
     private var attentionCard: some View {
@@ -267,7 +267,7 @@ struct PickSectionView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .cardFrame(enchanted: true)
+        .cardFrame(gilded: true)
     }
 
     private var unavailableCard: some View {
@@ -281,7 +281,7 @@ struct PickSectionView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .cardFrame(enchanted: true)
+        .cardFrame(gilded: true)
     }
 
     // No Retry on purpose: the daily character quota resets on Google's
@@ -298,6 +298,6 @@ struct PickSectionView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .cardFrame(enchanted: true)
+        .cardFrame(gilded: true)
     }
 }
