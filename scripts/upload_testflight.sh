@@ -38,6 +38,14 @@ xcodebuild -scheme Canto -configuration Release \
   CURRENT_PROJECT_VERSION="$BUILD" \
   -allowProvisioningUpdates archive
 
+# Release must never carry the Google key (ADR 0019). Never delete the
+# source secret to make this pass — fix the build instead.
+LEAK="$(find "$ARCHIVE/Products/Applications" -name secrets.json -print -quit)"
+if [[ -n "$LEAK" ]]; then
+  echo "error: archive contains a bundled key: $LEAK" >&2
+  exit 1
+fi
+
 echo "==> Exporting IPA"
 rm -rf "$EXPORT_DIR"
 xcodebuild -exportArchive -archivePath "$ARCHIVE" \
@@ -47,6 +55,11 @@ xcodebuild -exportArchive -archivePath "$ARCHIVE" \
 
 IPA="$(ls "$EXPORT_DIR"/*.ipa 2>/dev/null | head -1 || true)"
 [[ -n "$IPA" ]] || { echo "Export produced no .ipa in $EXPORT_DIR" >&2; exit 1; }
+
+if unzip -Z1 "$IPA" | grep -E '(^|/)secrets\.json$'; then
+  echo "error: IPA contains a bundled key (path above); refusing to upload" >&2
+  exit 1
+fi
 
 echo "==> Uploading $IPA to App Store Connect"
 xcrun altool --upload-app -f "$IPA" -t ios \

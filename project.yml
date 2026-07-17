@@ -27,19 +27,27 @@ targets:
       - package: GRDB
         product: GRDB
     postBuildScripts:
-      - name: Bundle secrets.json if present
-        # Copies the gitignored, optional Google Translate key into the app
-        # only when it exists, so a keyless checkout still builds. A hard
-        # resource reference would fail the build when the file is absent
-        # (and force an environment-specific pbxproj). Runs before the
+      - name: Bundle Debug secrets.json only
+        # Copies the gitignored, optional Google Translate key into Debug
+        # builds only. Release ships keyless — subscribers reach Google
+        # through the key proxy (ADR 0019) — and this phase FAILS a
+        # non-Debug build that somehow contains the key. Runs before the
         # implicit code-sign, so the injected file gets signed.
         script: |
           SRC="${SRCROOT}/Canto/Resources/secrets.json"
-          if [ -f "${SRC}" ]; then
-            cp "${SRC}" "${CODESIGNING_FOLDER_PATH}/secrets.json"
-            echo "note: bundled secrets.json (Pick enabled)"
+          DEST="${CODESIGNING_FOLDER_PATH}/secrets.json"
+
+          rm -f "${DEST}"
+          if [ "${CONFIGURATION}" = "Debug" ] && [ -f "${SRC}" ]; then
+            cp "${SRC}" "${DEST}"
+            echo "note: bundled Debug secrets.json (local Pick enabled)"
           else
-            echo "note: no secrets.json — Pick disabled (offline build)"
+            echo "note: keyless ${CONFIGURATION} build"
+          fi
+
+          if [ "${CONFIGURATION}" != "Debug" ] && find "${CODESIGNING_FOLDER_PATH}" -name secrets.json -print -quit | grep -q .; then
+            echo "error: non-Debug build contains secrets.json" >&2
+            exit 1
           fi
         basedOnDependencyAnalysis: false
     info:

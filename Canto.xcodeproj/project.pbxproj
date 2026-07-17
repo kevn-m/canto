@@ -7784,7 +7784,7 @@
 				CF014EB874496F7AAFE52391 /* Sources */,
 				C6AC43198B4B0CC10E26D62E /* Resources */,
 				BFD4887240D5C74E9DB76CB1 /* Frameworks */,
-				8CF401A85E0753A794A74BEB /* Bundle secrets.json if present */,
+				D843ECD76E3F51371A48F7C1 /* Bundle Debug secrets.json only */,
 			);
 			buildRules = (
 			);
@@ -10352,7 +10352,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		8CF401A85E0753A794A74BEB /* Bundle secrets.json if present */ = {
+		D843ECD76E3F51371A48F7C1 /* Bundle Debug secrets.json only */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -10362,14 +10362,14 @@
 			);
 			inputPaths = (
 			);
-			name = "Bundle secrets.json if present";
+			name = "Bundle Debug secrets.json only";
 			outputFileListPaths = (
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "SRC=\"${SRCROOT}/Canto/Resources/secrets.json\"\nif [ -f \"${SRC}\" ]; then\n  cp \"${SRC}\" \"${CODESIGNING_FOLDER_PATH}/secrets.json\"\n  echo \"note: bundled secrets.json (Pick enabled)\"\nelse\n  echo \"note: no secrets.json — Pick disabled (offline build)\"\nfi\n";
+			shellScript = "SRC=\"${SRCROOT}/Canto/Resources/secrets.json\"\nDEST=\"${CODESIGNING_FOLDER_PATH}/secrets.json\"\n\nrm -f \"${DEST}\"\nif [ \"${CONFIGURATION}\" = \"Debug\" ] && [ -f \"${SRC}\" ]; then\n  cp \"${SRC}\" \"${DEST}\"\n  echo \"note: bundled Debug secrets.json (local Pick enabled)\"\nelse\n  echo \"note: keyless ${CONFIGURATION} build\"\nfi\n\nif [ \"${CONFIGURATION}\" != \"Debug\" ] && find \"${CODESIGNING_FOLDER_PATH}\" -name secrets.json -print -quit | grep -q .; then\n  echo \"error: non-Debug build contains secrets.json\" >&2\n  exit 1\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

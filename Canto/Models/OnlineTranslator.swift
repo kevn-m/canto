@@ -6,7 +6,12 @@ import Foundation
 struct OnlineTranslator {
     private let apiKey: String?
 
+    // Direct-key access is Debug-only: Release ships keyless until the key
+    // proxy lands (ADR 0019), and compiling the key path out keeps even the
+    // lookup strings out of the shipped binary. The build phase in
+    // project.yml enforces the same rule on the bundle itself.
     init(bundle: Bundle = .main) {
+        #if DEBUG
         if let url = bundle.url(forResource: "secrets", withExtension: "json"),
            let data = try? Data(contentsOf: url),
            let dict = try? JSONDecoder().decode([String: String].self, from: data),
@@ -15,11 +20,15 @@ struct OnlineTranslator {
         } else {
             apiKey = nil
         }
+        #else
+        apiKey = nil
+        #endif
     }
 
     var isEnabled: Bool { apiKey != nil }
 
     func translate(_ english: String) async -> String? {
+        #if DEBUG
         guard let apiKey else { return nil }
         var components = URLComponents(string: "https://translation.googleapis.com/language/translate/v2")!
         // The key rides in the query string (v2 has no header auth). Never log
@@ -40,6 +49,9 @@ struct OnlineTranslator {
             return nil
         }
         return Self.parseTranslation(data)
+        #else
+        return nil
+        #endif
     }
 
     /// Split out so tests can feed canned JSON without a network. Trims
