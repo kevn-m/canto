@@ -359,6 +359,7 @@
 		25FC676354EB10682C72DC02 /* chestnut.png in Resources */ = {isa = PBXBuildFile; fileRef = 94DA071062DFC5AA6C3771FD /* chestnut.png */; };
 		261F3F6D6F9D869895DF85C4 /* chest.png in Resources */ = {isa = PBXBuildFile; fileRef = 585C8DB75D91D65F34384EED /* chest.png */; };
 		263D34F93ED833EB79CF7B79 /* ceramics.png in Resources */ = {isa = PBXBuildFile; fileRef = 5A63DF40B9416275B67BC132 /* ceramics.png */; };
+		2645BDC6E3B496ED70FBFBD4 /* mastered.wav in Resources */ = {isa = PBXBuildFile; fileRef = DBE6BEA147D60FD39AB3409B /* mastered.wav */; };
 		267072153A64E5F8AB1D7783 /* monk.png in Resources */ = {isa = PBXBuildFile; fileRef = 82CE57FF322C61498B17377A /* monk.png */; };
 		26D54A56FAE4064F8139D0AA /* loom.png in Resources */ = {isa = PBXBuildFile; fileRef = 6807B6EEE180C977BF60B405 /* loom.png */; };
 		26E5C559DBFB4CF2296414F2 /* rainbow.png in Resources */ = {isa = PBXBuildFile; fileRef = 2720386431FAF078591F0042 /* rainbow.png */; };
@@ -4770,6 +4771,7 @@
 		DBB168A73E0CF10581BA33BC /* anthropologist.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = anthropologist.png; sourceTree = "<group>"; };
 		DBD7ECC5DBD87E2CA3065DAA /* fjord.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fjord.png; sourceTree = "<group>"; };
 		DBE1C9EDF15E0CF118068ADA /* sundae.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = sundae.png; sourceTree = "<group>"; };
+		DBE6BEA147D60FD39AB3409B /* mastered.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = mastered.wav; sourceTree = "<group>"; };
 		DBEC7D35A0EB0713D0A68979 /* cement.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cement.png; sourceTree = "<group>"; };
 		DBF520C107FC0AC1DB0400CC /* coachman.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = coachman.png; sourceTree = "<group>"; };
 		DBFD5D6C1AD533B2BA1CE318 /* gerbil.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gerbil.png; sourceTree = "<group>"; };
@@ -5195,6 +5197,7 @@
 				52337821A706E5F665088492 /* enemy-down.wav */,
 				EF66775D678C6D42D1A35D0A /* flip.wav */,
 				62BD85D92F9C90628362791D /* hit.wav */,
+				DBE6BEA147D60FD39AB3409B /* mastered.wav */,
 				03E1F548931AAFC5A1723B69 /* victory.wav */,
 				6FD120702E6E99F227971C3B /* whiff.wav */,
 			);
@@ -9217,6 +9220,7 @@
 				55C65749A537A652C5467D88 /* mask.png in Resources */,
 				6A7F7E39297F38567F0E338E /* masseur.png in Resources */,
 				0DA8DA7AF65297BC632B1BD6 /* mast.png in Resources */,
+				2645BDC6E3B496ED70FBFBD4 /* mastered.wav in Resources */,
 				3F77BDF445DC55ADD00BE4E7 /* mat.png in Resources */,
 				37B38FEEE37801C6E3E4EC2B /* matador.png in Resources */,
 				FB00D788C8B08D9BB7F4966E /* matchbox.png in Resources */,

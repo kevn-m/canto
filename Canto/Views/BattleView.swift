@@ -666,8 +666,15 @@ struct BattleView: View {
         let floorAtGrade = runState.floorIndex
         Task {
             try? await Task.sleep(for: .seconds(0.70))
+            // Tower's backgrounding self-heal can replace the fight while
+            // this task sleeps; a stale ceremony must not chime or resolve
+            // over the screen that took its place.
+            guard runState.floorIndex == floorAtGrade else { return }
             withAnimation(.spring(duration: 0.22)) {
                 pendingCeremony = PendingCardCeremony(card: card, kind: kind)
+            }
+            if kind == .mastered {
+                SFXPlayer.shared.play(.mastered)
             }
             try? await Task.sleep(for: .seconds(kind == .mastered ? 1.40 : 0.90))
             withAnimation(.easeOut(duration: 0.20)) {
@@ -675,8 +682,6 @@ struct BattleView: View {
             }
             try? await Task.sleep(for: .seconds(0.20))
             turnLocked = false
-            // Tower's backgrounding self-heal replays a lethal outcome while
-            // this task sleeps; resolving again would skip a floor.
             guard runState.floorIndex == floorAtGrade else { return }
             resolve(outcome)
         }
