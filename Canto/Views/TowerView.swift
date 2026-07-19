@@ -358,6 +358,10 @@ struct TowerView: View {
 
     private func handleOutcome(_ outcome: BattleEngine.Outcome) {
         guard let runId else { return }
+        // A ceremony/knockout task can outlive the fight it was computed for
+        // (backgrounding self-heal already advanced the run). An outcome is
+        // only valid while the battle is still on screen.
+        guard case .fighting = phase else { return }
         switch TowerEngine.advance(after: outcome, state: &runState, dueCardsExist: dueCardsExist(for: runState)) {
         case .nextFloor:
             break

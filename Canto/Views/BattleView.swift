@@ -267,6 +267,16 @@ private struct WordPips: View {
     }
 }
 
+// A Box change worth showing: which Card and what happened to it. The UUID
+// gives each ceremony a fresh view identity, so a second one in the same
+// battle re-fires CardCeremonyView's onAppear settle instead of reusing a
+// view SwiftUI thinks hasn't changed.
+private struct PendingCardCeremony: Identifiable, Equatable {
+    let id = UUID()
+    let card: CardRecord
+    let kind: CardCeremonyKind
+}
+
 // One fight: enemy, party HP, hand of 3, turn owner. All state changes read
 // and write `runState` directly so the caller (Slice 4's TowerView) can
 // swap in a persisted binding without touching this view.
@@ -322,6 +332,9 @@ struct BattleView: View {
     @State private var confirmingAbandon = false
     @State private var avatarId: String?
     @State private var equipped: [GearSlot: String]
+    @State private var pendingCeremony: PendingCardCeremony?
+    @State private var turnLocked = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(spacing: 20) {
@@ -347,6 +360,12 @@ struct BattleView: View {
         .padding()
         .background(BiomeBackground(biome: Biome.containing(enemyName: currentFloor.enemyName)))
         .environment(\.colorScheme, .dark)
+        // Hand and Give up go dead from the moment a ceremony is scheduled
+        // until its outcome resolves - the 0.7s pre-ceremony beat would
+        // otherwise leave the old hand tappable and let a second grade race
+        // the first. The overlay below is added after this modifier so it
+        // keeps its own hit testing.
+        .allowsHitTesting(!turnLocked)
         .onAppear {
             today = ReviewEngine.todayString()
             // Live play always lands here with an empty hand (fresh floor
@@ -439,6 +458,14 @@ struct BattleView: View {
                 try? await Task.sleep(for: .seconds(0.2))
                 guard heroHitGeneration == hitGeneration else { return }
                 withAnimation(.easeOut(duration: 0.2)) { heroFlashes = false; impactShows = false }
+            }
+        }
+        // An overlay, not a sheet - a sheet can be swiped away or dismissed,
+        // which would let the fight race ahead of the Box feedback it's showing.
+        .overlay {
+            if let pending = pendingCeremony {
+                CardCeremonyView(card: pending.card, kind: pending.kind, reduceMotion: reduceMotion)
+                    .id(pending.id)
             }
         }
     }
@@ -607,14 +634,51 @@ struct BattleView: View {
 
         // A review that never persisted must not advance the fight - the
         // banner shows the failure and the same card can be played again.
-        guard gameStore.recordReview(cardId: card.id, result: result, on: today) != nil else {
+        guard let transition = gameStore.recordReview(cardId: card.id, result: result, on: today) else {
             return
         }
 
-        switch BattleEngine.applyResult(result, card: card, to: &runState) {
+        // No await between the commit above and this mutation - TowerView's
+        // resume path only tolerates the ceremony's pause below, not a gap here.
+        let outcome = BattleEngine.applyResult(result, card: card, to: &runState)
+
+        guard let kind = transition.ceremony else {
+            resolve(outcome)
+            return
+        }
+        presentCeremony(card: card, kind: kind, then: outcome)
+    }
+
+    private func resolve(_ outcome: BattleEngine.Outcome?) {
+        switch outcome {
         case .victory: celebrateEnemyDefeat()
         case .defeat: onDefeat()
         case nil: dealHand()
+        }
+    }
+
+    // Box feedback for a Review that changed something worth showing: let the
+    // Hit/Whiff impact land first, then the ceremony, then the outcome that
+    // was already decided above - enemyDefeated only flips after the
+    // ceremony clears, so a lethal Hit reads impact -> ceremony -> enemy down.
+    private func presentCeremony(card: CardRecord, kind: CardCeremonyKind, then outcome: BattleEngine.Outcome?) {
+        turnLocked = true
+        let floorAtGrade = runState.floorIndex
+        Task {
+            try? await Task.sleep(for: .seconds(0.70))
+            withAnimation(.spring(duration: 0.22)) {
+                pendingCeremony = PendingCardCeremony(card: card, kind: kind)
+            }
+            try? await Task.sleep(for: .seconds(kind == .mastered ? 1.40 : 0.90))
+            withAnimation(.easeOut(duration: 0.20)) {
+                pendingCeremony = nil
+            }
+            try? await Task.sleep(for: .seconds(0.20))
+            turnLocked = false
+            // Tower's backgrounding self-heal replays a lethal outcome while
+            // this task sleeps; resolving again would skip a floor.
+            guard runState.floorIndex == floorAtGrade else { return }
+            resolve(outcome)
         }
     }
 
