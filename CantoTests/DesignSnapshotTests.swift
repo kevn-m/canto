@@ -719,6 +719,59 @@ final class DesignSnapshotTests: XCTestCase {
         }
     }
 
+    // Card ceremony: the Box feedback shown after a Review commits. The
+    // Hit/Whiff 0->1 pair (promoted-to-learning vs learning) both land on
+    // "Learning" but must read differently - gold celebratory vs subdued.
+    private var ceremonyCard: CardRecord { sampleCards[0] }
+
+    func test_cardCeremonyPromotedToLearningRenders() {
+        snapshot("ceremony-promoted-learning") {
+            CardCeremonyView(card: ceremonyCard, kind: .promoted(to: 1))
+        }
+    }
+
+    func test_cardCeremonyPromotedToSolidRenders() {
+        snapshot("ceremony-promoted-solid") {
+            CardCeremonyView(card: ceremonyCard, kind: .promoted(to: 2))
+        }
+    }
+
+    func test_cardCeremonyMasteredRenders() {
+        snapshot("ceremony-mastered") {
+            CardCeremonyView(card: ceremonyCard, kind: .mastered)
+        }
+    }
+
+    func test_cardCeremonyLearningRenders() {
+        snapshot("ceremony-learning") {
+            CardCeremonyView(card: ceremonyCard, kind: .learning)
+        }
+    }
+
+    func test_cardCeremonyBackToLearningRenders() {
+        snapshot("ceremony-back-to-learning") {
+            CardCeremonyView(card: ceremonyCard, kind: .backToLearning)
+        }
+    }
+
+    func test_cardCeremonyMasteredRendersOnASmallPhone() {
+        snapshot("ceremony-mastered-375", width: 375) {
+            CardCeremonyView(card: ceremonyCard, kind: .mastered)
+        }
+    }
+
+    func test_cardCeremonyBackToLearningRendersOnASmallPhone() {
+        snapshot("ceremony-back-to-learning-375", width: 375) {
+            CardCeremonyView(card: ceremonyCard, kind: .backToLearning)
+        }
+    }
+
+    func test_cardCeremonyReduceMotionRenders() {
+        snapshot("ceremony-reduce-motion") {
+            CardCeremonyView(card: ceremonyCard, kind: .promoted(to: 1), reduceMotion: true)
+        }
+    }
+
     // The three shipped hats, redrawn onto the Rig as helmet layers. They kept
     // their ids so the wallet's gear rows still resolve, which means a future
     // redraw could silently put one back off the head - LOOK at this one.

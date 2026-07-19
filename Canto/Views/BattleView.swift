@@ -632,6 +632,170 @@ struct BattleView: View {
     }
 }
 
+// The Box feedback shown after a Review commits: what changed and where the
+// Card sits now on the New/Learning/Solid/Mastered ladder. Kind is pure
+// learning-domain data (ReviewEngine.swift) - all copy, colour, and treatment
+// mapping lives here so the model stays UI-agnostic.
+struct CardCeremonyView: View {
+    let card: CardRecord
+    let kind: CardCeremonyKind
+    var reduceMotion: Bool = false
+
+    @State private var settled = false
+
+    static let stepLabels = ["New", "Learning", "Solid", "Mastered"]
+    // Shared with the gold ring overlay so it always hugs cardFrame's edge.
+    static let panelCornerRadius: CGFloat = 18
+
+    private struct Style {
+        let title: String
+        let destination: Int
+        let celebratory: Bool
+        let strong: Bool
+        let panelFace: Color
+        let ink: Color
+        let phrase: String
+    }
+
+    private var style: Style {
+        switch kind {
+        case .learning:
+            return Style(
+                title: "Learning", destination: 1, celebratory: false, strong: false,
+                panelFace: GameTheme.cream, ink: GameTheme.navy, phrase: "is now Learning"
+            )
+        case .promoted(let to):
+            // Promotions only ever land on Learning (1) or Solid (2);
+            // 2 -> 3 is .mastered. Same out-of-range guard as damage(forBox:).
+            if !(1...2).contains(to) {
+                assertionFailure("CardCeremonyView got promoted(to:) outside 1...2: \(to)")
+            }
+            let destination = max(1, min(to, 2))
+            let title = destination == 1 ? "Learning" : "Solid"
+            return Style(
+                title: title, destination: destination, celebratory: true, strong: false,
+                panelFace: GameTheme.cream, ink: GameTheme.navy, phrase: "promoted to \(title)"
+            )
+        case .mastered:
+            return Style(
+                title: "Mastered", destination: 3, celebratory: true, strong: true,
+                panelFace: GameTheme.cream, ink: GameTheme.navy, phrase: "mastered"
+            )
+        case .backToLearning:
+            return Style(
+                title: "Back to Learning", destination: 1, celebratory: false, strong: false,
+                panelFace: GameTheme.navy, ink: GameTheme.cream, phrase: "back to Learning"
+            )
+        }
+    }
+
+    var body: some View {
+        ZStack {
+            GameTheme.deepNavy.opacity(0.82)
+                .ignoresSafeArea()
+            panel
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(card.traditional), \(card.jyutping), \(card.english): \(style.phrase)")
+        .onAppear {
+            // A small settle only - initial scale (0.96) already reads fine,
+            // so an ImageRenderer snapshot caught before this runs still
+            // shows the full meaning (see CLAUDE.md's ImageRenderer traps).
+            guard !reduceMotion else { return }
+            withAnimation(.spring(duration: 0.25)) { settled = true }
+        }
+    }
+
+    private var panel: some View {
+        VStack(spacing: 18) {
+            Text(style.title)
+                .font(GameTheme.title(style.strong ? 30 : 24))
+                .foregroundStyle(style.celebratory ? GameTheme.gold : style.ink)
+                .multilineTextAlignment(.center)
+            Text(card.traditional)
+                .font(.system(size: 56, weight: .bold))
+                .foregroundStyle(style.ink)
+                .minimumScaleFactor(0.4)
+                .lineLimit(1)
+            VStack(spacing: 2) {
+                Text(card.jyutping)
+                Text(card.english)
+            }
+            .font(.subheadline)
+            .foregroundStyle(style.ink.opacity(0.65))
+            .multilineTextAlignment(.center)
+            .lineLimit(2)
+            .minimumScaleFactor(0.7)
+            BoxLadder(
+                destination: style.destination, celebratory: style.celebratory,
+                strong: style.strong, ink: style.ink,
+                risen: settled || reduceMotion
+            )
+        }
+        .padding(28)
+        .frame(maxWidth: 340)
+        .cardFrame(face: style.panelFace, cornerRadius: Self.panelCornerRadius)
+        // Mastered's larger gold border/glow: a supplementary ring outside
+        // cardFrame's own border, not `selected`/`gilded` - those mean row
+        // selection and the Pick's frame elsewhere and shouldn't be reused
+        // for an unrelated "achievement" treatment.
+        .overlay(
+            RoundedRectangle(cornerRadius: Self.panelCornerRadius)
+                .strokeBorder(GameTheme.gold, lineWidth: style.strong ? 5 : 0)
+        )
+        .shadow(color: style.strong ? GameTheme.gold.opacity(0.75) : .clear, radius: style.strong ? 18 : 0)
+        .scaleEffect(reduceMotion || settled ? 1.0 : 0.96)
+        .padding(.horizontal, 24)
+    }
+}
+
+// New/Learning/Solid/Mastered: prior steps read as lit/connected, the
+// destination is the one the player should notice. Promotions get a small
+// rise on the destination dot; Mastered's emphasis lives on the panel
+// border above instead, so its dot stays the same size as any other lit step.
+private struct BoxLadder: View {
+    let destination: Int
+    let celebratory: Bool
+    let strong: Bool
+    let ink: Color
+    let risen: Bool
+
+    var body: some View {
+        HStack(spacing: 4) {
+            ForEach(CardCeremonyView.stepLabels.indices, id: \.self) { index in
+                if index > 0 {
+                    Rectangle()
+                        .fill(ink.opacity(index <= destination ? 0.6 : 0.2))
+                        .frame(height: 3)
+                }
+                step(index)
+            }
+        }
+    }
+
+    private func step(_ index: Int) -> some View {
+        let isDestination = index == destination
+        let isLit = index <= destination
+        let gold = isDestination && celebratory
+        return VStack(spacing: 4) {
+            Circle()
+                .fill(isLit ? (gold ? GameTheme.gold : ink.opacity(0.75)) : ink.opacity(0.25))
+                .frame(width: isDestination ? 18 : 14, height: isDestination ? 18 : 14)
+                .overlay(
+                    Circle().strokeBorder(GameTheme.gold, lineWidth: gold ? (destination >= 2 ? 3 : 2) : 0)
+                )
+                .shadow(color: gold ? GameTheme.gold.opacity(0.6) : .clear, radius: gold ? (destination >= 2 ? 6 : 4) : 0)
+                .offset(y: gold && !strong ? (risen ? 0 : 8) : 0)
+            Text(CardCeremonyView.stepLabels[index])
+                .font(.system(size: 10, weight: isDestination ? .bold : .regular))
+                .foregroundStyle(isDestination ? ink : ink.opacity(0.5))
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
 // One card in the hand: art window over the English word, framed like a
 // real card. The kid picks by picture; the word is there for dad.
 struct HandCardView: View {
