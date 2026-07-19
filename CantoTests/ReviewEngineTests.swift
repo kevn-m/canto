@@ -95,4 +95,56 @@ final class ReviewEngineTests: XCTestCase {
         let hand = ReviewEngine.hand(due: due, soonest: [])
         XCTAssertEqual(hand.map(\.id), [1])
     }
+
+    // MARK: - ReviewTransition
+
+    // Every valid (result, oldBox) combination the engine can produce. Numeric
+    // direction alone can't classify these: Hit 0->1 and Whiff 0->1 land on
+    // the same newBox but must not share a ceremony.
+    func test_reviewTransition_classifiesEveryBoxAndResultCombination() {
+        struct Case {
+            let result: ReviewResult
+            let oldBox: Int
+            let newBox: Int
+            let ceremony: CardCeremonyKind?
+        }
+        let cases: [Case] = [
+            Case(result: .hit, oldBox: 0, newBox: 1, ceremony: .promoted(to: 1)),
+            Case(result: .hit, oldBox: 1, newBox: 2, ceremony: .promoted(to: 2)),
+            Case(result: .hit, oldBox: 2, newBox: 3, ceremony: .mastered),
+            Case(result: .hit, oldBox: 3, newBox: 3, ceremony: nil),
+            Case(result: .whiff, oldBox: 0, newBox: 1, ceremony: .learning),
+            Case(result: .whiff, oldBox: 1, newBox: 1, ceremony: nil),
+            Case(result: .whiff, oldBox: 2, newBox: 1, ceremony: .backToLearning),
+            Case(result: .whiff, oldBox: 3, newBox: 1, ceremony: .backToLearning),
+        ]
+
+        for testCase in cases {
+            let transition = ReviewTransition(result: testCase.result, oldBox: testCase.oldBox, newBox: testCase.newBox)
+            XCTAssertEqual(transition.oldBox, testCase.oldBox)
+            XCTAssertEqual(transition.newBox, testCase.newBox)
+            XCTAssertEqual(
+                transition.ceremony, testCase.ceremony,
+                "\(testCase.result) \(testCase.oldBox) -> \(testCase.newBox)"
+            )
+        }
+    }
+
+    func test_reviewTransition_hitAndWhiffBothLandingOnLearningGetDifferentTone() {
+        let promotion = ReviewTransition(result: .hit, oldBox: 0, newBox: 1)
+        let subdued = ReviewTransition(result: .whiff, oldBox: 0, newBox: 1)
+
+        XCTAssertEqual(promotion.ceremony, .promoted(to: 1))
+        XCTAssertEqual(subdued.ceremony, .learning)
+        XCTAssertNotEqual(promotion.ceremony, subdued.ceremony)
+    }
+
+    // Triples outside the table (corrupt boxes, impossible jumps) must map to
+    // nil rather than invent a ceremony the scheduler never produced.
+    func test_reviewTransition_unmatchedTriplesGetNoCeremony() {
+        XCTAssertNil(ReviewTransition(result: .hit, oldBox: 5, newBox: 3).ceremony)
+        XCTAssertNil(ReviewTransition(result: .hit, oldBox: 0, newBox: 2).ceremony)
+        XCTAssertNil(ReviewTransition(result: .whiff, oldBox: -1, newBox: 1).ceremony)
+        XCTAssertNil(ReviewTransition(result: .whiff, oldBox: 1, newBox: 0).ceremony)
+    }
 }

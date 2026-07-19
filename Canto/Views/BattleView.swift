@@ -607,7 +607,7 @@ struct BattleView: View {
 
         // A review that never persisted must not advance the fight - the
         // banner shows the failure and the same card can be played again.
-        guard gameStore.recordReview(cardId: card.id, result: result, on: today) else {
+        guard gameStore.recordReview(cardId: card.id, result: result, on: today) != nil else {
             return
         }
 

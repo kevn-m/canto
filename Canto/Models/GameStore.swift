@@ -670,11 +670,13 @@ final class GameStore: ObservableObject {
         }
     }
 
-    // Returns false (and sets lastError) when the write failed - the battle
-    // must not advance HP on a review that never persisted.
+    // Returns nil (and sets lastError) when the write failed - the battle
+    // must not advance HP on a review that never persisted. On success,
+    // returns the authoritative box transition so the caller never has to
+    // infer it from a separate read.
     @discardableResult
-    func recordReview(cardId: Int64, result: ReviewResult, on date: String) -> Bool {
-        writeValue(default: false) { db in
+    func recordReview(cardId: Int64, result: ReviewResult, on date: String) -> ReviewTransition? {
+        writeValue(default: nil) { db in
             guard let currentBox = try Int.fetchOne(
                 db, sql: "SELECT box FROM card_states WHERE card_id = ? AND player = 'kid'",
                 arguments: [cardId]
@@ -692,7 +694,7 @@ final class GameStore: ObservableObject {
                 sql: "UPDATE card_states SET box = ?, due_on = ? WHERE card_id = ? AND player = 'kid'",
                 arguments: [newBox, newDueOn, cardId]
             )
-            return true
+            return ReviewTransition(result: result, oldBox: currentBox, newBox: newBox)
         }
     }
 

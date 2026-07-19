@@ -1,7 +1,35 @@
 import Foundation
 
-enum ReviewResult: String {
+enum ReviewResult: String, Equatable {
     case hit, whiff
+}
+
+// What a committed Review changed about a Card's Box, and what that means for
+// the player. The explicit (result, oldBox, newBox) cases are load-bearing: a
+// generic oldBox < newBox would misclassify Whiff 0 -> 1 as a promotion, and
+// oldBox != newBox can't choose the right tone for a demotion.
+struct ReviewTransition: Equatable {
+    let result: ReviewResult
+    let oldBox: Int
+    let newBox: Int
+
+    var ceremony: CardCeremonyKind? {
+        switch (result, oldBox, newBox) {
+        case (.hit, 0, 1): return .promoted(to: 1)
+        case (.hit, 1, 2): return .promoted(to: 2)
+        case (.hit, 2, 3): return .mastered
+        case (.whiff, 0, 1): return .learning
+        case (.whiff, 2, 1), (.whiff, 3, 1): return .backToLearning
+        default: return nil
+        }
+    }
+}
+
+enum CardCeremonyKind: Equatable {
+    case learning
+    case promoted(to: Int)
+    case mastered
+    case backToLearning
 }
 
 // Pure Leitner logic: no database, no UI. "today" is always passed in

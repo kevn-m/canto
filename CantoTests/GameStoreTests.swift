@@ -148,12 +148,46 @@ final class GameStoreTests: XCTestCase {
         store.syncDeck(from: log)
         let cardId = store.deck().first!.id
 
-        store.recordReview(cardId: cardId, result: .hit, on: "2026-07-04")
+        let transition = store.recordReview(cardId: cardId, result: .hit, on: "2026-07-04")
 
+        XCTAssertEqual(transition, ReviewTransition(result: .hit, oldBox: 0, newBox: 1))
         let entry = store.deck().first!
         XCTAssertEqual(entry.box, 1)
         XCTAssertEqual(entry.dueOn, "2026-07-05")
         XCTAssertEqual(try reviewCount(), 1)
+    }
+
+    // A card already at Solid (box 2) is the only starting point that reaches
+    // Mastered on a Hit - the transition it returns must say so exactly.
+    func test_recordReview_solidCardHitReturnsExactTransitionToMastered() {
+        let log = LogStore(directory: tempDir)
+        makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
+        let store = GameStore(directory: tempDir)
+        store.syncDeck(from: log)
+        let cardId = store.deck().first!.id
+        store.recordReview(cardId: cardId, result: .hit, on: "2026-07-04") // 0 -> 1
+        store.recordReview(cardId: cardId, result: .hit, on: "2026-07-05") // 1 -> 2
+
+        let transition = store.recordReview(cardId: cardId, result: .hit, on: "2026-07-08") // 2 -> 3
+
+        XCTAssertEqual(transition, ReviewTransition(result: .hit, oldBox: 2, newBox: 3))
+    }
+
+    // A card already at Mastered (box 3) whiffing must report the exact
+    // Back to Learning transition, not just a truthy write.
+    func test_recordReview_masteredCardWhiffReturnsExactTransitionToLearning() {
+        let log = LogStore(directory: tempDir)
+        makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
+        let store = GameStore(directory: tempDir)
+        store.syncDeck(from: log)
+        let cardId = store.deck().first!.id
+        store.recordReview(cardId: cardId, result: .hit, on: "2026-07-04") // 0 -> 1
+        store.recordReview(cardId: cardId, result: .hit, on: "2026-07-05") // 1 -> 2
+        store.recordReview(cardId: cardId, result: .hit, on: "2026-07-08") // 2 -> 3
+
+        let transition = store.recordReview(cardId: cardId, result: .whiff, on: "2026-07-15") // 3 -> 1
+
+        XCTAssertEqual(transition, ReviewTransition(result: .whiff, oldBox: 3, newBox: 1))
     }
 
     func test_recordReview_whiffDropsBoxAndStaysDueTodayAndAppendsReviewRow() throws {
@@ -1254,10 +1288,11 @@ final class GameStoreTests: XCTestCase {
         XCTAssertNotNil(store.lastError)
     }
 
-    func test_recordReview_unknownCardReportsInsteadOfSilentNoOp() {
+    func test_recordReview_unknownCardReturnsNilWritesNoReviewAndSetsLastError() throws {
         let store = GameStore(directory: tempDir)
-        // The false return is what stops BattleView advancing the fight.
-        XCTAssertFalse(store.recordReview(cardId: 999, result: .hit, on: "2026-07-04"))
+        // The nil return is what stops BattleView advancing the fight.
+        XCTAssertNil(store.recordReview(cardId: 999, result: .hit, on: "2026-07-04"))
+        XCTAssertEqual(try reviewCount(), 0)
         XCTAssertNotNil(store.lastError)
     }
 
