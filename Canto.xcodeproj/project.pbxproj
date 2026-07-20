@@ -1761,6 +1761,7 @@
 		B0A763785277E5CAB8BB45D7 /* pig.png in Resources */ = {isa = PBXBuildFile; fileRef = 47DDA8D634BBA4616763E53C /* pig.png */; };
 		B0C428EFB9A4FDF583036970 /* tree.png in Resources */ = {isa = PBXBuildFile; fileRef = 0386F7941FA154CD3369ECE5 /* tree.png */; };
 		B0C4B0CFD72695177576FDA5 /* thermometer.png in Resources */ = {isa = PBXBuildFile; fileRef = AA1ECB7B35B0B5A349E85541 /* thermometer.png */; };
+		B0C6D0BC5697923A3405CA59 /* DeckCardDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB0D882D3E8EB68EFACB857 /* DeckCardDetailView.swift */; };
 		B0F216EEAADDB56A3F25F7BE /* mule.png in Resources */ = {isa = PBXBuildFile; fileRef = DA95731E2C418A6DE7132CE7 /* mule.png */; };
 		B0F531D5C5ED246A9282DFE8 /* boxer.png in Resources */ = {isa = PBXBuildFile; fileRef = D0D6FD172EC6F3955C54941C /* boxer.png */; };
 		B0F79A3646B492C9CB581013 /* sun.png in Resources */ = {isa = PBXBuildFile; fileRef = B0191C5FE79DD357F8A1385E /* sun.png */; };
@@ -4450,6 +4451,7 @@
 		BB83AEA67F0DDAC154A927ED /* DeckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckView.swift; sourceTree = "<group>"; };
 		BBA16379A09D56743B137A46 /* wing.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = wing.png; sourceTree = "<group>"; };
 		BBA3283D0455B21E10EC55BD /* fishmonger.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fishmonger.png; sourceTree = "<group>"; };
+		BBB0D882D3E8EB68EFACB857 /* DeckCardDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeckCardDetailView.swift; sourceTree = "<group>"; };
 		BBBBE2BFEF3164A80A923E4B /* saxophone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = saxophone.png; sourceTree = "<group>"; };
 		BBE006ADCA1B7EEBEAB8AF36 /* toothpaste.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = toothpaste.png; sourceTree = "<group>"; };
 		BBEFBA7BCE89C9E93E0F1E06 /* faucet.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = faucet.png; sourceTree = "<group>"; };
@@ -5180,6 +5182,7 @@
 				51BC4C3491C15749FE543B01 /* BattleView.swift */,
 				84CA9D806C07C1BF39769FE6 /* CameraPicker.swift */,
 				41C28FAE8CA06799AE9CA520 /* CardPlayView.swift */,
+				BBB0D882D3E8EB68EFACB857 /* DeckCardDetailView.swift */,
 				BB83AEA67F0DDAC154A927ED /* DeckView.swift */,
 				4DF2A789AB8FC3B4584711B3 /* GameTheme.swift */,
 				9E1BBC063FCBB536E69ADC0D /* HistoryView.swift */,
@@ -10425,6 +10428,7 @@
 				BB9AC54B7BB2B0EB36D569C0 /* CardPhotos.swift in Sources */,
 				0694C696EF4156CBE4BE1B6A /* CardPlayView.swift in Sources */,
 				B31CEA86B2ACF82034D72DB6 /* CardRecord.swift in Sources */,
+				B0C6D0BC5697923A3405CA59 /* DeckCardDetailView.swift in Sources */,
 				173A7EC8DEE07F8D4C084475 /* DeckExport.swift in Sources */,
 				373DB72C18B49E276021EA78 /* DeckView.swift in Sources */,
 				959048042509E6F3A74C2DC6 /* DictionaryStore.swift in Sources */,

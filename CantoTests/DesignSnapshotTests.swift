@@ -801,6 +801,59 @@ final class DesignSnapshotTests: XCTestCase {
         }
     }
 
+    private func deckEntry(
+        id: Int64, traditional: String, jyutping: String, english: String,
+        benched: Bool = false, box: Int, dueOn: String = "2026-01-01"
+    ) -> DeckEntry {
+        DeckEntry(
+            id: id, traditional: traditional, jyutping: jyutping, english: english,
+            photoFilename: nil, benched: benched, box: box, dueOn: dueOn
+        )
+    }
+
+    // The deck zoom card: battle frame + crest, both languages with speakers,
+    // box/due status. A past-due date so the status reads "ready to battle".
+    func test_deckCardDetailMasteredRenders() {
+        snapshot("deck-detail-mastered") {
+            DeckCardDetailView(
+                entry: deckEntry(id: 1, traditional: "獅子", jyutping: "si1 zi2", english: "lion", box: 3),
+                onToggleBench: {}, onPhoto: {}
+            )
+        }
+    }
+
+    func test_deckCardDetailBenchedRenders() {
+        snapshot("deck-detail-benched") {
+            DeckCardDetailView(
+                entry: deckEntry(id: 2, traditional: "食", jyutping: "sik6", english: "eat", benched: true, box: 0, dueOn: "2099-01-01"),
+                onToggleBench: {}, onPhoto: {}
+            )
+        }
+    }
+
+    // A word with no sprite: the characters carry the face alone.
+    func test_deckCardDetailNoSpriteRenders() {
+        snapshot("deck-detail-no-sprite") {
+            DeckCardDetailView(
+                entry: deckEntry(id: 3, traditional: "哲學", jyutping: "zit3 hok6", english: "philosophy", box: 1),
+                onToggleBench: {}, onPhoto: {}
+            )
+        }
+    }
+
+    // Bare DeckRows, not DeckView: ImageRenderer draws List as a placeholder.
+    // Sprite, no-sprite, and benched rows so all three thumbnail states show.
+    func test_deckRowsRender() {
+        snapshotOnInn("deck-rows") {
+            VStack(spacing: 18) {
+                DeckRow(entry: deckEntry(id: 1, traditional: "獅子", jyutping: "si1 zi2", english: "lion", box: 3))
+                DeckRow(entry: deckEntry(id: 2, traditional: "哲學", jyutping: "zit3 hok6", english: "philosophy", box: 1))
+                DeckRow(entry: deckEntry(id: 3, traditional: "食", jyutping: "sik6", english: "eat", benched: true, box: 0))
+            }
+            .padding(24)
+        }
+    }
+
     // The three shipped hats, redrawn onto the Rig as helmet layers. They kept
     // their ids so the wallet's gear rows still resolve, which means a future
     // redraw could silently put one back off the head - LOOK at this one.

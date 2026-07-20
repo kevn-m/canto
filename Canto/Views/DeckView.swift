@@ -10,6 +10,7 @@ struct DeckView: View {
     @ObservedObject private var gameStore = GameStore.shared
     @State private var entries: [DeckEntry] = []
     @State private var balance = 0
+    @State private var detailEntry: DeckEntry?
     @State private var dialogEntry: DeckEntry?
     @State private var photoTargetCardId: Int64?
     @State private var pendingCameraEntry: DeckEntry?
@@ -18,10 +19,6 @@ struct DeckView: View {
     @State private var deleteTarget: DeckEntry?
 
     private let photos = CardPhotos()
-
-    // New, Learning, Solid, Mastered — the PICO-8 palette in place of the
-    // old system gray/blue/orange/green.
-    private static let boxColors: [Color] = [GameTheme.lavender, GameTheme.sky, GameTheme.gold, GameTheme.green]
 
     var body: some View {
         ZStack {
@@ -59,19 +56,44 @@ struct DeckView: View {
             gameStore.syncDeck(from: LogStore.shared)
             reload()
         }
-        .confirmationDialog(
-            "Attach a photo",
-            isPresented: Binding(get: { dialogEntry != nil }, set: { if !$0 { dialogEntry = nil } }),
-            titleVisibility: .visible
-        ) {
-            if CameraPicker.isAvailable {
-                Button("Camera") { pendingCameraEntry = dialogEntry }
+        .sheet(item: $detailEntry) { entry in
+            // The photo dialog and camera hang off the sheet's content:
+            // attached to DeckView they can't present while the sheet is up.
+            DeckCardDetailView(
+                entry: entry,
+                onToggleBench: {
+                    gameStore.setBenched(cardId: entry.id, !entry.benched)
+                    reload()
+                },
+                onPhoto: {
+                    dialogEntry = entry
+                    photoTargetCardId = entry.id
+                }
+            )
+            .confirmationDialog(
+                "Attach a photo",
+                isPresented: Binding(get: { dialogEntry != nil }, set: { if !$0 { dialogEntry = nil } }),
+                titleVisibility: .visible
+            ) {
+                if CameraPicker.isAvailable {
+                    Button("Camera") { pendingCameraEntry = dialogEntry }
+                }
+                PhotosPicker("Photo Library", selection: $photosPickerItem, matching: .images)
+                if dialogEntry?.photoFilename != nil {
+                    Button("Remove Photo", role: .destructive, action: removePhoto)
+                }
+                Button("Cancel", role: .cancel) {}
             }
-            PhotosPicker("Photo Library", selection: $photosPickerItem, matching: .images)
-            if dialogEntry?.photoFilename != nil {
-                Button("Remove Photo", role: .destructive, action: removePhoto)
+            .fullScreenCover(item: $pendingCameraEntry) { entry in
+                CameraPicker { image in
+                    if let image, let filename = photos.save(image: image, cardId: entry.id) {
+                        gameStore.setPhoto(cardId: entry.id, filename: filename)
+                    }
+                    pendingCameraEntry = nil
+                    reload()
+                }
+                .ignoresSafeArea()
             }
-            Button("Cancel", role: .cancel) {}
         }
         .confirmationDialog(
             "Delete this card?",
@@ -93,73 +115,23 @@ struct DeckView: View {
             guard let newItem else { return }
             attachFromLibrary(newItem)
         }
-        .fullScreenCover(item: $pendingCameraEntry) { entry in
-            CameraPicker { image in
-                if let image, let filename = photos.save(image: image, cardId: entry.id) {
-                    gameStore.setPhoto(cardId: entry.id, filename: filename)
-                }
-                pendingCameraEntry = nil
-                reload()
-            }
-            .ignoresSafeArea()
-        }
     }
 
     private func row(_ entry: DeckEntry) -> some View {
-        HStack(spacing: 12) {
-            thumbnail(entry)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(entry.english)
-                    .font(GameTheme.title(18))
-                    .foregroundStyle(GameTheme.cream)
-                Text(entry.traditional)
-                    .font(.system(size: 15, weight: .medium, design: .rounded))
-                    .foregroundStyle(GameTheme.cream.opacity(0.6))
-            }
-            Spacer()
-            boxDot(entry.box)
-            if entry.benched {
-                Text("Benched")
-                    .font(.system(size: 11, weight: .semibold, design: .rounded))
-                    .foregroundStyle(GameTheme.cream.opacity(0.5))
-            }
-        }
-        .opacity(entry.benched ? 0.4 : 1)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            dialogEntry = entry
-            photoTargetCardId = entry.id
-        }
-    }
-
-    private func thumbnail(_ entry: DeckEntry) -> some View {
-        Group {
-            if let filename = entry.photoFilename, let uiImage = photos.load(filename: filename) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFill()
-            } else {
-                Text(entry.traditional)
-                    .font(.system(size: 22, weight: .bold))
-                    .foregroundStyle(GameTheme.navy)
-            }
-        }
-        .frame(width: 44, height: 44)
-        .background(GameTheme.cream)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(GameTheme.gold, lineWidth: 2))
-    }
-
-    private func boxDot(_ box: Int) -> some View {
-        Circle()
-            .fill(Self.boxColors[min(max(box, 0), 3)])
-            .frame(width: 10, height: 10)
+        DeckRow(entry: entry)
+            .contentShape(Rectangle())
+            .onTapGesture { detailEntry = entry }
     }
 
     private func reload() {
         entries = gameStore.deck()
         balance = gameStore.balance()
         exportURL = writeExport()
+        // Keep the open detail card showing the row it was opened from -
+        // a bench toggle or photo change lands in `entries` first.
+        if let id = detailEntry?.id {
+            detailEntry = entries.first { $0.id == id }
+        }
     }
 
     // ShareLink's plain-item initialiser only takes URL/String, so the export
@@ -198,5 +170,60 @@ struct DeckView: View {
             photoTargetCardId = nil
             reload()
         }
+    }
+}
+
+// One deck row: the card's battle art (photo, else sprite, else characters)
+// beside its words and Box dot. Split from DeckView so the snapshot tests
+// can render rows without the List (ImageRenderer draws List as a placeholder).
+struct DeckRow: View {
+    let entry: DeckEntry
+
+    private let photos = CardPhotos()
+
+    var body: some View {
+        HStack(spacing: 12) {
+            thumbnail
+            VStack(alignment: .leading, spacing: 2) {
+                Text(entry.english)
+                    .font(GameTheme.title(18))
+                    .foregroundStyle(GameTheme.cream)
+                Text(entry.traditional)
+                    .font(.system(size: 15, weight: .medium, design: .rounded))
+                    .foregroundStyle(GameTheme.cream.opacity(0.6))
+            }
+            Spacer()
+            CardTierCrest(box: entry.box, size: 26)
+            if entry.benched {
+                Text("Benched")
+                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .foregroundStyle(GameTheme.cream.opacity(0.5))
+            }
+        }
+        .opacity(entry.benched ? 0.4 : 1)
+    }
+
+    private var thumbnail: some View {
+        Group {
+            if let filename = entry.photoFilename, let uiImage = photos.load(filename: filename) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+            } else if let sprite = SpriteArt.cardImage(forEnglish: entry.english) {
+                Image(uiImage: sprite)
+                    .resizable()
+                    .interpolation(.none)
+                    .scaledToFit()
+                    .padding(3)
+            } else {
+                Text(entry.traditional)
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundStyle(GameTheme.navy)
+            }
+        }
+        .frame(width: 44, height: 44)
+        .background(GameTheme.cream)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(GameTheme.gold, lineWidth: 2))
     }
 }
