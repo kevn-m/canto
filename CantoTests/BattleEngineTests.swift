@@ -31,13 +31,15 @@ final class BattleEngineTests: XCTestCase {
     // MARK: - applyResult
 
     func test_applyResult_hitDamagesEnemyByBoxTier() {
-        var state = makeState()
-        let outcome = BattleEngine.applyResult(.hit, card: card(id: 1, box: 0), to: &state)
+        for box in 0..<Balance.damageByBox.count {
+            var state = makeState()
+            let outcome = BattleEngine.applyResult(.hit, card: card(id: 1, box: box), to: &state)
 
-        XCTAssertNil(outcome)
-        XCTAssertEqual(state.enemyHP, 7 - 3)
-        XCTAssertEqual(state.damageDealt, 3)
-        XCTAssertEqual(state.dealt, [1])
+            XCTAssertNil(outcome)
+            XCTAssertEqual(state.enemyHP, 7 - Balance.damageByBox[box])
+            XCTAssertEqual(state.damageDealt, Balance.damageByBox[box])
+            XCTAssertEqual(state.dealt, [1])
+        }
     }
 
     func test_applyResult_whiffDrainsParty() {

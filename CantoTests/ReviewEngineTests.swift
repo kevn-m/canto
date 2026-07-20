@@ -41,23 +41,39 @@ final class ReviewEngineTests: XCTestCase {
 
     // MARK: - damage
 
-    func test_damage_newAndLearningDealThree() {
-        XCTAssertEqual(ReviewEngine.damage(forBox: 0), 3)
-        XCTAssertEqual(ReviewEngine.damage(forBox: 1), 3)
+    func test_damage_newAndLearningDealTwo() {
+        XCTAssertEqual(ReviewEngine.damage(forBox: 0), 2)
+        XCTAssertEqual(ReviewEngine.damage(forBox: 1), 2)
     }
 
-    func test_damage_solidDealsTwo() {
-        XCTAssertEqual(ReviewEngine.damage(forBox: 2), 2)
+    func test_damage_solidDealsThree() {
+        XCTAssertEqual(ReviewEngine.damage(forBox: 2), 3)
     }
 
-    func test_damage_masteredDealsOne() {
-        XCTAssertEqual(ReviewEngine.damage(forBox: 3), 1)
+    func test_damage_masteredDealsFour() {
+        XCTAssertEqual(ReviewEngine.damage(forBox: 3), 4)
     }
 
     func test_damageTable_hasOneEntryPerBox() {
         // Play-tuning edits Balance.damageByBox; a wrong length would trap at
         // ReviewEngine.damage(forBox:) mid-battle instead of failing here.
         XCTAssertEqual(Balance.damageByBox.count, 4)
+    }
+
+    func test_damage_neverShrinksAsBoxClimbs() {
+        // ADR 0039: mastery pays in damage. Play-tuning may widen the top;
+        // a Box that hits softer than the one below it is a re-flip.
+        for box in 1..<Balance.damageByBox.count {
+            XCTAssertGreaterThanOrEqual(Balance.damageByBox[box], Balance.damageByBox[box - 1])
+        }
+    }
+
+    func test_damage_bottomStaysAtTwo() {
+        // ADR 0039's tuning rule: widen the top, never lower the bottom.
+        // New at 1 makes a fresh deck's fight a 7-card slog and turns a
+        // freshly Kept word into a near-dead card in the hand.
+        XCTAssertGreaterThanOrEqual(Balance.damageByBox[0], 2)
+        XCTAssertGreaterThanOrEqual(Balance.damageByBox[1], 2)
     }
 
     // MARK: - hand
