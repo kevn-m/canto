@@ -19,7 +19,12 @@ const COLOURWAYS = {
   'pal-sky': { bg: P.sky, mascot: 'pal-dragonling' },
   'pal-crm': { bg: P.crm, mascot: 'pal-dragonling' },
   'pal-plum': { bg: P.plum, mascot: 'pal-dragonling' },
+  // JyutKeep Plus subscription image (ASC upload, never bundled). Gold is
+  // GameTheme.gold = P.org, the Pick badge colour.
+  'plus-org': { bg: P.org, mascot: 'pal-dragonling', plus: true },
+  'plus-brz': { bg: P.brz, mascot: 'pal-dragonling', plus: true },
 };
+const SUB_CHOSEN = 'plus-org';
 
 function crc32(buf) {
   let c, table = [];
@@ -79,7 +84,7 @@ function sparkle(g, cx, cy, c) {
   px(g, cx, cy - 1, c); px(g, cx, cy + 1, c);
 }
 
-function compose({ bg, mascot }) {
+function compose({ bg, mascot, plus }) {
   const g = new Array(W * W).fill(bg);
   const sprite = S.renderGrid(mascot);
   for (let y = 0; y < W; y++) for (let x = 0; x < W; x++) {
@@ -98,6 +103,11 @@ function compose({ bg, mascot }) {
   arc(bx + 7, 3, P.red); arc(bx + 13, 6, P.org);
   wpx(bx + 4, by + 8, P.red); wpx(bx + 5, by + 8, P.red);
   sparkle(g, 8, 20, P.yel);
+  if (plus) {
+    sparkle(g, 55, 26, P.crm);
+    sparkle(g, 10, 46, P.crm);
+    sparkle(g, 50, 52, P.yel);
+  }
   return g;
 }
 
@@ -113,4 +123,6 @@ for (const [name, spec] of Object.entries(COLOURWAYS)) {
 }
 fs.writeFileSync(path.join(iconsetDir, 'icon-1024.png'), toPng(compose(COLOURWAYS[CHOSEN])));
 console.log(`icon-1024.png <- ${CHOSEN}`);
+fs.writeFileSync(path.join(__dirname, 'subscription-plus-1024.png'), toPng(compose(COLOURWAYS[SUB_CHOSEN])));
+console.log(`subscription-plus-1024.png <- ${SUB_CHOSEN}`);
 process.exit(failed ? 1 : 0);
