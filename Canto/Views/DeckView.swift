@@ -30,6 +30,7 @@ struct DeckView: View {
     @State private var photoTargetCardId: Int64?
     @State private var pendingCameraEntry: DeckEntry?
     @State private var photosPickerItem: PhotosPickerItem?
+    @State private var showPhotoLibrary = false
     @State private var exportURL: URL?
     @State private var deleteTarget: DeckEntry?
     @State private var searchText = ""
@@ -95,7 +96,7 @@ struct DeckView: View {
                 if CameraPicker.isAvailable {
                     Button("Camera") { pendingCameraEntry = dialogEntry }
                 }
-                PhotosPicker("Photo Library", selection: $photosPickerItem, matching: .images)
+                Button("Photo Library") { showPhotoLibrary = true }
                 if dialogEntry?.photoFilename != nil {
                     Button("Remove Photo", role: .destructive, action: removePhoto)
                 }
@@ -111,6 +112,7 @@ struct DeckView: View {
                 }
                 .ignoresSafeArea()
             }
+            .photosPicker(isPresented: $showPhotoLibrary, selection: $photosPickerItem, matching: .images)
         }
         .confirmationDialog(
             "Delete this card?",

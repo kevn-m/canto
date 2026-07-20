@@ -101,14 +101,8 @@ struct DeckCardDetailView: View {
 
     private var statusLine: some View {
         VStack(spacing: 6) {
-            HStack(spacing: 8) {
-                Text(boxName)
-                    .foregroundStyle(GameTheme.boxFrameTier(forBox: entry.box) ?? GameTheme.cream)
-                Text("·")
-                    .foregroundStyle(GameTheme.cream.opacity(0.5))
-                Text(dueText)
-                    .foregroundStyle(GameTheme.cream.opacity(0.8))
-            }
+            Text(boxName)
+                .foregroundStyle(GameTheme.boxFrameTier(forBox: entry.box) ?? GameTheme.cream)
             if entry.benched {
                 Text("Benched — sits out battles")
                     .foregroundStyle(GameTheme.lavender)
@@ -119,19 +113,6 @@ struct DeckCardDetailView: View {
 
     private var boxName: String {
         CardCeremonyView.stepLabels[min(max(entry.box, 0), 3)]
-    }
-
-    private var dueText: String {
-        guard entry.dueOn > ReviewEngine.todayString() else { return "ready to battle" }
-        return "returns \(Self.friendlyDate(entry.dueOn))"
-    }
-
-    // "2026-07-21" -> "21 Jul"; an unparseable date shows as-is.
-    static func friendlyDate(_ dueOn: String) -> String {
-        let parser = DateFormatter()
-        parser.dateFormat = "yyyy-MM-dd"
-        guard let date = parser.date(from: dueOn) else { return dueOn }
-        return date.formatted(.dateTime.day().month(.abbreviated))
     }
 
     private var actions: some View {
