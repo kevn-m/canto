@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @ObservedObject private var gameStore = GameStore.shared
+    @AppStorage("hasOnboarded") private var hasOnboarded = false
     @State private var showResetDialog = false
     @State private var familyRewardsEnabled = false
     @State private var exportURL: URL?
@@ -28,9 +29,9 @@ struct SettingsView: View {
                             .font(GameTheme.title(13))
                             .foregroundStyle(GameTheme.cream.opacity(0.6))
                     } footer: {
-                        // Off by default (ADR 0021): the Shop is gear-only for
-                        // a solo player until dad turns this on.
-                        Text("Adds dad's real-world treats to the Shop, alongside gear.")
+                        // Off by default (ADR 0021): the Shop is gear-only
+                        // until a parent turns this on.
+                        Text("Lets a parent add real-world rewards to the Shop, so your child can spend CantoBux on treats you set alongside in-game gear.")
                             .foregroundStyle(GameTheme.cream.opacity(0.6))
                     }
                     .listRowBackground(GameTheme.navy.opacity(0.4))
@@ -40,6 +41,18 @@ struct SettingsView: View {
                     } header: {
                         Text("Reset")
                             .font(GameTheme.title(13))
+                            .foregroundStyle(GameTheme.cream.opacity(0.6))
+                    }
+                    .listRowBackground(GameTheme.navy.opacity(0.4))
+
+                    Section {
+                        Button("Show intro again") { hasOnboarded = false }
+                    } header: {
+                        Text("Intro")
+                            .font(GameTheme.title(13))
+                            .foregroundStyle(GameTheme.cream.opacity(0.6))
+                    } footer: {
+                        Text("Replays the welcome screens. Your words and CantoBux stay put.")
                             .foregroundStyle(GameTheme.cream.opacity(0.6))
                     }
                     .listRowBackground(GameTheme.navy.opacity(0.4))

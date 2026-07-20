@@ -76,6 +76,12 @@ struct AppShellView: View {
                 routeLaunchIntent()
             }
         }
+        // Settings' "Show intro again" flips the flag back; re-present the cover.
+        .onChange(of: hasOnboarded) { _, onboarded in
+            if !onboarded {
+                showOnboarding = true
+            }
+        }
         .fullScreenCover(isPresented: $showOnboarding) {
             OnboardingView(speaker: speaker) { acceptPack in
                 if acceptPack {

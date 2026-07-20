@@ -1,8 +1,9 @@
 import SwiftUI
 
-// The one-time first-run sheet: what the app is, the zh-HK voice check,
-// and the starter pack offer (ADR 0023). LookupView presents it while
-// @AppStorage("hasOnboarded") is false; either pack choice ends it.
+// The one-time first-run sheet (ADR 0023): what the app is, the zh-HK voice
+// check, the lookup/battle/rewards tour, and the starter pack offer.
+// AppShellView presents it while @AppStorage("hasOnboarded") is false;
+// either pack choice ends it.
 struct OnboardingView: View {
     let speaker: CantoneseSpeaker
     let onFinish: (_ acceptPack: Bool) -> Void
@@ -25,6 +26,14 @@ struct OnboardingView: View {
                             onHearSample: { speaker.speak("你好") },
                             onNext: { page = 2 }
                         )
+                    case 2:
+                        OnboardingLookupPage(onNext: { page = 3 })
+                    case 3:
+                        OnboardingBattlePage(onNext: { page = 4 })
+                    case 4:
+                        OnboardingTogetherPage(onNext: { page = 5 })
+                    case 5:
+                        OnboardingRewardsPage(onNext: { page = 6 })
                     default:
                         OnboardingPackPage(
                             onAdd: { onFinish(true) },
@@ -33,7 +42,7 @@ struct OnboardingView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                PageDots(current: page, count: 3)
+                PageDots(current: page, count: 7)
                     .padding(.bottom, 24)
             }
         }
@@ -105,6 +114,167 @@ struct OnboardingVoicePage: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 32)
             }
+            Spacer()
+            Button("Next", action: onNext)
+                .buttonStyle(GameButtonStyle())
+                .padding(.bottom, 16)
+        }
+    }
+}
+
+// Pick vs offline results, on a mock lookup for "hello". The gilded row is
+// the Pick; the plain row is the offline dictionary.
+struct OnboardingLookupPage: View {
+    let onNext: () -> Void
+
+    var body: some View {
+        VStack(spacing: 22) {
+            Spacer()
+            VStack(alignment: .leading, spacing: 12) {
+                mockRow(characters: "你好", jyutping: "nei5 hou2", gloss: "hello", isPick: true)
+                mockRow(characters: "哈囉", jyutping: "haa1 lou3", gloss: "hello (loanword)", isPick: false)
+            }
+            .padding(.horizontal, 56)
+            Text("Look up any word")
+                .font(GameTheme.title(24))
+                .foregroundStyle(GameTheme.cream)
+            Text("The built-in dictionary answers instantly, even offline. The gold Pick joins it when you're online: the most natural everyday way to say your word, so start there. Tap a row to hear it — Keep collects it as a card.")
+                .font(GameTheme.title(17))
+                .foregroundStyle(GameTheme.cream.opacity(0.8))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 32)
+            Spacer()
+            Button("Next", action: onNext)
+                .buttonStyle(GameButtonStyle())
+                .padding(.bottom, 16)
+        }
+    }
+
+    private func mockRow(characters: String, jyutping: String, gloss: String, isPick: Bool) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            if isPick {
+                Label("Pick", systemImage: "sparkles")
+                    .font(GameTheme.title(12))
+                    .foregroundStyle(GameTheme.gold)
+            }
+            Text(characters)
+                .font(.system(size: 28, weight: .bold))
+                .foregroundStyle(GameTheme.navy)
+            Text(jyutping)
+                .font(GameTheme.title(14))
+                .foregroundStyle(GameTheme.navy.opacity(0.7))
+            Text(gloss)
+                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .foregroundStyle(GameTheme.lavender)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .cardFrame(gilded: isPick)
+    }
+}
+
+struct OnboardingBattlePage: View {
+    let onNext: () -> Void
+
+    var body: some View {
+        VStack(spacing: 22) {
+            Spacer()
+            HStack(spacing: 28) {
+                sprite(SpriteArt.heroImage(), size: 88)
+                sprite(SpriteArt.enemyImage(for: "slime"), size: 66)
+            }
+            HStack(spacing: 28) {
+                gradeMark(symbol: "xmark", color: GameTheme.red, label: "Whiff")
+                gradeMark(symbol: "checkmark", color: GameTheme.green, label: "Hit")
+            }
+            Text("Battle with your words")
+                .font(GameTheme.title(24))
+                .foregroundStyle(GameTheme.cream)
+            Text("Kept words become attack cards. Hear the English, say it in Cantonese out loud, then flip the card to check. Call it yourself: Hit or Whiff. Hits raise a word's mastery — and mastered words hit harder. A Whiff sends it back to practice. Honest calls are what make you learn.")
+                .font(GameTheme.title(17))
+                .foregroundStyle(GameTheme.cream.opacity(0.8))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 32)
+            Spacer()
+            Button("Next", action: onNext)
+                .buttonStyle(GameButtonStyle())
+                .padding(.bottom, 16)
+        }
+    }
+
+    private func gradeMark(symbol: String, color: Color, label: String) -> some View {
+        Image(systemName: symbol)
+            .font(.system(size: 26, weight: .heavy))
+            .foregroundStyle(GameTheme.cream)
+            .frame(width: 54, height: 54)
+            .background(Circle().fill(color))
+            .overlay(Circle().strokeBorder(.black.opacity(0.3), lineWidth: 2))
+            .shadow(color: .black.opacity(0.45), radius: 4, y: 3)
+            .accessibilityLabel(label)
+    }
+}
+
+struct OnboardingTogetherPage: View {
+    let onNext: () -> Void
+
+    var body: some View {
+        VStack(spacing: 22) {
+            Spacer()
+            HStack(alignment: .bottom, spacing: 18) {
+                sprite(SpriteArt.heroImage(), size: 64)
+                VStack(spacing: 6) {
+                    Text("你好")
+                        .font(.system(size: 40, weight: .bold))
+                        .foregroundStyle(GameTheme.cream)
+                    Text("nei5 hou2")
+                        .font(GameTheme.title(14))
+                        .foregroundStyle(GameTheme.cream.opacity(0.55))
+                }
+                .padding(18)
+                .frame(width: 132, height: 164)
+                .cardFrame(face: GameTheme.navy)
+                sprite(SpriteArt.image(named: "avatar-mei"), size: 64)
+            }
+            Text("Better with a grown-up")
+                .font(GameTheme.title(24))
+                .foregroundStyle(GameTheme.cream)
+            Text("Battles are made for two. The back of every card shows the Jyutping — how the word sounds — so a parent can listen, judge the pronunciation, and call Hit or Whiff together, no character reading needed.")
+                .font(GameTheme.title(17))
+                .foregroundStyle(GameTheme.cream.opacity(0.8))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 32)
+            Spacer()
+            Button("Next", action: onNext)
+                .buttonStyle(GameButtonStyle())
+                .padding(.bottom, 16)
+        }
+    }
+}
+
+struct OnboardingRewardsPage: View {
+    let onNext: () -> Void
+
+    var body: some View {
+        VStack(spacing: 22) {
+            Spacer()
+            HStack(spacing: 24) {
+                Image(systemName: "dollarsign.circle.fill")
+                    .font(.system(size: 56))
+                    .foregroundStyle(GameTheme.gold)
+                AvatarSpriteView(
+                    size: 88,
+                    equipped: [.helmet: "hat-crown", .weapon: "weap-knight-sword"]
+                )
+            }
+            Text("Earn CantoBux")
+                .font(GameTheme.title(24))
+                .foregroundStyle(GameTheme.cream)
+            Text("Every climb pays CantoBux, win or lose. Spend them in the Shop on gear for your hero. Parents: switch on Family rewards in Settings to add real-world treats — ice cream, a park trip, movie night — priced in CantoBux you choose.")
+                .font(GameTheme.title(17))
+                .foregroundStyle(GameTheme.cream.opacity(0.8))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 32)
             Spacer()
             Button("Next", action: onNext)
                 .buttonStyle(GameButtonStyle())

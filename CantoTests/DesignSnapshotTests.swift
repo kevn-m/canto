@@ -595,6 +595,53 @@ final class DesignSnapshotTests: XCTestCase {
         }
     }
 
+    func test_onboardingLookupRenders() {
+        snapshot("onboarding-lookup") {
+            ZStack {
+                InnBackground()
+                OnboardingLookupPage(onNext: {})
+            }
+        }
+    }
+
+    func test_onboardingBattleRenders() {
+        snapshot("onboarding-battle") {
+            ZStack {
+                InnBackground()
+                OnboardingBattlePage(onNext: {})
+            }
+        }
+    }
+
+    func test_onboardingTogetherRenders() {
+        snapshot("onboarding-together") {
+            ZStack {
+                InnBackground()
+                OnboardingTogetherPage(onNext: {})
+            }
+        }
+    }
+
+    func test_onboardingRewardsRenders() {
+        snapshot("onboarding-rewards") {
+            ZStack {
+                InnBackground()
+                OnboardingRewardsPage(onNext: {})
+            }
+        }
+    }
+
+    // The longest page copy on the narrowest phone still sold - render at
+    // 375 and check nothing clips or crowds the dots.
+    func test_onboardingBattleRendersOnASmallPhone() {
+        snapshot("onboarding-battle-small", width: 375) {
+            ZStack {
+                InnBackground()
+                OnboardingBattlePage(onNext: {})
+            }
+        }
+    }
+
     func test_onboardingPackRenders() {
         snapshot("onboarding-pack") {
             ZStack {
