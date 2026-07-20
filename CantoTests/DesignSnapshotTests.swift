@@ -946,4 +946,19 @@ final class DesignSnapshotTests: XCTestCase {
             }
         }
     }
+
+    // The bundled Silkscreen font is the sign's whole look: if it silently
+    // fails to load, .custom falls back to system and every heading changes
+    // without a build error. So this asserts the font, then LOOK at the PNG.
+    func test_tavernSignHeadersRender() {
+        XCTAssertNotNil(UIFont(name: "Silkscreen-Bold", size: 12), "bundled Silkscreen-Bold failed to load")
+        snapshotOnInn("tavern-sign-headers") {
+            VStack(spacing: 44) {
+                TavernSignHeader(title: "Deck")
+                TavernSignHeader(title: "Shop")
+                TavernSignHeader(title: "Settings")
+                TavernSignHeader(title: "Choose Hero")
+            }
+        }
+    }
 }

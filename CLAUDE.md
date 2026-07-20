@@ -86,6 +86,11 @@ install. Needs one-time setup — an App Store Connect API key, an app record, a
   (stdlib Python). New sounds: add to the script, run it, copy the WAV here,
   add an `SFXPlayer.Effect` case, `xcodegen generate`. `SFXTests` iterates
   every case, so a missing or undecodable WAV fails the build.
+- `Canto/Resources/Fonts/` — Silkscreen-Bold (Google Fonts, OFL, license alongside),
+  the pixel face on `TavernSignHeader` (the hanging wooden sign that replaced the
+  plain navigation titles on Deck/Shop/Settings). Registered via `UIAppFonts` in
+  `project.yml`; `DesignSnapshotTests.test_tavernSignHeadersRender` asserts the
+  font actually loads, because `.custom` falls back to system silently.
 - `Canto/Resources/Assets.xcassets/` — the app icon (pal-dragonling + speech
   bubble on plum), rendered by `art/app-icon/render_icon.js` straight into the
   appiconset as an opaque 1024px PNG. To change colourway or mascot: edit

@@ -24,6 +24,7 @@ targets:
       - path: Canto/Resources/Sprites
       - path: Canto/Resources/SFX
       - path: Canto/Resources/Assets.xcassets
+      - path: Canto/Resources/Fonts/Silkscreen-Bold.ttf
     dependencies:
       - package: GRDB
         product: GRDB
@@ -61,6 +62,8 @@ targets:
         NSMicrophoneUsageDescription: "Canto listens so you can say the English word you want in Cantonese."
         NSSpeechRecognitionUsageDescription: "Speech recognition turns what you say into the word to look up. Recognition runs on this iPhone only."
         NSCameraUsageDescription: "Take a photo of the thing you just looked up, for its flashcard."
+        UIAppFonts:
+          - Silkscreen-Bold.ttf
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.kevinmok.cantoapp

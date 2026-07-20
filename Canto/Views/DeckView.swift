@@ -44,6 +44,9 @@ struct DeckView: View {
                 if let lastError = gameStore.lastError {
                     ErrorBanner(message: lastError) { gameStore.clearError() }
                 }
+                TavernSignHeader(title: "Deck")
+                    .padding(.bottom, 12)
+                searchField
                 List(DeckSearch.filter(entries, query: searchText)) { entry in
                     row(entry)
                         .listRowBackground(Color.clear)
@@ -59,17 +62,24 @@ struct DeckView: View {
                 }
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
+                .scrollDismissesKeyboard(.immediately)
             }
-        }
-        .navigationTitle("Deck")
-        .searchable(text: $searchText, prompt: "english, jyutping, or 字")
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                if let exportURL {
-                    ShareLink(item: exportURL)
+            if let exportURL {
+                ShareLink(item: exportURL) {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(GameTheme.gold)
+                        .frame(width: 44, height: 44)
+                        .background(Circle().fill(.black.opacity(0.35)))
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                .padding(.trailing, 12)
             }
         }
+        // All three inn tabs hide the nav bar: an empty bar collapses but one
+        // with items keeps its height, which left this sign hanging lower
+        // than Settings'. The share button floats over the content instead.
+        .toolbar(.hidden, for: .navigationBar)
         .onAppear {
             gameStore.syncDeck(from: LogStore.shared)
             reload()
@@ -134,6 +144,31 @@ struct DeckView: View {
             guard let newItem else { return }
             attachFromLibrary(newItem)
         }
+    }
+
+    // In-content search (LookupView's field pattern), so the sign can hang
+    // above it — .searchable pins the field to the nav bar, over everything.
+    private var searchField: some View {
+        TextField(
+            "", text: $searchText,
+            prompt: Text("english, jyutping, or 字").foregroundStyle(GameTheme.navy.opacity(0.45))
+        )
+        .textFieldStyle(GameTextFieldStyle())
+        .autocorrectionDisabled()
+        .textInputAutocapitalization(.never)
+        .overlay(alignment: .trailing) {
+            if !searchText.isEmpty {
+                Button { searchText = "" } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 20))
+                        .foregroundStyle(GameTheme.navy.opacity(0.35))
+                        .frame(width: 44, height: 44)
+                }
+                .accessibilityLabel("Clear search")
+            }
+        }
+        .padding(.horizontal)
+        .padding(.bottom, 6)
     }
 
     private func row(_ entry: DeckEntry) -> some View {

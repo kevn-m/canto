@@ -17,6 +17,8 @@ struct SettingsView: View {
                 if let lastError = gameStore.lastError {
                     ErrorBanner(message: lastError) { gameStore.clearError() }
                 }
+                TavernSignHeader(title: "Settings")
+                    .padding(.bottom, 4)
                 List {
                     Section {
                         Toggle("Family rewards", isOn: $familyRewardsEnabled)
@@ -95,7 +97,7 @@ struct SettingsView: View {
                 .scrollContentBackground(.hidden)
             }
         }
-        .navigationTitle("Settings")
+        .toolbar(.hidden, for: .navigationBar)
         .onAppear {
             familyRewardsEnabled = gameStore.familyRewardsEnabled()
             exportURL = writeSnapshot()

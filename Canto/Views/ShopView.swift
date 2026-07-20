@@ -33,6 +33,7 @@ struct ShopView: View {
                 if let lastError = gameStore.lastError {
                     ErrorBanner(message: lastError) { gameStore.clearError() }
                 }
+                TavernSignHeader(title: "Shop")
                 balanceView
                 heroPreviewButton
                 ScrollView {
@@ -48,16 +49,20 @@ struct ShopView: View {
                     .padding()
                 }
             }
-        }
-        .navigationTitle("Shop")
-        .toolbar {
             if familyRewardsEnabled {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Edit") { showingEdit = true }
-                        .tint(GameTheme.gold)
-                }
+                Button("Edit") { showingEdit = true }
+                    .font(GameTheme.title(15))
+                    .foregroundStyle(GameTheme.gold)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(Capsule().fill(.black.opacity(0.35)))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                    .padding(.trailing, 12)
             }
         }
+        // Same reason as DeckView: bar hidden so the sign height matches
+        // Settings; Edit floats over the content.
+        .toolbar(.hidden, for: .navigationBar)
         .onAppear(perform: reload)
         .confirmationDialog(
             "Spend \(pendingRedeem?.price ?? 0) CantoBux on \(pendingRedeem?.name ?? "")?",
@@ -239,15 +244,17 @@ struct AvatarPickerView: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        NavigationStack {
-            ZStack {
-                InnBackground()
+        ZStack {
+            InnBackground()
+            VStack(spacing: 0) {
+                TavernSignHeader(title: "Choose Hero")
+                    .padding(.top, 16)
+                    .padding(.bottom, 8)
                 ScrollView {
                     AvatarGrid { dismiss() }
                         .padding()
                 }
             }
-            .navigationTitle("Choose Hero")
         }
     }
 }
@@ -307,31 +314,50 @@ private struct ShopEditView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                if let lastError = gameStore.lastError {
-                    ErrorBanner(message: lastError) { gameStore.clearError() }
-                }
-                Section("Add item") {
-                    TextField("Name", text: $newName)
-                    TextField("Price", text: $newPrice)
-                        .keyboardType(.numberPad)
-                    Button("Add", action: addItem)
-                        // Int(newPrice) == nil covers pasted "20.00",
-                        // whitespace, and overflow - not just empty.
-                        .disabled(newName.trimmingCharacters(in: .whitespaces).isEmpty || Int(newPrice) == nil)
-                }
-                Section("Items") {
-                    ForEach(items) { item in
-                        HStack {
-                            Text(item.name)
-                            Spacer()
-                            Text("\(item.price)").foregroundStyle(.secondary)
+            ZStack {
+                InnBackground()
+                VStack(spacing: 0) {
+                    TavernSignHeader(title: "Edit Shop")
+                        .padding(.bottom, 4)
+                    Form {
+                        if let lastError = gameStore.lastError {
+                            ErrorBanner(message: lastError) { gameStore.clearError() }
                         }
+                        Section {
+                            TextField("Name", text: $newName)
+                            TextField("Price", text: $newPrice)
+                                .keyboardType(.numberPad)
+                            Button("Add", action: addItem)
+                                // Int(newPrice) == nil covers pasted "20.00",
+                                // whitespace, and overflow - not just empty.
+                                .disabled(newName.trimmingCharacters(in: .whitespaces).isEmpty || Int(newPrice) == nil)
+                        } header: {
+                            Text("Add item")
+                                .font(GameTheme.title(13))
+                                .foregroundStyle(GameTheme.cream.opacity(0.6))
+                        }
+                        .listRowBackground(GameTheme.navy.opacity(0.4))
+                        Section {
+                            ForEach(items) { item in
+                                HStack {
+                                    Text(item.name)
+                                    Spacer()
+                                    Text("\(item.price)").foregroundStyle(.secondary)
+                                }
+                            }
+                            .onDelete(perform: archive)
+                        } header: {
+                            Text("Items")
+                                .font(GameTheme.title(13))
+                                .foregroundStyle(GameTheme.cream.opacity(0.6))
+                        }
+                        .listRowBackground(GameTheme.navy.opacity(0.4))
                     }
-                    .onDelete(perform: archive)
+                    .scrollContentBackground(.hidden)
                 }
             }
-            .navigationTitle("Edit Shop")
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
