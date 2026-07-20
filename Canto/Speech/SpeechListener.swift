@@ -49,7 +49,7 @@ import Speech
             DispatchQueue.main.async {
                 guard authStatus == .authorized else {
                     self?.isStarting = false
-                    self?.errorMessage = "Canto needs permission to use speech recognition. Enable it in Settings, or type the word instead."
+                    self?.errorMessage = "JyutKeep needs permission to use speech recognition. Enable it in Settings, or type the word instead."
                     return
                 }
                 self?.requestMicPermission(recognizer: recognizer)
@@ -62,7 +62,7 @@ import Speech
             DispatchQueue.main.async {
                 guard granted else {
                     self?.isStarting = false
-                    self?.errorMessage = "Canto needs microphone access to hear you. Enable it in Settings, or type the word instead."
+                    self?.errorMessage = "JyutKeep needs microphone access to hear you. Enable it in Settings, or type the word instead."
                     return
                 }
                 self?.beginRecognition(recognizer: recognizer)
@@ -78,7 +78,7 @@ import Speech
         } catch {
             isStarting = false
             NSLog("SpeechListener audio session setup failed: %@", String(describing: error))
-            errorMessage = "Canto couldn't start listening: \(error.localizedDescription)"
+            errorMessage = "JyutKeep couldn't start listening: \(error.localizedDescription)"
             return
         }
 
@@ -103,7 +103,7 @@ import Speech
             try? audioSession.setActive(false, options: .notifyOthersOnDeactivation)
             recognitionRequest = nil
             NSLog("SpeechListener audio engine start failed: %@", String(describing: error))
-            errorMessage = "Canto couldn't start the microphone: \(error.localizedDescription)"
+            errorMessage = "JyutKeep couldn't start the microphone: \(error.localizedDescription)"
             return
         }
 

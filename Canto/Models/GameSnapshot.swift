@@ -23,8 +23,8 @@ enum GameSnapshot {
 
         var errorDescription: String? {
             switch self {
-            case .newerVersion: return "This snapshot is from a newer version of Canto."
-            case .unreadable: return "This file isn't a Canto snapshot."
+            case .newerVersion: return "This snapshot is from a newer version of JyutKeep."
+            case .unreadable: return "This file isn't a JyutKeep snapshot."
             }
         }
     }

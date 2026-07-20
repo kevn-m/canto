@@ -12,7 +12,7 @@
 #   scripts/deploy_device.sh <udid>     # target a specific device
 set -euo pipefail
 
-BUNDLE_ID="com.kevinmok.cantoapp"
+BUNDLE_ID="com.kevinmok.jyutkeep"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 

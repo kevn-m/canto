@@ -18,7 +18,7 @@ import AppIntents
 }
 
 struct StartListeningIntent: AppIntent {
-    static let title: LocalizedStringResource = "Canto Lookup"
+    static let title: LocalizedStringResource = "JyutKeep Lookup"
     static let openAppWhenRun = true
 
     @MainActor
@@ -33,10 +33,10 @@ struct CantoShortcuts: AppShortcutsProvider {
         AppShortcut(
             intent: StartListeningIntent(),
             phrases: [
-                "Canto Lookup with \(.applicationName)",
+                "JyutKeep Lookup with \(.applicationName)",
                 "Start a lookup in \(.applicationName)"
             ],
-            shortTitle: "Canto Lookup",
+            shortTitle: "JyutKeep Lookup",
             systemImageName: "mic.fill"
         )
     }

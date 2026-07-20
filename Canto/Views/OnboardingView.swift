@@ -67,7 +67,7 @@ struct OnboardingWelcomePage: View {
                 sprite(SpriteArt.heroImage(), size: 96)
                 sprite(SpriteArt.enemyImage(for: "slime"), size: 72)
             }
-            Text("Canto")
+            Text("JyutKeep")
                 .font(GameTheme.title(40))
                 .foregroundStyle(GameTheme.gold)
             Text("Say an English word, hear it in Cantonese, keep it, then battle to remember it.")

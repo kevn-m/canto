@@ -375,14 +375,14 @@ final class DesignSnapshotTests: XCTestCase {
 
     private var trialOffer: PremiumOffer {
         PremiumOffer(
-            displayName: "Canto Plus", displayPrice: "A$2.99",
+            displayName: "JyutKeep Plus", displayPrice: "A$2.99",
             billingPeriod: "month", trialText: "1 week free"
         )
     }
 
     private var subscribeOffer: PremiumOffer {
         PremiumOffer(
-            displayName: "Canto Plus", displayPrice: "A$2.99",
+            displayName: "JyutKeep Plus", displayPrice: "A$2.99",
             billingPeriod: "month", trialText: nil
         )
     }

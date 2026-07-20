@@ -10,7 +10,7 @@
 #   1. App Store Connect > Users and Access > Integrations > App Store Connect
 #      API > generate a key. Save the .p8 as
 #      ~/.appstoreconnect/private_keys/AuthKey_<KEY_ID>.p8, note Key ID + Issuer ID.
-#   2. App Store Connect > Apps > + > New App, bound to com.kevinmok.cantoapp.
+#   2. App Store Connect > Apps > + > New App, bound to com.kevinmok.jyutkeep.
 #   3. Create scripts/testflight.env (gitignored) with:
 #        KEY_ID=XXXXXXXXXX
 #        ISSUER_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx

@@ -1,6 +1,8 @@
 # Canto
 
-Offline single-user iPhone app. Say or type an English word, get ranked Cantonese
+Ships as **JyutKeep** (bundle `com.kevinmok.jyutkeep`, `CFBundleDisplayName` in
+`project.yml`); Canto stays the internal name — repo, scheme, target, and
+CantoBux keep it. Offline single-user iPhone app. Say or type an English word, get ranked Cantonese
 senses (traditional characters + jyutping + gloss), and hear them read aloud in
 Cantonese. Offline by default: the only network call is one Cloud Translation
 request per lookup, and only when `Canto/Resources/secrets.json` holds an API key

@@ -10613,7 +10613,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.kevinmok.cantoapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kevinmok.jyutkeep;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -10686,7 +10686,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.kevinmok.cantoapp.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kevinmok.jyutkeep.tests;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -10707,7 +10707,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.kevinmok.cantoapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kevinmok.jyutkeep;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -10724,7 +10724,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.kevinmok.cantoapp.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kevinmok.jyutkeep.tests;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
