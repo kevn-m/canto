@@ -2,6 +2,21 @@ import SwiftUI
 import PhotosUI
 import UIKit
 
+// Case-insensitive match on english/jyutping, plain contains on characters.
+// Pure so the match rule is testable without the List (same pattern as
+// BattleEngine living beside BattleView).
+enum DeckSearch {
+    static func filter(_ entries: [DeckEntry], query: String) -> [DeckEntry] {
+        let trimmed = query.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return entries }
+        return entries.filter {
+            $0.english.localizedCaseInsensitiveContains(trimmed)
+                || $0.jyutping.localizedCaseInsensitiveContains(trimmed)
+                || $0.traditional.contains(trimmed)
+        }
+    }
+}
+
 // The whole deck: photo, english, characters, its box, bench toggle, and
 // photo attach. Also hosts Deck Export (ADR 0010) - a share button sending
 // deck JSON off-device for the card-art-pipeline plan, and as a manual
@@ -17,6 +32,7 @@ struct DeckView: View {
     @State private var photosPickerItem: PhotosPickerItem?
     @State private var exportURL: URL?
     @State private var deleteTarget: DeckEntry?
+    @State private var searchText = ""
 
     private let photos = CardPhotos()
 
@@ -27,7 +43,7 @@ struct DeckView: View {
                 if let lastError = gameStore.lastError {
                     ErrorBanner(message: lastError) { gameStore.clearError() }
                 }
-                List(entries) { entry in
+                List(DeckSearch.filter(entries, query: searchText)) { entry in
                     row(entry)
                         .listRowBackground(Color.clear)
                         .listRowSeparatorTint(GameTheme.cream.opacity(0.12))
@@ -45,6 +61,7 @@ struct DeckView: View {
             }
         }
         .navigationTitle("Deck")
+        .searchable(text: $searchText, prompt: "english, jyutping, or 字")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 if let exportURL {

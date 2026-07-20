@@ -81,7 +81,7 @@ struct ErrorBanner: View {
     }
 }
 
-// The Tower toolbar destination: gated on deck size, syncs new lookups into
+// The Climb tab root: gated on deck size, syncs new lookups into
 // cards on appear, and hosts one fight. Floors/payouts are Slice 4/5.
 struct TowerEntryView: View {
     @ObservedObject private var gameStore = GameStore.shared
@@ -111,20 +111,6 @@ struct TowerEntryView: View {
             }
         }
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                NavigationLink {
-                    DeckView()
-                } label: {
-                    Image(systemName: "rectangle.stack.fill")
-                }
-            }
-            ToolbarItem(placement: .navigationBarTrailing) {
-                NavigationLink {
-                    ShopView()
-                } label: {
-                    Image(systemName: "cart.fill")
-                }
-            }
             ToolbarItem(placement: .navigationBarTrailing) {
                 NavigationLink {
                     BadgesView()

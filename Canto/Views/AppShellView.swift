@@ -1,10 +1,10 @@
 import SwiftUI
 
 enum AppTab: Hashable {
-    case lookup, tower, history, settings
+    case lookup, climb, deck, shop, settings
 }
 
-// The persistent four-tab shell (ADR 0032). Each tab keeps its own
+// The persistent tab shell (ADR 0032). Each tab keeps its own
 // NavigationStack so switching away and back preserves the stack. The shell
 // owns launch routing (the Action Button intent) and the first-run
 // onboarding cover — both are app-level, not Lookup-level, concerns.
@@ -27,14 +27,20 @@ struct AppShellView: View {
             NavigationStack {
                 TowerEntryView()
             }
-            .tabItem { Label("Tower", systemImage: "shield.lefthalf.filled") }
-            .tag(AppTab.tower)
+            .tabItem { Label("Climb", systemImage: "shield.lefthalf.filled") }
+            .tag(AppTab.climb)
 
             NavigationStack {
-                HistoryView()
+                DeckView()
             }
-            .tabItem { Label("History", systemImage: "clock.arrow.circlepath") }
-            .tag(AppTab.history)
+            .tabItem { Label("Deck", systemImage: "rectangle.stack.fill") }
+            .tag(AppTab.deck)
+
+            NavigationStack {
+                ShopView()
+            }
+            .tabItem { Label("Shop", systemImage: "cart.fill") }
+            .tag(AppTab.shop)
 
             NavigationStack {
                 SettingsView()

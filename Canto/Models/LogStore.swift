@@ -107,7 +107,7 @@ final class LogStore {
     }
 
     /// Records a Keep for a word the dictionary doesn't know. NULL sense id is
-    /// safe: HistoryView and GameStore.syncDeck read only the denormalised pair
+    /// safe: GameStore.syncDeck reads only the denormalised pair
     /// (chosen_traditional/chosen_jyutping), never chosen_sense_id.
     @discardableResult
     func setChosenCustom(lookupId: Int64, traditional: String, jyutping: String) -> Bool {
