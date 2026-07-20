@@ -21,6 +21,14 @@ final class DesignSnapshotTests: XCTestCase {
         CardRecord(id: 3, traditional: "大象", jyutping: "daai6 zoeng6", english: "elephant", box: 2, dueOn: "2026-01-01"),
     ]
 
+    // One card per Box, New through Mastered, for the frame-tier fixtures.
+    private let tierCards = [
+        CardRecord(id: 20, traditional: "新", jyutping: "san1", english: "new", box: 0, dueOn: "2026-01-01"),
+        CardRecord(id: 21, traditional: "學", jyutping: "hok6", english: "learning", box: 1, dueOn: "2026-01-01"),
+        CardRecord(id: 22, traditional: "穩", jyutping: "wan2", english: "solid", box: 2, dueOn: "2026-01-01"),
+        CardRecord(id: 23, traditional: "精通", jyutping: "zing1 tung1", english: "mastered", box: 3, dueOn: "2026-01-01"),
+    ]
+
     // width defaults to an iPhone 17; pass 375 to check an SE-class phone,
     // where a grid that fits at 393 can still overlap.
     private func snapshot(_ name: String, width: CGFloat = 393, @ViewBuilder content: () -> some View) {
@@ -94,9 +102,27 @@ final class DesignSnapshotTests: XCTestCase {
         }
     }
 
+    func test_handCardTiersRender() {
+        snapshot("hand-tiers") {
+            HStack(spacing: -6) {
+                ForEach(tierCards) { card in
+                    HandCardView(card: card)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(DungeonBackground())
+        }
+    }
+
     func test_cardFrontRenders() {
         snapshot("card-front") {
             CardPlayView(card: sampleCards[1]) { _ in }
+        }
+    }
+
+    func test_cardFrontTierRenders() {
+        snapshot("card-front-tier") {
+            CardPlayView(card: tierCards[2]) { _ in }
         }
     }
 
@@ -726,19 +752,22 @@ final class DesignSnapshotTests: XCTestCase {
 
     func test_cardCeremonyPromotedToLearningRenders() {
         snapshot("ceremony-promoted-learning") {
-            CardCeremonyView(card: ceremonyCard, kind: .promoted(to: 1))
+            CardCeremonyView(card: ceremonyCard, kind: .promoted(to: 1), previewSettled: true)
         }
     }
 
+    // Level-up fixtures use the card whose box actually produces the kind
+    // (ReviewTransition's table), so the old->new frame flash in the PNG is
+    // one the game can really show: bronze->jade, jade->gold.
     func test_cardCeremonyPromotedToSolidRenders() {
         snapshot("ceremony-promoted-solid") {
-            CardCeremonyView(card: ceremonyCard, kind: .promoted(to: 2))
+            CardCeremonyView(card: tierCards[1], kind: .promoted(to: 2), previewSettled: true)
         }
     }
 
     func test_cardCeremonyMasteredRenders() {
         snapshot("ceremony-mastered") {
-            CardCeremonyView(card: ceremonyCard, kind: .mastered)
+            CardCeremonyView(card: tierCards[2], kind: .mastered, previewSettled: true)
         }
     }
 
@@ -756,7 +785,7 @@ final class DesignSnapshotTests: XCTestCase {
 
     func test_cardCeremonyMasteredRendersOnASmallPhone() {
         snapshot("ceremony-mastered-375", width: 375) {
-            CardCeremonyView(card: ceremonyCard, kind: .mastered)
+            CardCeremonyView(card: tierCards[2], kind: .mastered, previewSettled: true)
         }
     }
 

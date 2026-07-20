@@ -673,10 +673,18 @@ struct BattleView: View {
             withAnimation(.spring(duration: 0.22)) {
                 pendingCeremony = PendingCardCeremony(card: card, kind: kind)
             }
-            if kind == .mastered {
+            let dwell: Double
+            switch kind {
+            case .mastered:
                 SFXPlayer.shared.play(.mastered)
+                dwell = 1.40
+            case .promoted:
+                SFXPlayer.shared.play(.levelup)
+                dwell = 1.15
+            case .learning, .backToLearning:
+                dwell = 0.90
             }
-            try? await Task.sleep(for: .seconds(kind == .mastered ? 1.40 : 0.90))
+            try? await Task.sleep(for: .seconds(dwell))
             withAnimation(.easeOut(duration: 0.20)) {
                 pendingCeremony = nil
             }
@@ -710,11 +718,57 @@ struct CardCeremonyView: View {
     let kind: CardCeremonyKind
     var reduceMotion: Bool = false
 
-    @State private var settled = false
+    @State private var settled: Bool
+    // The traditional-characters frame starts at the old Box tier and
+    // switches to the new one ~0.35s after the panel lands, so a promotion
+    // reads as a visible upgrade, not just a label change.
+    @State private var frameUpgraded: Bool
+    // A one-shot pulse right at the tier switch, then gone.
+    @State private var frameFlash = false
+    @State private var titleScale: CGFloat
+
+    // Fixture-only: pins the burst rays and tier upgrade at their settled
+    // state. ImageRenderer runs onAppear but snapshots before a delayed
+    // Task fires (see CLAUDE.md's ImageRenderer traps), so a level-up
+    // snapshot would otherwise show the pre-flash state - same trick as
+    // BattleView's previewHand.
+    init(card: CardRecord, kind: CardCeremonyKind, reduceMotion: Bool = false, previewSettled: Bool = false) {
+        self.card = card
+        self.kind = kind
+        self.reduceMotion = reduceMotion
+        let levelUp = Self.isLevelUp(kind)
+        _settled = State(initialValue: previewSettled)
+        _frameUpgraded = State(initialValue: previewSettled || reduceMotion || !levelUp)
+        _titleScale = State(initialValue: (previewSettled || reduceMotion || !levelUp) ? 1.0 : 1.5)
+    }
 
     static let stepLabels = ["New", "Learning", "Solid", "Mastered"]
     // Shared with the gold ring overlay so it always hugs cardFrame's edge.
     static let panelCornerRadius: CGFloat = 18
+
+    // Level-up treatment (burst rays, LEVEL UP eyebrow, frame upgrade with
+    // flash) applies only to a promotion or Mastered; .learning and
+    // .backToLearning keep their calm, static treatment.
+    private static func isLevelUp(_ kind: CardCeremonyKind) -> Bool {
+        switch kind {
+        case .promoted, .mastered: return true
+        case .learning, .backToLearning: return false
+        }
+    }
+
+    private var isLevelUp: Bool { Self.isLevelUp(kind) }
+    private var oldTier: Color? { GameTheme.boxFrameTier(forBox: card.box) }
+    private var newTier: Color? { GameTheme.boxFrameTier(forBox: style.destination) }
+    private var displayedTier: Color? {
+        guard isLevelUp else { return newTier }
+        return frameUpgraded ? newTier : oldTier
+    }
+    // Same old->new swap as displayedTier, at the frameUpgraded flip so the
+    // crest changes with the frame flash instead of on its own timer.
+    private var displayedCrestBox: Int {
+        guard isLevelUp else { return style.destination }
+        return frameUpgraded ? style.destination : card.box
+    }
 
     private struct Style {
         let title: String
@@ -762,30 +816,68 @@ struct CardCeremonyView: View {
         ZStack {
             GameTheme.deepNavy.opacity(0.82)
                 .ignoresSafeArea()
+            if isLevelUp {
+                BurstRays()
+                    .frame(width: 420, height: 420)
+                    .opacity(settled || reduceMotion ? 0.4 : 0)
+                    .scaleEffect(settled || reduceMotion ? 1.0 : 0.6)
+            }
             panel
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(card.traditional), \(card.jyutping), \(card.english): \(style.phrase)")
+        .accessibilityLabel("\(isLevelUp ? "Level up! " : "")\(card.traditional), \(card.jyutping), \(card.english): \(style.phrase)")
         .onAppear {
             // A small settle only - initial scale (0.96) already reads fine,
             // so an ImageRenderer snapshot caught before this runs still
             // shows the full meaning (see CLAUDE.md's ImageRenderer traps).
-            guard !reduceMotion else { return }
+            guard !reduceMotion, settled == false else { return }
             withAnimation(.spring(duration: 0.25)) { settled = true }
+            withAnimation(.spring(duration: 0.4)) { titleScale = 1.0 }
+            guard isLevelUp else { return }
+            Task {
+                try? await Task.sleep(for: .seconds(0.35))
+                frameUpgraded = true
+                withAnimation(.linear(duration: 0.06)) { frameFlash = true }
+                try? await Task.sleep(for: .seconds(0.12))
+                withAnimation(.easeOut(duration: 0.35)) { frameFlash = false }
+            }
         }
     }
 
     private var panel: some View {
         VStack(spacing: 18) {
+            if isLevelUp {
+                Text("LEVEL UP")
+                    .font(.system(size: 13, weight: .heavy, design: .rounded))
+                    .tracking(2)
+                    .foregroundStyle(GameTheme.gold)
+            }
             Text(style.title)
                 .font(GameTheme.title(style.strong ? 30 : 24))
                 .foregroundStyle(style.celebratory ? GameTheme.gold : style.ink)
                 .multilineTextAlignment(.center)
+                .scaleEffect(titleScale)
             Text(card.traditional)
                 .font(.system(size: 56, weight: .bold))
                 .foregroundStyle(style.ink)
                 .minimumScaleFactor(0.4)
                 .lineLimit(1)
+                .padding(.horizontal, 18)
+                .padding(.vertical, 8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .strokeBorder(displayedTier ?? .clear, lineWidth: 3)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .strokeBorder(.white, lineWidth: 4)
+                        .opacity(frameFlash ? 0.85 : 0)
+                )
+                .shadow(color: frameFlash ? GameTheme.gold.opacity(0.9) : .clear, radius: frameFlash ? 12 : 0)
+                .overlay(alignment: .top) {
+                    CardTierCrest(box: displayedCrestBox, size: 24)
+                        .offset(y: -12)
+                }
             VStack(spacing: 2) {
                 Text(card.jyutping)
                 Text(card.english)
@@ -815,6 +907,31 @@ struct CardCeremonyView: View {
         .shadow(color: style.strong ? GameTheme.gold.opacity(0.75) : .clear, radius: style.strong ? 18 : 0)
         .scaleEffect(reduceMotion || settled ? 1.0 : 0.96)
         .padding(.horizontal, 24)
+    }
+}
+
+// A one-shot radial burst behind a level-up panel: fixed gold rays, no
+// timers, no repeating loop. The entrance/reduce-motion handling lives in
+// CardCeremonyView, which just fades and scales this in.
+private struct BurstRays: View {
+    private let rayCount = 10
+
+    var body: some View {
+        Canvas { context, size in
+            let center = CGPoint(x: size.width / 2, y: size.height / 2)
+            let radius = min(size.width, size.height) / 2
+            for i in 0..<rayCount {
+                let angle = (Double(i) / Double(rayCount)) * 2 * .pi
+                let inner = radius * 0.22
+                let dx = CGFloat(cos(angle))
+                let dy = CGFloat(sin(angle))
+                var path = Path()
+                path.move(to: CGPoint(x: center.x + dx * inner, y: center.y + dy * inner))
+                path.addLine(to: CGPoint(x: center.x + dx * radius, y: center.y + dy * radius))
+                context.stroke(path, with: .color(GameTheme.gold), style: StrokeStyle(lineWidth: 8, lineCap: .round))
+            }
+        }
+        .allowsHitTesting(false)
     }
 }
 
@@ -891,7 +1008,12 @@ struct HandCardView: View {
         }
         .padding(.vertical, 14)
         .padding(.horizontal, 10)
-        .cardFrame()
+        .cardFrame(tier: GameTheme.boxFrameTier(forBox: card.box), tierLineWidth: 2.75)
+        .shadow(color: card.box == 3 ? GameTheme.gold.opacity(0.5) : .clear, radius: card.box == 3 ? 8 : 0)
+        .overlay(alignment: .top) {
+            CardTierCrest(box: card.box, size: 22)
+                .offset(y: -11)
+        }
     }
 
     @ViewBuilder

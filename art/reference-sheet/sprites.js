@@ -4,7 +4,10 @@
     blk: '#000000', navy: '#1D2B53', plum: '#7E2553', grn: '#008751',
     brn: '#AB5236', dgy: '#5F574F', lgy: '#C2C3C7', crm: '#FFF1E8',
     red: '#FF004D', org: '#FFA300', yel: '#FFEC27', lim: '#00E436',
-    sky: '#29ADFF', lav: '#83769C', pnk: '#FF77A8', pch: '#FFCCAA'
+    sky: '#29ADFF', lav: '#83769C', pnk: '#FF77A8', pch: '#FFCCAA',
+    // Card-tier metals, matching GameTheme's steel/bronze/jade exactly (gold
+    // is already P.org) — see the crest-dragon-* recipes.
+    stl: '#9AA1B0', brz: '#BA7E3C', jde: '#439D6D'
   };
   const W = 64;
 
@@ -32272,6 +32275,32 @@ S.push({ name: 'avatar-tora', draw(g) {               // spiky avatar; light ski
   tri(g, 46, 15, 41, 17, 47, 22, P.org);
   rigEyes(g, 3.8, 1.6);                                 // wide grin
 }});
+
+/* Card-tier batch — a dragon crest per Box tier (New/Learning/Solid/Mastered),
+   worn on the card frames themselves (GameTheme.boxCrestName). An emblem, not
+   a mascot: symmetrical, bold, no face kit — the crest has to read at 22px on
+   a card, where a cute face would just be noise. */
+function dragonCrest(g, base, shade, hi) {
+  // Folded wings, hinted behind the head rather than spread — kept small so
+  // the horns and snout stay the dominant read at card size.
+  tri(g, 4, 40, 18, 24, 13, 50, shade);
+  tri(g, 59, 40, 45, 24, 50, 50, shade);
+  // Horns: the crest's one signature feature, bigger and bolder than
+  // pal-dragonling's — this has to read at a fraction of that sprite's size.
+  tri(g, 15, 18, 25, 16, 18, 2, base);
+  tri(g, 48, 18, 38, 16, 45, 2, base);
+  // Head: one big ball for an unbroken, bold silhouette.
+  ball(g, CX, 33, 18, 16, base, shade, hi);
+  // Snout, jutting down from the head so the shape reads dragon, not coin.
+  ball(g, CX, 45, 10, 7, base, shade);
+  // Eyes: simple dark pixels, no cream sparkle — an emblem, not a mascot.
+  disc(g, CX - 7, 30, 1.8, P.navy);
+  disc(g, CX + 7, 30, 1.8, P.navy);
+}
+S.push({ name: 'crest-dragon-silver', draw(g) { dragonCrest(g, P.stl, P.lav, P.crm); }});
+S.push({ name: 'crest-dragon-bronze', draw(g) { dragonCrest(g, P.brz, P.brn, P.yel); }});
+S.push({ name: 'crest-dragon-jade', draw(g) { dragonCrest(g, P.jde, P.grn, P.crm); }});
+S.push({ name: 'crest-dragon-gold', draw(g) { dragonCrest(g, P.org, P.brn, P.yel); }});
 
 const COMPOSITES = [
   { name: 'composite-scout-bare',   layers: ['avatar-scout'] },

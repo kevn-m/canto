@@ -15,9 +15,44 @@ enum GameTheme {
     static let sky = Color(red: 0.161, green: 0.678, blue: 1.0)         // #29ADFF
     static let lavender = Color(red: 0.514, green: 0.463, blue: 0.612)  // #83769C
     static let brown = Color(red: 0.671, green: 0.322, blue: 0.212)     // #AB5236
+    static let bronze = Color(red: 0.729, green: 0.494, blue: 0.235)    // #BA7E3C, tuned off #C0803C to read on cream/navy
+    static let jade = Color(red: 0.263, green: 0.616, blue: 0.427)      // #439D6D, tuned off #3FA46A
+    static let steel = Color(red: 0.604, green: 0.631, blue: 0.690)     // #9AA1B0, the quiet New-card frame
 
     static func title(_ size: CGFloat) -> Font {
         .system(size: size, weight: .heavy, design: .rounded)
+    }
+
+    // A Card's Box, as a rarity-ramp frame colour: New (0) quiet steel,
+    // Learning (1) bronze, Solid (2) jade, Mastered (3) gold. New must NOT
+    // be cardFrame's default gold or a fresh card outshines a mastered one.
+    // Same out-of-range guard as ReviewEngine.damage(forBox:) - clamps to
+    // steel rather than crashing on a bad box.
+    static func boxFrameTier(forBox box: Int) -> Color? {
+        switch box {
+        case 0: return steel
+        case 1: return bronze
+        case 2: return jade
+        case 3: return gold
+        default:
+            assertionFailure("GameTheme.boxFrameTier got an out-of-range box: \(box)")
+            return steel
+        }
+    }
+
+    // The Box tier as a dragon crest sprite name (art/reference-sheet/sprites.js's
+    // crest-dragon-*): silver for New/box 0 (matches boxFrameTier's steel),
+    // bronze/jade/gold for Learning/Solid/Mastered. Same out-of-range guard.
+    static func boxCrestName(forBox box: Int) -> String {
+        switch box {
+        case 0: return "silver"
+        case 1: return "bronze"
+        case 2: return "jade"
+        case 3: return "gold"
+        default:
+            assertionFailure("GameTheme.boxCrestName got an out-of-range box: \(box)")
+            return "silver"
+        }
     }
 }
 
@@ -410,6 +445,11 @@ struct CardFrame: ViewModifier {
     var cornerRadius: CGFloat = 18
     var selected = false
     var gilded = false
+    // The card's Box tier colour (GameTheme.boxFrameTier). nil = plain, the
+    // unchanged look. Loses to selected/gilded, which are the higher-priority
+    // states those flags already model.
+    var tier: Color?
+    var tierLineWidth: CGFloat = 4
 
     private var border: AnyShapeStyle {
         if selected { return AnyShapeStyle(GameTheme.yellow) }
@@ -419,12 +459,28 @@ struct CardFrame: ViewModifier {
                 startPoint: .top, endPoint: .bottom
             ))
         }
+        if let tier { return AnyShapeStyle(tier) }
         return AnyShapeStyle(GameTheme.gold)
+    }
+
+    private var lineWidth: CGFloat {
+        if selected { return 5 }
+        if !gilded, tier != nil { return tierLineWidth }
+        return 4
     }
 
     private var glowColor: Color {
         if selected { return GameTheme.gold.opacity(0.7) }
         return gilded ? GameTheme.gold.opacity(0.6) : .black.opacity(0.45)
+    }
+
+    // The inner accent ring: tier colour when a Box tier is worn (extra
+    // definition on top of the outer border), gilded gold for the Pick, navy
+    // otherwise. Selection still wins, same priority as `border` above.
+    private var innerAccent: (color: Color, opacity: Double) {
+        if gilded && !selected { return (GameTheme.gold, 0.35) }
+        if let tier, !selected { return (tier, 0.3) }
+        return (GameTheme.navy, 0.25)
     }
 
     func body(content: Content) -> some View {
@@ -434,14 +490,11 @@ struct CardFrame: ViewModifier {
                     .fill(face)
                     .overlay(
                         RoundedRectangle(cornerRadius: cornerRadius)
-                            .strokeBorder(border, lineWidth: selected ? 5 : 4)
+                            .strokeBorder(border, lineWidth: lineWidth)
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: cornerRadius - 5)
-                            .strokeBorder(
-                                (gilded && !selected ? GameTheme.gold : GameTheme.navy).opacity(gilded && !selected ? 0.35 : 0.25),
-                                lineWidth: 1.5
-                            )
+                            .strokeBorder(innerAccent.color.opacity(innerAccent.opacity), lineWidth: 1.5)
                             .padding(5)
                     )
             )
@@ -454,8 +507,42 @@ struct CardFrame: ViewModifier {
 }
 
 extension View {
-    func cardFrame(face: Color = GameTheme.cream, cornerRadius: CGFloat = 18, selected: Bool = false, gilded: Bool = false) -> some View {
-        modifier(CardFrame(face: face, cornerRadius: cornerRadius, selected: selected, gilded: gilded))
+    func cardFrame(
+        face: Color = GameTheme.cream, cornerRadius: CGFloat = 18, selected: Bool = false, gilded: Bool = false,
+        tier: Color? = nil, tierLineWidth: CGFloat = 4
+    ) -> some View {
+        modifier(CardFrame(face: face, cornerRadius: cornerRadius, selected: selected, gilded: gilded, tier: tier, tierLineWidth: tierLineWidth))
+    }
+}
+
+// The Box tier worn as a dragon crest (GameTheme.boxCrestName), straddling the
+// top edge of a card's frame - place with `.overlay(alignment: .top)` and an
+// upward offset of half `size`. Optional and cosmetic only: a missing sprite
+// shows nothing, because the border colour already carries the tier.
+struct CardTierCrest: View {
+    let box: Int
+    var size: CGFloat = 24
+
+    // Decoded once: SpriteArt.image(named:) reads disk on every call, and
+    // crests sit inside the combat render loop (three hand cards re-rendered
+    // through every impact animation tick).
+    private static let cache: [String: UIImage] = {
+        var images: [String: UIImage] = [:]
+        for box in 0...3 {
+            let name = GameTheme.boxCrestName(forBox: box)
+            images[name] = SpriteArt.image(named: "crest-dragon-\(name)")
+        }
+        return images
+    }()
+
+    var body: some View {
+        if let crest = Self.cache[GameTheme.boxCrestName(forBox: box)] {
+            Image(uiImage: crest)
+                .resizable()
+                .interpolation(.none)
+                .scaledToFit()
+                .frame(width: size, height: size)
+        }
     }
 }
 

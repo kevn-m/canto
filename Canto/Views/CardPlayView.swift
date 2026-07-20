@@ -59,7 +59,11 @@ struct CardPlayView: View {
         }
         .padding(28)
         .frame(width: 320, height: 440)
-        .cardFrame()
+        .cardFrame(tier: GameTheme.boxFrameTier(forBox: card.box))
+        .overlay(alignment: .top) {
+            CardTierCrest(box: card.box, size: 32)
+                .offset(y: -16)
+        }
     }
 
     private var backFace: some View {
@@ -74,7 +78,11 @@ struct CardPlayView: View {
         }
         .padding(28)
         .frame(width: 320, height: 440)
-        .cardFrame(face: GameTheme.navy)
+        .cardFrame(face: GameTheme.navy, tier: GameTheme.boxFrameTier(forBox: card.box))
+        .overlay(alignment: .top) {
+            CardTierCrest(box: card.box, size: 32)
+                .offset(y: -16)
+        }
     }
 
     @ViewBuilder

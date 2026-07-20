@@ -116,3 +116,11 @@ write_wav("mastered", seq(
     tone(triangle, 1109, 0.13, vol=0.4, decay=1.5),
     tone(triangle, 1480, 0.3, vol=0.45, decay=3),
 ))
+
+# levelup: a bright three-note triangle arpeggio for a promotion - shorter
+# and lighter than mastered's four-note run, not a two-note coin bling
+write_wav("levelup", seq(
+    tone(triangle, 784, 0.12, vol=0.4, decay=1.5),
+    tone(triangle, 988, 0.12, vol=0.4, decay=1.5),
+    tone(triangle, 1319, 0.22, vol=0.45, decay=3),
+))

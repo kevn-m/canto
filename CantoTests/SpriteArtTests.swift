@@ -511,4 +511,13 @@ final class SpriteArtTests: XCTestCase {
         XCTAssertNotNil(SpriteArt.image(named: "streak-flame"))
         XCTAssertNotNil(SpriteArt.image(named: "shelf-trophy"))
     }
+
+    // Every Box tier's dragon crest must be bundled - a missing crest sprite
+    // must fail the build, same reasoning as the badge shelf and gear.
+    func test_dragonCrests_areBundledForEveryBoxTier() {
+        for box in 0...3 {
+            let name = "crest-dragon-\(GameTheme.boxCrestName(forBox: box))"
+            XCTAssertNotNil(SpriteArt.image(named: name), "\(name).png missing from the app bundle")
+        }
+    }
 }
