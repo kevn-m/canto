@@ -57,7 +57,8 @@ struct LookupView: View {
             },
             onKeepCustom: keepCustom,
             onRetry: retryPick,
-            onShowMore: showMore
+            onShowMore: showMore,
+            onClear: clearLookup
         )
         .alert("Cantonese voice not installed", isPresented: $showVoiceUnavailableAlert) {
             Button("OK", role: .cancel) {}
@@ -138,6 +139,13 @@ struct LookupView: View {
             get: { speechListener.errorMessage != nil },
             set: { if !$0 { speechListener.errorMessage = nil } }
         )
+    }
+
+    // The empty-query branch of runLookup is the full reset back to idle —
+    // result, Pick, browse list — which brings the sleeping pal back.
+    private func clearLookup() {
+        query = ""
+        runLookup(viaVoice: false)
     }
 
     private func toggleListening() {
@@ -334,6 +342,7 @@ struct LookupContentView: View {
     var onManage: () -> Void = {}
     var onRetry: () -> Void = {}
     var onShowMore: () -> Void = {}
+    var onClear: () -> Void = {}
 
     var body: some View {
         VStack(spacing: 0) {
@@ -384,6 +393,17 @@ struct LookupContentView: View {
             .textFieldStyle(GameTextFieldStyle())
             .focused(queryFieldFocused)
             .onSubmit(onSubmit)
+            .overlay(alignment: .trailing) {
+                if !query.isEmpty {
+                    Button(action: onClear) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 20))
+                            .foregroundStyle(GameTheme.navy.opacity(0.35))
+                            .frame(width: 44, height: 44)
+                    }
+                    .accessibilityLabel("Clear search")
+                }
+            }
 
             Button(action: onMicTap) {
                 Image(systemName: "mic.fill")
