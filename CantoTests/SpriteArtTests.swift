@@ -401,7 +401,7 @@ final class SpriteArtTests: XCTestCase {
             // One-offs.
             "dinosaur",
             // Battle motion FX (Slice 1 — hero side).
-            "fx-slash", "fx-impact",
+            "fx-slash", "fx-impact", "fx-flame-slash", "fx-lightning",
             // Slice 3 avatar rig (ADR 0025): the two avatars and the knight set's
             // five full-canvas slot layers.
             "avatar-scout", "avatar-nova",

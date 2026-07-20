@@ -297,7 +297,8 @@ struct BattleView: View {
     init(
         runState: Binding<RunState>, onVictory: @escaping () -> Void, onDefeat: @escaping () -> Void,
         onAbandon: @escaping () -> Void, previewHand: [CardRecord] = [],
-        previewAvatarId: String? = nil, previewEquipped: [GearSlot: String]? = nil
+        previewAvatarId: String? = nil, previewEquipped: [GearSlot: String]? = nil,
+        previewAttackFX: Int? = nil
     ) {
         _runState = runState
         self.onVictory = onVictory
@@ -307,6 +308,25 @@ struct BattleView: View {
         _avatarId = State(initialValue: previewAvatarId ?? GameStore.shared.avatarId())
         _equipped = State(initialValue: previewEquipped ?? GameStore.shared.equippedGear())
         usesPreviewLook = previewAvatarId != nil || previewEquipped != nil
+        // Fixture-only: pins the mid-strike frame of one attack tier (a Box,
+        // 0...3) so DesignSnapshotTests can show it - ImageRenderer snapshots
+        // before the timed choreography runs (see CLAUDE.md's traps).
+        if let tier = previewAttackFX {
+            _heroLunges = State(initialValue: true)
+            _heroLungeDistance = State(initialValue: Self.lungeDistance(forTier: tier))
+            _damagePop = State(initialValue: ReviewEngine.damage(forBox: max(0, min(tier, 3))))
+            switch tier {
+            case 1: _secondSlashShows = State(initialValue: true)
+            case 2:
+                _boltShows = State(initialValue: true)
+                _enemyBurstShows = State(initialValue: true)
+            case 3...:
+                _flameShows = State(initialValue: true)
+                _boltPairShows = State(initialValue: true)
+                _enemyBurstShows = State(initialValue: true)
+            default: _slashShows = State(initialValue: true)
+            }
+        }
     }
 
     private let usesPreviewLook: Bool
@@ -322,12 +342,18 @@ struct BattleView: View {
     @State private var enemyLunges = false
     @State private var enemyDefeated = false
     @State private var heroLunges = false
+    @State private var heroLungeDistance: CGFloat = 36
     @State private var slashShows = false
+    @State private var secondSlashShows = false
+    @State private var flameShows = false
+    @State private var boltShows = false
+    @State private var boltPairShows = false
+    @State private var enemyBurstShows = false
     @State private var heroFlashes = false
     @State private var impactShows = false
+    @State private var attackBox = 0
     @State private var heroAttackGeneration = 0
     @State private var heroHitGeneration = 0
-    @State private var enemyFlashGeneration = 0
     @State private var enemyLungeGeneration = 0
     @State private var confirmingAbandon = false
     @State private var avatarId: String?
@@ -395,43 +421,8 @@ struct BattleView: View {
         }
         .onChange(of: runState.enemyHP) { old, new in
             guard new < old else { return }
-            SFXPlayer.shared.play(.hit)
             damagePop = old - new
-            // The hero darts in, the slash lands, then the enemy's own
-            // flash/shake/pop plays exactly as it always has below.
-            heroAttackGeneration += 1
-            let attackGeneration = heroAttackGeneration
-            withAnimation(.easeIn(duration: 0.12)) { heroLunges = true }
-            Task {
-                try? await Task.sleep(for: .seconds(0.12))
-                guard heroAttackGeneration == attackGeneration else { return }
-                withAnimation(.linear(duration: 0.05)) { slashShows = true }
-                try? await Task.sleep(for: .seconds(0.18))
-                guard heroAttackGeneration == attackGeneration else { return }
-                withAnimation(.spring(duration: 0.35)) { heroLunges = false }
-                withAnimation(.easeOut(duration: 0.2)) { slashShows = false }
-            }
-            // Two-step pulses need a real suspension between the writes:
-            // synchronous set-then-unset coalesces into one transaction and
-            // the flash never shows (Code Patrol caught both pulses here).
-            enemyFlashGeneration += 1
-            let flashGeneration = enemyFlashGeneration
-            withAnimation(.linear(duration: 0.05)) { enemyFlashes = true }
-            Task {
-                try? await Task.sleep(for: .seconds(0.12))
-                guard enemyFlashGeneration == flashGeneration else { return }
-                withAnimation(.easeOut(duration: 0.3)) { enemyFlashes = false }
-            }
-            withAnimation(.linear(duration: 0.3)) { enemyShakes += 1 }
-            // enemyShakes doubles as the pop's generation token: a second
-            // hit inside the 0.7s must not have its pop cleared early by
-            // the first hit's sleeper.
-            let generation = enemyShakes
-            Task {
-                try? await Task.sleep(for: .seconds(0.7))
-                guard enemyShakes == generation else { return }
-                withAnimation(.easeOut(duration: 0.4)) { damagePop = nil }
-            }
+            playHeroAttack(tier: attackBox)
         }
         .onChange(of: runState.partyHP) { old, new in
             guard new < old else { return }
@@ -485,7 +476,7 @@ struct BattleView: View {
                     view.offset(y: offset)
                 } animation: { _ in .easeInOut(duration: 1.2) }
                 .brightness(heroFlashes ? 0.8 : 0)
-                .offset(x: heroLunges ? 36 : 0)
+                .offset(x: heroLunges ? heroLungeDistance : 0)
                 .scaleEffect(heroLunges ? 1.08 : 1, anchor: .bottom)
                 .modifier(ShakeEffect(animatableData: CGFloat(partyShakes)))
             if impactShows, let impact = SpriteArt.image(named: "fx-impact") {
@@ -528,6 +519,14 @@ struct BattleView: View {
                     .scaleEffect(x: enemyDefeated ? 1.3 : 1, y: enemyDefeated ? 0.05 : 1, anchor: .bottom)
                     .opacity(enemyDefeated ? 0 : 1)
                     .modifier(ShakeEffect(animatableData: CGFloat(enemyShakes)))
+                if enemyBurstShows, let burst = SpriteArt.image(named: "fx-impact") {
+                    Image(uiImage: burst)
+                        .resizable()
+                        .interpolation(.none)
+                        .frame(width: enemySize * 0.55, height: enemySize * 0.55)
+                        .padding(.bottom, enemySize * 0.2)
+                        .transition(.opacity)
+                }
                 if slashShows, let slash = SpriteArt.image(named: "fx-slash") {
                     Image(uiImage: slash)
                         .resizable()
@@ -536,6 +535,51 @@ struct BattleView: View {
                         // Lands on the enemy's body rather than its feet.
                         .padding(.bottom, enemySize * 0.15)
                         .transition(.opacity)
+                }
+                if secondSlashShows, let slash = SpriteArt.image(named: "fx-slash") {
+                    Image(uiImage: slash)
+                        .resizable()
+                        .interpolation(.none)
+                        .frame(width: enemySize * 0.6, height: enemySize * 0.6)
+                        // The return swing: same arc flipped the other way.
+                        .scaleEffect(x: -1)
+                        .padding(.bottom, enemySize * 0.15)
+                        .transition(.opacity)
+                }
+                if flameShows, let flame = SpriteArt.image(named: "fx-flame-slash") {
+                    Image(uiImage: flame)
+                        .resizable()
+                        .interpolation(.none)
+                        .frame(width: enemySize * 0.95, height: enemySize * 0.95)
+                        .padding(.bottom, enemySize * 0.05)
+                        .transition(.scale(scale: 0.4).combined(with: .opacity))
+                }
+                // Bolts sit ABOVE the flame in the stack: the Mastered strike
+                // reads as fire wrapped in lightning, not lightning behind it.
+                if boltShows, let bolt = SpriteArt.image(named: "fx-lightning") {
+                    Image(uiImage: bolt)
+                        .resizable()
+                        .interpolation(.none)
+                        .frame(width: enemySize * 1.05, height: enemySize * 1.05)
+                        // The strike point (bottom of the sprite) lands on the
+                        // enemy's body, so the bolt towers over its head.
+                        .padding(.bottom, enemySize * 0.25)
+                        .transition(.opacity)
+                }
+                if boltPairShows, let bolt = SpriteArt.image(named: "fx-lightning") {
+                    HStack(spacing: enemySize * 0.05) {
+                        Image(uiImage: bolt)
+                            .resizable()
+                            .interpolation(.none)
+                            .frame(width: enemySize * 0.55, height: enemySize * 0.55)
+                        Image(uiImage: bolt)
+                            .resizable()
+                            .interpolation(.none)
+                            .frame(width: enemySize * 0.55, height: enemySize * 0.55)
+                            .scaleEffect(x: -1)
+                    }
+                    .padding(.bottom, enemySize * 0.45)
+                    .transition(.opacity)
                 }
                 if enemyDefeated {
                     HStack(spacing: 22) {
@@ -626,6 +670,124 @@ struct BattleView: View {
         hand = BattleEngine.dealHand(store: gameStore, dealt: runState.dealt, today: today)
     }
 
+    private static func lungeDistance(forTier tier: Int) -> CGFloat {
+        tier >= 3 ? 64 : (tier == 2 ? 48 : 36)
+    }
+
+    // The hero's attack, staged by the played card's Box - the ladder the
+    // damage numbers already climb (Balance.damageByBox), made visible:
+    // slash, double slash, lightning strike, flame strike wrapped in
+    // lightning. One generation token covers the whole routine, so a second
+    // hit inside it abandons every sleeper below, pop-clear included.
+    private func playHeroAttack(tier: Int) {
+        heroAttackGeneration += 1
+        let generation = heroAttackGeneration
+        withAnimation(.easeIn(duration: 0.12)) {
+            heroLunges = true
+            heroLungeDistance = Self.lungeDistance(forTier: tier)
+        }
+        Task {
+            try? await Task.sleep(for: .seconds(0.12))
+            guard heroAttackGeneration == generation else { return }
+            switch tier {
+            case 1:
+                // Double strike: the same slash twice, the return swing mirrored.
+                SFXPlayer.shared.play(.hit)
+                withAnimation(.linear(duration: 0.05)) { slashShows = true }
+                impactBeat(strength: 1, generation: generation)
+                try? await Task.sleep(for: .seconds(0.14))
+                guard heroAttackGeneration == generation else { return }
+                SFXPlayer.shared.play(.hit)
+                withAnimation(.linear(duration: 0.05)) {
+                    slashShows = false
+                    secondSlashShows = true
+                }
+                impactBeat(strength: 1, generation: generation)
+                try? await Task.sleep(for: .seconds(0.18))
+                guard heroAttackGeneration == generation else { return }
+                withAnimation(.spring(duration: 0.35)) { heroLunges = false }
+                withAnimation(.easeOut(duration: 0.2)) { secondSlashShows = false }
+            case 2:
+                // Lightning strike: a bolt cracks down from above and
+                // flickers once - the on/off writes are deliberately
+                // unanimated, an instant cut IS the flicker.
+                SFXPlayer.shared.play(.thunder)
+                withAnimation(.linear(duration: 0.04)) {
+                    boltShows = true
+                    enemyBurstShows = true
+                }
+                impactBeat(strength: 2, generation: generation)
+                try? await Task.sleep(for: .seconds(0.14))
+                guard heroAttackGeneration == generation else { return }
+                boltShows = false
+                try? await Task.sleep(for: .seconds(0.05))
+                guard heroAttackGeneration == generation else { return }
+                boltShows = true
+                impactBeat(strength: 1, generation: generation)
+                try? await Task.sleep(for: .seconds(0.18))
+                guard heroAttackGeneration == generation else { return }
+                withAnimation(.spring(duration: 0.35)) { heroLunges = false }
+                withAnimation(.easeOut(duration: 0.15)) {
+                    boltShows = false
+                    enemyBurstShows = false
+                }
+            case 3...:
+                // Flame strike wrapped in lightning: the flame arc engulfs
+                // the enemy while a bolt pair flickers around it, thunder
+                // landing on the flicker beat so the sounds stack, not clash.
+                SFXPlayer.shared.play(.flameStrike)
+                withAnimation(.spring(duration: 0.2)) { flameShows = true }
+                withAnimation(.linear(duration: 0.04)) {
+                    boltPairShows = true
+                    enemyBurstShows = true
+                }
+                impactBeat(strength: 3, generation: generation)
+                try? await Task.sleep(for: .seconds(0.18))
+                guard heroAttackGeneration == generation else { return }
+                boltPairShows = false
+                try? await Task.sleep(for: .seconds(0.06))
+                guard heroAttackGeneration == generation else { return }
+                boltPairShows = true
+                SFXPlayer.shared.play(.thunder)
+                impactBeat(strength: 1, generation: generation)
+                try? await Task.sleep(for: .seconds(0.30))
+                guard heroAttackGeneration == generation else { return }
+                withAnimation(.spring(duration: 0.35)) { heroLunges = false }
+                withAnimation(.easeOut(duration: 0.25)) {
+                    flameShows = false
+                    boltPairShows = false
+                    enemyBurstShows = false
+                }
+            default:
+                SFXPlayer.shared.play(.hit)
+                withAnimation(.linear(duration: 0.05)) { slashShows = true }
+                impactBeat(strength: 1, generation: generation)
+                try? await Task.sleep(for: .seconds(0.18))
+                guard heroAttackGeneration == generation else { return }
+                withAnimation(.spring(duration: 0.35)) { heroLunges = false }
+                withAnimation(.easeOut(duration: 0.2)) { slashShows = false }
+            }
+            try? await Task.sleep(for: .seconds(0.7))
+            guard heroAttackGeneration == generation else { return }
+            withAnimation(.easeOut(duration: 0.4)) { damagePop = nil }
+        }
+    }
+
+    // One landed blow: flash the enemy and shake it, harder for higher tiers
+    // (each strength step is one more wobble cycle of ShakeEffect).
+    // Two-step pulses need a real suspension between the writes: synchronous
+    // set-then-unset coalesces into one transaction and the flash never
+    // shows (Code Patrol caught both pulses here).
+    private func impactBeat(strength: Int, generation: Int) {
+        withAnimation(.linear(duration: 0.05)) { enemyFlashes = true }
+        withAnimation(.linear(duration: 0.3)) { enemyShakes += strength }
+        Task {
+            try? await Task.sleep(for: .seconds(0.12))
+            guard heroAttackGeneration == generation else { return }
+            withAnimation(.easeOut(duration: 0.3)) { enemyFlashes = false }
+        }
+    }
+
     private func grade(card: CardRecord, result: ReviewResult) {
         // One-shot per presentation: a double-tap on Hit/Whiff must not
         // review the card twice.
@@ -638,6 +800,9 @@ struct BattleView: View {
             return
         }
 
+        // The attack anim reads the Box the card was played at - the same
+        // value damage(forBox:) uses inside applyResult.
+        attackBox = card.box
         // No await between the commit above and this mutation - TowerView's
         // resume path only tolerates the ceremony's pause below, not a gap here.
         let outcome = BattleEngine.applyResult(result, card: card, to: &runState)

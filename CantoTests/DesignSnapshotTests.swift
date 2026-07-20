@@ -75,6 +75,35 @@ final class DesignSnapshotTests: XCTestCase {
         }
     }
 
+    // The two attack tiers with new visuals, pinned mid-strike: the Solid
+    // lightning strike and the Mastered flame-wrapped-in-lightning strike
+    // (Boxes 0/1 reuse fx-slash).
+    func test_lightningStrikeRenders() {
+        var state = TowerEngine.makeFreshRun()
+        state.enemyHP = 5
+        snapshot("battle-lightning-strike") {
+            BattleView(
+                runState: .constant(state),
+                onVictory: {}, onDefeat: {}, onAbandon: {},
+                previewHand: sampleCards,
+                previewAttackFX: 2
+            )
+        }
+    }
+
+    func test_flameStrikeRenders() {
+        var state = TowerEngine.makeFreshRun()
+        state.enemyHP = 5
+        snapshot("battle-flame-strike") {
+            BattleView(
+                runState: .constant(state),
+                onVictory: {}, onDefeat: {}, onAbandon: {},
+                previewHand: sampleCards,
+                previewAttackFX: 3
+            )
+        }
+    }
+
     func test_bossBattleScreenRenders() {
         var state = TowerEngine.makeFreshRun()
         state.floorIndex = 2

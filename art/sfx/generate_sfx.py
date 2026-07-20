@@ -73,6 +73,22 @@ def seq(*parts):
 # hit: a sharp zap down with a noise crack - the sword landing
 write_wav("hit", mix(sweep(square, 700, 120, 0.16, vol=0.45, decay=6), noise(0.08, vol=0.35, decay=12)))
 
+# thunder: a white-noise crack into a low rumble - the lightning strike
+write_wav("thunder", seq(
+    mix(noise(0.08, vol=0.55, decay=3), sweep(square, 1400, 300, 0.08, vol=0.25, decay=3)),
+    mix(tone(triangle, 55, 0.4, vol=0.5, decay=3), noise(0.35, vol=0.18, decay=5)),
+))
+
+# flame-strike: a rising whoosh into the heaviest crash - a Mastered card landing
+write_wav("flame-strike", seq(
+    mix(sweep(square, 150, 600, 0.14, vol=0.2, decay=1), noise(0.14, vol=0.2, decay=1.5)),
+    mix(
+        sweep(square, 700, 60, 0.3, vol=0.5, decay=4),
+        noise(0.18, vol=0.45, decay=6),
+        tone(triangle, 65, 0.3, vol=0.5, decay=4),
+    ),
+))
+
 # whiff: two sad falling notes - the swing that missed
 write_wav("whiff", seq(tone(square, 294, 0.12, vol=0.35, decay=2), sweep(square, 262, 175, 0.28, vol=0.35, decay=3)))
 

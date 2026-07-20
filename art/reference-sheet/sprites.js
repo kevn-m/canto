@@ -31190,6 +31190,44 @@ S.push({ name: 'fx-impact', draw(g) {         // battle FX: hero takes a hit
   disc(g, 44, 42, 1.6, P.red);
 }});
 
+S.push({ name: 'fx-flame-slash', draw(g) {    // battle FX: a Mastered card's strike
+  // fx-slash's crescent wrapped in fire: a red heat band outside the arc,
+  // then the same org/yel/crm taper, with flame licks curling off the rim.
+  stroke(g, [[8, 48], [9.5, 36.5], [14, 26], [21, 17]], 3, 10.5, P.red);          // heat
+  stroke(g, [[21, 17], [26, 14], [36.5, 9.5], [48, 8]], 10.5, 3, P.red);
+  stroke(g, [[12, 48], [13.2, 38.7], [16.8, 30], [22.5, 22.5]], 2, 8, P.org);     // body
+  stroke(g, [[22.5, 22.5], [30, 16.8], [38.7, 13.2], [48, 12]], 8, 2, P.org);
+  stroke(g, [[16, 48], [17.1, 39.7], [20.3, 32], [25.4, 25.4]], 1.5, 5.5, P.yel); // edge
+  stroke(g, [[25.4, 25.4], [32, 20.3], [39.7, 17.1], [48, 16]], 5.5, 1.5, P.yel);
+  stroke(g, [[19, 48], [20, 40.5], [22.9, 33.5], [27.5, 27.5]], 1, 3, P.crm);     // core
+  stroke(g, [[27.5, 27.5], [33.5, 22.9], [40.5, 20], [48, 19]], 3, 1, P.crm);
+  stroke(g, [[9, 31], [5, 25], [7, 18]], 2.5, 0.5, P.org);                        // licks
+  stroke(g, [[15, 19], [13, 12], [16, 6]], 2.5, 0.5, P.org);
+  stroke(g, [[29, 8], [29, 2]], 2, 0.5, P.org);
+  stroke(g, [[9.5, 30], [7, 24]], 1.2, 0.4, P.yel);
+  stroke(g, [[15.5, 18], [14, 11]], 1.2, 0.4, P.yel);
+  disc(g, 4, 38, 1.5, P.yel);                                                     // embers
+  disc(g, 10, 9, 1.3, P.yel);
+  disc(g, 23, 3, 1.2, P.org);
+  disc(g, 42, 4, 1.4, P.red);
+}});
+
+S.push({ name: 'fx-lightning', draw(g) {      // battle FX: a Solid card's strike
+  // A zigzag bolt striking downward: sky glow, yellow body, cream core,
+  // tapering toward the strike point at the bottom.
+  const bolt = [[38, 2], [27, 22], [35, 24], [23, 44], [31, 46], [21, 60]];
+  stroke(g, bolt, 6, 2.5, P.sky);                       // glow
+  stroke(g, bolt, 4, 1.6, P.yel);                       // body
+  stroke(g, bolt, 1.8, 0.7, P.crm);                     // core
+  stroke(g, [[27, 22], [17, 31]], 2.2, 0.5, P.yel);     // forks off the bends
+  stroke(g, [[35, 24], [45, 35]], 2.2, 0.5, P.yel);
+  stroke(g, [[23, 44], [37, 53]], 1.8, 0.5, P.yel);
+  disc(g, 21, 60, 3, P.crm);                            // strike point
+  disc(g, 14, 58, 1.5, P.yel);                          // scatter sparks
+  disc(g, 29, 59, 1.4, P.yel);
+  disc(g, 24, 54, 1.2, P.sky);
+}});
+
 /* Slice 3 — the Rig spike. Every avatar calls rigBody() for the shared body and
    varies only its head, hair and palette. Gear layers paint inside their RIG
    zone on an otherwise empty canvas — never re-type the RIG numbers, read them. */
