@@ -32336,9 +32336,11 @@ function dragonCrest(g, base, shade, hi) {
   disc(g, CX + 7, 30, 1.8, P.navy);
 }
 S.push({ name: 'crest-dragon-silver', draw(g) { dragonCrest(g, P.stl, P.lav, P.crm); }});
-S.push({ name: 'crest-dragon-bronze', draw(g) { dragonCrest(g, P.brz, P.brn, P.yel); }});
+// Bronze gets no highlight and gold rides the yel→org ramp: with both on
+// org/brn + yel gleam they were the same badge at deck-row size.
+S.push({ name: 'crest-dragon-bronze', draw(g) { dragonCrest(g, P.brz, P.brn); }});
 S.push({ name: 'crest-dragon-jade', draw(g) { dragonCrest(g, P.jde, P.grn, P.crm); }});
-S.push({ name: 'crest-dragon-gold', draw(g) { dragonCrest(g, P.org, P.brn, P.yel); }});
+S.push({ name: 'crest-dragon-gold', draw(g) { dragonCrest(g, P.yel, P.org, P.crm); }});
 
 const COMPOSITES = [
   { name: 'composite-scout-bare',   layers: ['avatar-scout'] },
