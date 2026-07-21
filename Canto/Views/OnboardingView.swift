@@ -16,34 +16,24 @@ struct OnboardingView: View {
         ZStack {
             InnBackground()
             VStack(spacing: 0) {
-                Group {
-                    switch page {
-                    case 0:
-                        OnboardingWelcomePage(onNext: { page = 1 })
-                    case 1:
-                        OnboardingVoicePage(
-                            voiceAvailable: voiceAvailable,
-                            onHearSample: { speaker.speak("你好") },
-                            onNext: { page = 2 }
-                        )
-                    case 2:
-                        OnboardingLookupPage(onNext: { page = 3 })
-                    case 3:
-                        OnboardingShortcutPage(onNext: { page = 4 })
-                    case 4:
-                        OnboardingBattlePage(onNext: { page = 5 })
-                    case 5:
-                        OnboardingTogetherPage(onNext: { page = 6 })
-                    case 6:
-                        OnboardingRewardsPage(onNext: { page = 7 })
-                    default:
-                        OnboardingPackPage(
-                            onAdd: { onFinish(true) },
-                            onSkip: { onFinish(false) }
-                        )
-                    }
+                TabView(selection: $page) {
+                    OnboardingWelcomePage(onNext: { next(1) }).tag(0)
+                    OnboardingVoicePage(
+                        voiceAvailable: voiceAvailable,
+                        onHearSample: { speaker.speak("你好") },
+                        onNext: { next(2) }
+                    ).tag(1)
+                    OnboardingLookupPage(onNext: { next(3) }).tag(2)
+                    OnboardingShortcutPage(onNext: { next(4) }).tag(3)
+                    OnboardingBattlePage(onNext: { next(5) }).tag(4)
+                    OnboardingTogetherPage(onNext: { next(6) }).tag(5)
+                    OnboardingRewardsPage(onNext: { next(7) }).tag(6)
+                    OnboardingPackPage(
+                        onAdd: { onFinish(true) },
+                        onSkip: { onFinish(false) }
+                    ).tag(7)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .tabViewStyle(.page(indexDisplayMode: .never))
                 PageDots(current: page, count: 8)
                     .padding(.bottom, 24)
             }
@@ -56,6 +46,11 @@ struct OnboardingView: View {
                 voiceAvailable = speaker.voiceAvailable
             }
         }
+    }
+
+    // Next buttons slide like a swipe would; bare assignment snaps.
+    private func next(_ target: Int) {
+        withAnimation { page = target }
     }
 }
 
