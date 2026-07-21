@@ -954,19 +954,49 @@ final class DesignSnapshotTests: XCTestCase {
         }
     }
 
-    // Select mode top to bottom: control row (Done + Presets), rows with the
-    // checkmark ring - full-strength even on a benched (dimmed) row - and the
-    // batch action bar.
+    // Select mode (entered by long-pressing a row): rows with the checkmark
+    // ring - full-strength even on a benched (dimmed) row - and the batch
+    // action bar with its always-live Done.
     func test_deckSelectModeRenders() {
         snapshotOnInn("deck-select-mode") {
+            // The bar sits outside the row padding, full width, as in DeckView.
             VStack(spacing: 18) {
-                DeckControlRow(selecting: true, onToggleSelect: {}, onPreset: { _ in })
-                DeckRow(entry: deckEntry(id: 1, traditional: "獅子", jyutping: "si1 zi2", english: "lion", box: 3), selected: true)
-                DeckRow(entry: deckEntry(id: 2, traditional: "哲學", jyutping: "zit3 hok6", english: "philosophy", box: 1), selected: false)
-                DeckRow(entry: deckEntry(id: 3, traditional: "食", jyutping: "sik6", english: "eat", benched: true, box: 0), selected: true)
-                DeckSelectionBar(hasSelection: true, onBench: {}, onUnbench: {}, onDelete: {})
+                VStack(spacing: 18) {
+                    DeckRow(entry: deckEntry(id: 1, traditional: "獅子", jyutping: "si1 zi2", english: "lion", box: 3), selected: true)
+                    DeckRow(entry: deckEntry(id: 2, traditional: "哲學", jyutping: "zit3 hok6", english: "philosophy", box: 1), selected: false)
+                    DeckRow(entry: deckEntry(id: 3, traditional: "食", jyutping: "sik6", english: "eat", benched: true, box: 0), selected: true)
+                }
+                .padding(24)
+                DeckSelectionBar(hasSelection: true, onBench: {}, onUnbench: {}, onDelete: {}, onDone: {})
             }
-            .padding(24)
+        }
+    }
+
+    // The selection bar with nothing selected: actions dim, Done stays live.
+    // Rendered at SE width too - four capsules is the widest this bar gets.
+    func test_deckSelectionBarEmptyRenders() {
+        snapshot("deck-selection-bar-empty", width: 375) {
+            ZStack {
+                InnBackground()
+                DeckSelectionBar(hasSelection: false, onBench: {}, onUnbench: {}, onDelete: {}, onDone: {})
+            }
+        }
+    }
+
+    // The deck's floating chrome: the presets circle (top-left) and the share
+    // circle (top-right) flanking the sign, as DeckView lays them out.
+    func test_deckTopChromeRenders() {
+        snapshotOnInn("deck-top-chrome") {
+            ZStack(alignment: .top) {
+                TavernSignHeader(title: "Deck")
+                HStack {
+                    DeckPresetsButton(onPreset: { _ in })
+                    Spacer()
+                    FloatingCircleIcon(systemName: "square.and.arrow.up")
+                }
+                .padding(.horizontal, 12)
+            }
+            .frame(maxHeight: .infinity, alignment: .top)
         }
     }
 

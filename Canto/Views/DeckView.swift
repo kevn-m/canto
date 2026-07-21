@@ -18,8 +18,9 @@ enum DeckSearch {
 }
 
 // The whole deck: photo, english, characters, its box, bench toggle, and
-// photo attach. Multi-select (Select) batches bench/unbench/delete, and
-// Presets applies a whole-deck bench layout. Also hosts Deck Export
+// photo attach. Long-pressing a row enters multi-select (batch bench/unbench/
+// delete via DeckSelectionBar), and the floating presets circle applies a
+// whole-deck bench layout. Also hosts Deck Export
 // (ADR 0010) - a share button sending deck JSON off-device for the
 // card-art-pipeline plan, and as a manual backup.
 struct DeckView: View {
@@ -51,7 +52,6 @@ struct DeckView: View {
                 TavernSignHeader(title: "Deck")
                     .padding(.bottom, 12)
                 searchField
-                controlRow
                 List(DeckSearch.filter(entries, query: searchText)) { entry in
                     row(entry)
                         .listRowBackground(Color.clear)
@@ -76,16 +76,20 @@ struct DeckView: View {
             }
             if let exportURL {
                 ShareLink(item: exportURL) {
-                    Image(systemName: "square.and.arrow.up")
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(GameTheme.gold)
-                        .frame(width: 44, height: 44)
-                        .background(Circle().fill(.black.opacity(0.35)))
+                    FloatingCircleIcon(systemName: "square.and.arrow.up")
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                 .padding(.trailing, 12)
             }
+            // Whole-deck layouts don't mix with a part-deck selection, so the
+            // presets circle steps out while selecting.
+            if !selecting {
+                DeckPresetsButton(onPreset: applyPreset)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    .padding(.leading, 12)
+            }
         }
+        .sensoryFeedback(.selection, trigger: selecting)
         // All three inn tabs hide the nav bar: an empty bar collapses but one
         // with items keeps its height, which left this sign hanging lower
         // than Settings'. The share button floats over the content instead.
@@ -194,23 +198,13 @@ struct DeckView: View {
         .padding(.bottom, 6)
     }
 
-    private var controlRow: some View {
-        DeckControlRow(
-            selecting: selecting,
-            onToggleSelect: {
-                selecting.toggle()
-                selection.removeAll()
-            },
-            onPreset: applyPreset
-        )
-    }
-
     private var selectionBar: some View {
         DeckSelectionBar(
             hasSelection: !selection.isEmpty,
             onBench: { batchBench(true) },
             onUnbench: { batchBench(false) },
-            onDelete: { showBatchDelete = true }
+            onDelete: { showBatchDelete = true },
+            onDone: exitSelectMode
         )
     }
 
@@ -227,6 +221,11 @@ struct DeckView: View {
                 } else {
                     detailEntry = entry
                 }
+            }
+            .onLongPressGesture {
+                guard !selecting else { return }
+                selecting = true
+                selection = [entry.id]
             }
     }
 
@@ -296,26 +295,33 @@ struct DeckView: View {
     }
 }
 
-// Select toggles multi-select; Presets is the one-tap bench layouts dialog.
-// Standalone (like DeckRow) so the snapshot tests can render it without the
-// List. A confirmationDialog, not a Menu: Menu is UIKit-backed and draws the
-// "no entry" placeholder under ImageRenderer.
-struct DeckControlRow: View {
-    let selecting: Bool
-    let onToggleSelect: () -> Void
+// The gold-on-dark circle the deck's floating chrome shares (share, presets).
+struct FloatingCircleIcon: View {
+    let systemName: String
+
+    var body: some View {
+        Image(systemName: systemName)
+            .font(.system(size: 17, weight: .semibold))
+            .foregroundStyle(GameTheme.gold)
+            .frame(width: 44, height: 44)
+            .background(Circle().fill(.black.opacity(0.35)))
+    }
+}
+
+// The bench-presets dialog behind a floating circle, mirroring the share
+// button. Standalone (like DeckRow) so the snapshot tests can render it
+// without the List. A confirmationDialog, not a Menu: Menu is UIKit-backed
+// and draws the "no entry" placeholder under ImageRenderer.
+struct DeckPresetsButton: View {
     let onPreset: (GameStore.BenchPreset) -> Void
 
     @State private var showPresets = false
 
     var body: some View {
-        HStack {
-            Button(selecting ? "Done" : "Select", action: onToggleSelect)
-            Spacer()
-            Button("Presets") { showPresets = true }
+        Button { showPresets = true } label: {
+            FloatingCircleIcon(systemName: "slider.horizontal.3")
         }
-        .buttonStyle(GameButtonStyle(prominent: false, compact: true))
-        .padding(.horizontal)
-        .padding(.bottom, 6)
+        .accessibilityLabel("Bench presets")
         .confirmationDialog("Bench presets", isPresented: $showPresets, titleVisibility: .visible) {
             Button("Bench Mastered cards") { onPreset(.drillWeaker) }
             Button("Bench all except Mastered") { onPreset(.drillMastered) }
@@ -328,20 +334,37 @@ struct DeckControlRow: View {
 }
 
 // The batch actions for the current selection, shown only in select mode.
+// The x exits the mode and always works; the actions need a selection.
 struct DeckSelectionBar: View {
     let hasSelection: Bool
     let onBench: () -> Void
     let onUnbench: () -> Void
     let onDelete: () -> Void
+    let onDone: () -> Void
 
     var body: some View {
         HStack(spacing: 10) {
-            Button("Bench", action: onBench)
-            Button("Unbench", action: onUnbench)
-            Button("Delete", action: onDelete)
+            Group {
+                Button("Bench", action: onBench)
+                Button("Unbench", action: onUnbench)
+                Button("Delete", action: onDelete)
+            }
+            .buttonStyle(GameButtonStyle(prominent: false, compact: true))
+            .disabled(!hasSelection)
+            .opacity(hasSelection ? 1 : 0.4)
+            Button(action: onDone) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(GameTheme.cream)
+                    .frame(width: 36, height: 36)
+                    .background(Circle().fill(GameTheme.navy.opacity(0.8)))
+                    .overlay(Circle().strokeBorder(.black.opacity(0.3), lineWidth: 2))
+                    .shadow(color: .black.opacity(0.4), radius: 4, y: 3)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Done")
         }
-        .buttonStyle(GameButtonStyle(prominent: false, compact: true))
-        .disabled(!hasSelection)
+        .padding(.horizontal)
         .padding(.vertical, 10)
     }
 }
