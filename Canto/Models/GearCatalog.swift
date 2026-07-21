@@ -15,72 +15,53 @@ struct GearItem: Identifiable, Equatable {
     let price: Int
 }
 
+// A named shelf in the Shop: hats, one section per armour outfit, pals.
+struct GearSet: Identifiable {
+    let id: String
+    let name: String
+    let items: [GearItem]
+}
+
 enum GearCatalog {
-    static let all: [GearItem] = [
-        GearItem(id: "hat-cap", slot: .helmet, price: Balance.gearPriceHat),
-        GearItem(id: "hat-crown", slot: .helmet, price: Balance.gearPriceHat),
-        GearItem(id: "hat-wizard", slot: .helmet, price: Balance.gearPriceHat),
-        GearItem(id: "helm-knight", slot: .helmet, price: Balance.gearPriceHelmet),
-        GearItem(id: "chest-knight", slot: .chest, price: Balance.gearPriceChest),
-        GearItem(id: "legs-knight", slot: .leggings, price: Balance.gearPriceLeggings),
-        GearItem(id: "weap-knight-sword", slot: .weapon, price: Balance.gearPriceWeapon),
-        GearItem(id: "off-knight-shield", slot: .offhand, price: Balance.gearPriceOffhand),
-        GearItem(id: "helm-jade", slot: .helmet, price: Balance.gearPriceHelmet),
-        GearItem(id: "chest-jade", slot: .chest, price: Balance.gearPriceChest),
-        GearItem(id: "legs-jade", slot: .leggings, price: Balance.gearPriceLeggings),
-        GearItem(id: "weap-jade-sword", slot: .weapon, price: Balance.gearPriceWeapon),
-        GearItem(id: "off-jade-disc", slot: .offhand, price: Balance.gearPriceOffhand),
-        GearItem(id: "helm-mage", slot: .helmet, price: Balance.gearPriceHelmet),
-        GearItem(id: "chest-mage", slot: .chest, price: Balance.gearPriceChest),
-        GearItem(id: "legs-mage", slot: .leggings, price: Balance.gearPriceLeggings),
-        GearItem(id: "weap-mage-staff", slot: .weapon, price: Balance.gearPriceWeapon),
-        GearItem(id: "off-mage-tome", slot: .offhand, price: Balance.gearPriceOffhand),
-        GearItem(id: "helm-rogue", slot: .helmet, price: Balance.gearPriceHelmet),
-        GearItem(id: "chest-rogue", slot: .chest, price: Balance.gearPriceChest),
-        GearItem(id: "legs-rogue", slot: .leggings, price: Balance.gearPriceLeggings),
-        GearItem(id: "weap-rogue-dagger", slot: .weapon, price: Balance.gearPriceWeapon),
-        GearItem(id: "off-rogue-dagger", slot: .offhand, price: Balance.gearPriceOffhand),
-        GearItem(id: "helm-paladin", slot: .helmet, price: Balance.gearPriceHelmet),
-        GearItem(id: "chest-paladin", slot: .chest, price: Balance.gearPriceChest),
-        GearItem(id: "legs-paladin", slot: .leggings, price: Balance.gearPriceLeggings),
-        GearItem(id: "weap-paladin-hammer", slot: .weapon, price: Balance.gearPriceWeapon),
-        GearItem(id: "off-paladin-shield", slot: .offhand, price: Balance.gearPriceOffhand),
-        GearItem(id: "helm-warlock", slot: .helmet, price: Balance.gearPriceHelmet),
-        GearItem(id: "chest-warlock", slot: .chest, price: Balance.gearPriceChest),
-        GearItem(id: "legs-warlock", slot: .leggings, price: Balance.gearPriceLeggings),
-        GearItem(id: "weap-warlock-staff", slot: .weapon, price: Balance.gearPriceWeapon),
-        GearItem(id: "off-warlock-orb", slot: .offhand, price: Balance.gearPriceOffhand),
-        GearItem(id: "helm-hunter", slot: .helmet, price: Balance.gearPriceHelmet),
-        GearItem(id: "chest-hunter", slot: .chest, price: Balance.gearPriceChest),
-        GearItem(id: "legs-hunter", slot: .leggings, price: Balance.gearPriceLeggings),
-        GearItem(id: "weap-hunter-bow", slot: .weapon, price: Balance.gearPriceWeapon),
-        GearItem(id: "off-hunter-quiver", slot: .offhand, price: Balance.gearPriceOffhand),
-        GearItem(id: "helm-druid", slot: .helmet, price: Balance.gearPriceHelmet),
-        GearItem(id: "chest-druid", slot: .chest, price: Balance.gearPriceChest),
-        GearItem(id: "legs-druid", slot: .leggings, price: Balance.gearPriceLeggings),
-        GearItem(id: "weap-druid-staff", slot: .weapon, price: Balance.gearPriceWeapon),
-        GearItem(id: "off-druid-blossom", slot: .offhand, price: Balance.gearPriceOffhand),
-        GearItem(id: "helm-shaman", slot: .helmet, price: Balance.gearPriceHelmet),
-        GearItem(id: "chest-shaman", slot: .chest, price: Balance.gearPriceChest),
-        GearItem(id: "legs-shaman", slot: .leggings, price: Balance.gearPriceLeggings),
-        GearItem(id: "weap-shaman-axe", slot: .weapon, price: Balance.gearPriceWeapon),
-        GearItem(id: "off-shaman-totem", slot: .offhand, price: Balance.gearPriceOffhand),
-        GearItem(id: "helm-frost", slot: .helmet, price: Balance.gearPriceHelmet),
-        GearItem(id: "chest-frost", slot: .chest, price: Balance.gearPriceChest),
-        GearItem(id: "legs-frost", slot: .leggings, price: Balance.gearPriceLeggings),
-        GearItem(id: "weap-frost-runeblade", slot: .weapon, price: Balance.gearPriceWeapon),
-        GearItem(id: "off-frost-shield", slot: .offhand, price: Balance.gearPriceOffhand),
-        GearItem(id: "helm-priest", slot: .helmet, price: Balance.gearPriceHelmet),
-        GearItem(id: "chest-priest", slot: .chest, price: Balance.gearPriceChest),
-        GearItem(id: "legs-priest", slot: .leggings, price: Balance.gearPriceLeggings),
-        GearItem(id: "weap-priest-staff", slot: .weapon, price: Balance.gearPriceWeapon),
-        GearItem(id: "off-priest-lantern", slot: .offhand, price: Balance.gearPriceOffhand),
-        GearItem(id: "pal-cat", slot: .companion, price: Balance.gearPriceCompanion),
-        GearItem(id: "pal-dog", slot: .companion, price: Balance.gearPriceCompanion),
-        GearItem(id: "pal-dragonling", slot: .companion, price: Balance.gearPriceCompanion),
+    static let sets: [GearSet] = [
+        GearSet(id: "hats", name: "Hats", items: [
+            GearItem(id: "hat-cap", slot: .helmet, price: Balance.gearPriceHat),
+            GearItem(id: "hat-crown", slot: .helmet, price: Balance.gearPriceHat),
+            GearItem(id: "hat-wizard", slot: .helmet, price: Balance.gearPriceHat),
+        ]),
+        armourSet(id: "knight", name: "Knight", weapon: "sword", offhand: "shield"),
+        armourSet(id: "jade", name: "Jade", weapon: "sword", offhand: "disc"),
+        armourSet(id: "mage", name: "Mage", weapon: "staff", offhand: "tome"),
+        armourSet(id: "rogue", name: "Rogue", weapon: "dagger", offhand: "dagger"),
+        armourSet(id: "paladin", name: "Paladin", weapon: "hammer", offhand: "shield"),
+        armourSet(id: "warlock", name: "Warlock", weapon: "staff", offhand: "orb"),
+        armourSet(id: "hunter", name: "Hunter", weapon: "bow", offhand: "quiver"),
+        armourSet(id: "druid", name: "Druid", weapon: "staff", offhand: "blossom"),
+        armourSet(id: "shaman", name: "Shaman", weapon: "axe", offhand: "totem"),
+        armourSet(id: "frost", name: "Frost", weapon: "runeblade", offhand: "shield"),
+        armourSet(id: "priest", name: "Priest", weapon: "staff", offhand: "lantern"),
+        GearSet(id: "pals", name: "Pals", items: [
+            GearItem(id: "pal-cat", slot: .companion, price: Balance.gearPriceCompanion),
+            GearItem(id: "pal-dog", slot: .companion, price: Balance.gearPriceCompanion),
+            GearItem(id: "pal-dragonling", slot: .companion, price: Balance.gearPriceCompanion),
+        ]),
     ]
+
+    static let all: [GearItem] = sets.flatMap(\.items)
 
     static func item(id: String) -> GearItem? {
         all.first { $0.id == id }
+    }
+
+    // Every armour outfit is the same five slots; only the weapon/offhand
+    // sprite names vary (weap-knight-sword, off-mage-tome, ...).
+    private static func armourSet(id: String, name: String, weapon: String, offhand: String) -> GearSet {
+        GearSet(id: id, name: name, items: [
+            GearItem(id: "helm-\(id)", slot: .helmet, price: Balance.gearPriceHelmet),
+            GearItem(id: "chest-\(id)", slot: .chest, price: Balance.gearPriceChest),
+            GearItem(id: "legs-\(id)", slot: .leggings, price: Balance.gearPriceLeggings),
+            GearItem(id: "weap-\(id)-\(weapon)", slot: .weapon, price: Balance.gearPriceWeapon),
+            GearItem(id: "off-\(id)-\(offhand)", slot: .offhand, price: Balance.gearPriceOffhand),
+        ])
     }
 }

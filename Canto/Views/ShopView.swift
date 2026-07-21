@@ -16,6 +16,10 @@ struct ShopView: View {
     @State private var pendingRedeem: ShopItem?
     @State private var showingEdit = false
     @State private var showingAvatarPicker = false
+    // Try-on layers: tapped-but-not-bought gear the hero wears over what's
+    // really equipped. Accumulates across slots so a whole outfit can be
+    // tried before spending. Never persisted.
+    @State private var previewGear: [GearSlot: String] = [:]
 
     // Seed the two the hero preview draws from, so the first frame already wears
     // the right avatar and gear. reload() in onAppear refreshes them along with
@@ -39,8 +43,8 @@ struct ShopView: View {
                 ScrollView {
                     VStack(spacing: 20) {
                         GearShelf(
-                            owned: ownedGear, equipped: equipped,
-                            balance: balance, onBuy: buy, onToggleEquip: toggleEquip
+                            owned: ownedGear, equipped: equipped, previewed: previewGear,
+                            balance: balance, onBuy: buy, onToggleEquip: toggleEquip, onPreview: togglePreview
                         )
                         if familyRewardsEnabled {
                             treatsSection
@@ -81,19 +85,36 @@ struct ShopView: View {
     }
 
     // Tapping the hero swaps the avatar - the swap badge is the only hint
-    // (show-don't-label), same spirit as the rest of the screen.
+    // (show-don't-label), same spirit as the rest of the screen. Try-on
+    // layers draw over the real gear, and the x badge takes them off again.
     private var heroPreviewButton: some View {
         Button { showingAvatarPicker = true } label: {
-            AvatarSpriteView(size: 96, avatarId: avatarId, equipped: equipped)
-                .overlay(alignment: .bottomTrailing) {
-                    Image(systemName: "arrow.2.squarepath")
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundStyle(GameTheme.navy)
-                        .padding(6)
-                        .background(Circle().fill(GameTheme.gold))
-                }
+            AvatarSpriteView(
+                size: 96, avatarId: avatarId,
+                equipped: equipped.merging(previewGear) { _, tryOn in tryOn }
+            )
+            .overlay(alignment: .bottomTrailing) {
+                Image(systemName: "arrow.2.squarepath")
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundStyle(GameTheme.navy)
+                    .padding(6)
+                    .background(Circle().fill(GameTheme.gold))
+            }
         }
         .buttonStyle(.plain)
+        .overlay(alignment: .topTrailing) {
+            if !previewGear.isEmpty {
+                Button(action: clearPreview) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(GameTheme.cream)
+                        .padding(7)
+                        .background(Circle().fill(GameTheme.red))
+                }
+                .buttonStyle(.plain)
+                .offset(x: 10, y: -6)
+            }
+        }
     }
 
     private var balanceView: some View {
@@ -156,13 +177,33 @@ struct ShopView: View {
         }
         SFXPlayer.shared.play(.coin)
         gameStore.equip(slot: item.slot, id: item.id)
+        // The slot is real now - a leftover try-on layer would cover the
+        // gear that was just paid for.
+        previewGear[item.slot] = nil
         reload()
     }
 
     private func toggleEquip(_ item: GearItem) {
         let currentlyEquipped = equipped[item.slot] == item.id
         gameStore.equip(slot: item.slot, id: currentlyEquipped ? nil : item.id)
+        previewGear[item.slot] = nil
         reload()
+    }
+
+    // Sprite tap: wear it on the hero above without spending. Tap again to
+    // take it off.
+    private func togglePreview(_ item: GearItem) {
+        if previewGear[item.slot] == item.id {
+            previewGear[item.slot] = nil
+        } else {
+            previewGear[item.slot] = item.id
+        }
+        SFXPlayer.shared.play(.flip)
+    }
+
+    private func clearPreview() {
+        previewGear = [:]
+        SFXPlayer.shared.play(.flip)
     }
 
     private func redeem() {
@@ -173,30 +214,38 @@ struct ShopView: View {
     }
 }
 
-// The gear grid: every catalogue item, always, grouped by slot. Split out so
-// DesignSnapshotTests can render it bare (ShopView's ScrollView lays out as
-// a sliver under ImageRenderer, the same trap as BadgeShelf). No heading
-// text - each group leads with its slot's sprites (show-don't-label).
+// The gear shelves: one section per catalogue set (Hats, each outfit, Pals),
+// each under a small wooden plaque. Split out so DesignSnapshotTests can
+// render it bare (ShopView's ScrollView lays out as a sliver under
+// ImageRenderer, the same trap as BadgeShelf).
 struct GearShelf: View {
     let owned: Set<String>
     let equipped: [GearSlot: String]
+    let previewed: [GearSlot: String]
     let balance: Int
     let onBuy: (GearItem) -> Void
     let onToggleEquip: (GearItem) -> Void
+    let onPreview: (GearItem) -> Void
+    // Overridable so DesignSnapshotTests can render a couple of sets at
+    // reviewable height; the app always shows the whole catalogue.
+    var sets: [GearSet] = GearCatalog.sets
 
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 14), count: 3)
 
     var body: some View {
-        VStack(spacing: 18) {
-            ForEach(GearSlot.allCases, id: \.self) { slot in
-                let items = GearCatalog.all.filter { $0.slot == slot }
-                if !items.isEmpty {
+        VStack(spacing: 22) {
+            ForEach(sets) { set in
+                VStack(spacing: 12) {
+                    SetPlaque(name: set.name)
                     LazyVGrid(columns: columns, spacing: 18) {
-                        ForEach(items) { item in
+                        ForEach(set.items) { item in
                             GearCardView(
-                                item: item, owned: owned.contains(item.id), equipped: equipped[slot] == item.id,
+                                item: item, owned: owned.contains(item.id),
+                                equipped: equipped[item.slot] == item.id,
+                                previewing: previewed[item.slot] == item.id,
                                 affordable: balance >= item.price,
-                                onBuy: { onBuy(item) }, onToggleEquip: { onToggleEquip(item) }
+                                onBuy: { onBuy(item) }, onToggleEquip: { onToggleEquip(item) },
+                                onPreview: { onPreview(item) }
                             )
                         }
                     }
@@ -206,20 +255,64 @@ struct GearShelf: View {
     }
 }
 
-// One catalogue slot: the sprite (or SF Symbol fallback), then either a
-// Buy button (unowned, disabled when unaffordable, same pattern as Treats)
-// or an Equip/Unequip toggle (owned).
+// The set's name on a small nailed-up wood plaque - TavernSignHeader's
+// plank at shelf scale, minus the ropes.
+private struct SetPlaque: View {
+    let name: String
+
+    var body: some View {
+        Text(name)
+            .font(.custom("Silkscreen-Bold", size: 15))
+            .foregroundStyle(GameTheme.yellow)
+            .shadow(color: .black.opacity(0.6), radius: 0, y: 1.5)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 6)
+            .background(
+                ZStack {
+                    RoundedRectangle(cornerRadius: 5)
+                        .fill(LinearGradient(
+                            colors: [
+                                Color(red: 0.48, green: 0.26, blue: 0.16),
+                                Color(red: 0.34, green: 0.17, blue: 0.11),
+                            ],
+                            startPoint: .top, endPoint: .bottom
+                        ))
+                    RoundedRectangle(cornerRadius: 5)
+                        .strokeBorder(Color(red: 0.22, green: 0.11, blue: 0.07), lineWidth: 2)
+                }
+            )
+            .overlay(alignment: .leading) { nail.padding(.leading, 5) }
+            .overlay(alignment: .trailing) { nail.padding(.trailing, 5) }
+            .shadow(color: .black.opacity(0.4), radius: 3, y: 2)
+    }
+
+    private var nail: some View {
+        Circle()
+            .fill(GameTheme.gold)
+            .frame(width: 4, height: 4)
+    }
+}
+
+// One catalogue slot: the sprite (tap = try it on the hero above), then
+// either a Buy button (unowned, disabled when unaffordable, same pattern as
+// Treats) or an Equip/Unequip toggle (owned). A card being tried on wears
+// the gilded flame frame; equipped keeps the steady selected ring.
 private struct GearCardView: View {
     let item: GearItem
     let owned: Bool
     let equipped: Bool
+    let previewing: Bool
     let affordable: Bool
     let onBuy: () -> Void
     let onToggleEquip: () -> Void
+    let onPreview: () -> Void
 
     var body: some View {
         VStack(spacing: 8) {
-            GearSpriteView(id: item.id, slot: item.slot, size: 56)
+            Button(action: onPreview) {
+                GearSpriteView(id: item.id, slot: item.slot, size: 56)
+            }
+            .buttonStyle(.plain)
             if owned {
                 Button(equipped ? "Unequip" : "Equip", action: onToggleEquip)
                     .buttonStyle(GameButtonStyle(prominent: !equipped, compact: true))
@@ -235,7 +328,7 @@ private struct GearCardView: View {
         // Fill the grid column so every card is the same size - otherwise
         // the card hugs its button and "Unequip" stretches wider than "Buy".
         .frame(maxWidth: .infinity)
-        .cardFrame(selected: equipped)
+        .cardFrame(selected: equipped, gilded: previewing)
     }
 }
 

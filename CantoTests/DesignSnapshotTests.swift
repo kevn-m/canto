@@ -759,15 +759,19 @@ final class DesignSnapshotTests: XCTestCase {
     }
 
     // Bare GearShelf, not ShopView: ImageRenderer lays its ScrollView out as
-    // a sliver (the same trap as BadgeShelf above). A mix of owned/equipped/
-    // unowned/unaffordable so every card state shows in one render.
+    // a sliver (the same trap as BadgeShelf above). Two sets, not the whole
+    // catalogue - the full shelf is far taller than the frame and renders as
+    // a mid-crop. A mix of owned/equipped/previewed/unowned/unaffordable so
+    // every card state shows in one render.
     func test_gearShelfRendersMixedOwnedEquippedAndUnaffordableState() {
         snapshot("gear-shelf") {
             ZStack {
                 InnBackground()
                 GearShelf(
-                    owned: ["hat-cap", "pal-cat"], equipped: [.helmet: "hat-cap"],
-                    balance: 10, onBuy: { _ in }, onToggleEquip: { _ in }
+                    owned: ["hat-cap", "helm-knight"], equipped: [.helmet: "hat-cap"],
+                    previewed: [.chest: "chest-knight"],
+                    balance: 10, onBuy: { _ in }, onToggleEquip: { _ in }, onPreview: { _ in },
+                    sets: Array(GearCatalog.sets.prefix(2))
                 )
                 .padding()
             }
