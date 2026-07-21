@@ -5,6 +5,8 @@ import SwiftUI
 struct CardPlayView: View {
     let card: CardRecord
     var biome: Biome = .tower
+    // Snapshot tests only: ImageRenderer can't tap, so let them start on the back.
+    var previewFlipped = false
     var onGraded: (ReviewResult) -> Void
 
     @State private var speaker = CantoneseSpeaker()
@@ -31,7 +33,10 @@ struct CardPlayView: View {
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(BiomeBackground(biome: biome))
-        .onAppear { speaker.speakEnglish(card.english) }
+        .onAppear {
+            if previewFlipped { flipped = true }
+            speaker.speakEnglish(card.english)
+        }
     }
 
     // The front is the English side: photo or sprite over the written word.
@@ -45,6 +50,9 @@ struct CardPlayView: View {
             backFace
                 .opacity(flipped ? 1 : 0)
                 .rotation3DEffect(.degrees(flipped ? 0 : -180), axis: (x: 0, y: 1, z: 0))
+                // The hidden back sits on top of the ZStack; don't let its
+                // speaker button steal taps from the front.
+                .allowsHitTesting(flipped)
         }
     }
 
@@ -75,6 +83,11 @@ struct CardPlayView: View {
             Text(card.jyutping)
                 .font(.caption)
                 .foregroundStyle(GameTheme.cream.opacity(0.55))
+            Button { speaker.speak(card.traditional) } label: {
+                Image(systemName: "speaker.wave.2.fill")
+                    .font(.system(size: 40))
+                    .foregroundStyle(GameTheme.gold)
+            }
         }
         .padding(28)
         .frame(width: 320, height: 440)

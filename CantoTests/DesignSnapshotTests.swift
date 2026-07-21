@@ -155,6 +155,12 @@ final class DesignSnapshotTests: XCTestCase {
         }
     }
 
+    func test_cardBackRenders() {
+        snapshot("card-back") {
+            CardPlayView(card: sampleCards[1], previewFlipped: true) { _ in }
+        }
+    }
+
     func test_cardFrontForestBiomeRenders() {
         snapshot("card-front-forest") {
             CardPlayView(card: sampleCards[1], biome: .forest) { _ in }
