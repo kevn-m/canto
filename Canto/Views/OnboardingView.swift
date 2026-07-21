@@ -29,11 +29,13 @@ struct OnboardingView: View {
                     case 2:
                         OnboardingLookupPage(onNext: { page = 3 })
                     case 3:
-                        OnboardingBattlePage(onNext: { page = 4 })
+                        OnboardingShortcutPage(onNext: { page = 4 })
                     case 4:
-                        OnboardingTogetherPage(onNext: { page = 5 })
+                        OnboardingBattlePage(onNext: { page = 5 })
                     case 5:
-                        OnboardingRewardsPage(onNext: { page = 6 })
+                        OnboardingTogetherPage(onNext: { page = 6 })
+                    case 6:
+                        OnboardingRewardsPage(onNext: { page = 7 })
                     default:
                         OnboardingPackPage(
                             onAdd: { onFinish(true) },
@@ -42,7 +44,7 @@ struct OnboardingView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                PageDots(current: page, count: 7)
+                PageDots(current: page, count: 8)
                     .padding(.bottom, 24)
             }
         }
@@ -171,6 +173,72 @@ struct OnboardingLookupPage: View {
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
         .cardFrame(gilded: isPick)
+    }
+}
+
+// The StartListeningIntent shortcut, sold as a one-time setup: Back Tap on
+// any iPhone, the Action Button on 15 Pro and later, Siri on both.
+struct OnboardingShortcutPage: View {
+    let onNext: () -> Void
+
+    var body: some View {
+        VStack(spacing: 22) {
+            Spacer()
+            Image(systemName: "hand.tap.fill")
+                .font(.system(size: 56, weight: .bold))
+                .foregroundStyle(GameTheme.gold)
+            Text("Look up in one tap")
+                .font(GameTheme.title(24))
+                .foregroundStyle(GameTheme.cream)
+            Text("The JyutKeep Lookup shortcut opens the app already listening. Set it up once:")
+                .font(GameTheme.title(17))
+                .foregroundStyle(GameTheme.cream.opacity(0.8))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 32)
+            VStack(spacing: 12) {
+                shortcutRow(
+                    symbol: "iphone.radiowaves.left.and.right",
+                    title: "Back Tap",
+                    path: "Any iPhone. Settings → Accessibility → Touch → Back Tap → Double Tap → JyutKeep Lookup. Then double-tap the back of the phone."
+                )
+                shortcutRow(
+                    symbol: "button.horizontal.top.press",
+                    title: "Action Button",
+                    path: "iPhone 15 Pro and later. Settings → Action Button → Shortcut → JyutKeep Lookup. Then hold the button."
+                )
+            }
+            .padding(.horizontal, 40)
+            Text("Or ask Siri: “Start a lookup in JyutKeep.”")
+                .font(GameTheme.title(15))
+                .foregroundStyle(GameTheme.cream.opacity(0.7))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 32)
+            Spacer()
+            Button("Next", action: onNext)
+                .buttonStyle(GameButtonStyle())
+                .padding(.bottom, 16)
+        }
+    }
+
+    private func shortcutRow(symbol: String, title: String, path: String) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: symbol)
+                .font(.system(size: 22, weight: .bold))
+                .foregroundStyle(GameTheme.lavender)
+                .frame(width: 32)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .font(GameTheme.title(14))
+                    .foregroundStyle(GameTheme.navy)
+                Text(path)
+                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .foregroundStyle(GameTheme.navy.opacity(0.75))
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .cardFrame()
     }
 }
 

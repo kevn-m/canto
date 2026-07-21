@@ -604,6 +604,26 @@ final class DesignSnapshotTests: XCTestCase {
         }
     }
 
+    func test_onboardingShortcutRenders() {
+        snapshot("onboarding-shortcut") {
+            ZStack {
+                InnBackground()
+                OnboardingShortcutPage(onNext: {})
+            }
+        }
+    }
+
+    // The settings-path rows carry the longest copy on the tour - render at
+    // 375 and check the cards don't clip or crowd the Siri line.
+    func test_onboardingShortcutRendersOnASmallPhone() {
+        snapshot("onboarding-shortcut-small", width: 375) {
+            ZStack {
+                InnBackground()
+                OnboardingShortcutPage(onNext: {})
+            }
+        }
+    }
+
     func test_onboardingBattleRenders() {
         snapshot("onboarding-battle") {
             ZStack {
