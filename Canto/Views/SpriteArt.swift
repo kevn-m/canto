@@ -288,13 +288,19 @@ enum SpriteArt {
         image(named: "badge-\(id)")
     }
 
+    // Cached: the Shop and Deck grids re-request the same sprites on every
+    // scroll frame, and uncached disk reads there made scrolling stutter.
+    private static let cache = NSCache<NSString, UIImage>()
+
     // Tries the bundle root and the Sprites subdirectory: XcodeGen flattens
     // resource groups today, but a folder reference would nest them.
     static func image(named name: String) -> UIImage? {
+        if let cached = cache.object(forKey: name as NSString) { return cached }
         let url = Bundle.main.url(forResource: name, withExtension: "png")
             ?? Bundle.main.url(forResource: name, withExtension: "png", subdirectory: "Sprites")
-        guard let url else { return nil }
-        return UIImage(contentsOfFile: url.path)
+        guard let url, let image = UIImage(contentsOfFile: url.path) else { return nil }
+        cache.setObject(image, forKey: name as NSString)
+        return image
     }
 }
 

@@ -520,4 +520,10 @@ final class SpriteArtTests: XCTestCase {
             XCTAssertNotNil(SpriteArt.image(named: name), "\(name).png missing from the app bundle")
         }
     }
+
+    // The Shop/Deck scroll-stutter fix depends on repeat lookups being cached,
+    // not re-read from disk each render.
+    func test_repeatLookupsReturnTheCachedInstance() {
+        XCTAssertTrue(SpriteArt.image(named: "player-kid") === SpriteArt.image(named: "player-kid"))
+    }
 }

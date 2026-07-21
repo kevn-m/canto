@@ -230,23 +230,29 @@ struct GearShelf: View {
     // reviewable height; the app always shows the whole catalogue.
     var sets: [GearSet] = GearCatalog.sets
 
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 14), count: 3)
-
     var body: some View {
         VStack(spacing: 22) {
             ForEach(sets) { set in
                 VStack(spacing: 12) {
                     SetPlaque(name: set.name)
-                    LazyVGrid(columns: columns, spacing: 18) {
-                        ForEach(set.items) { item in
-                            GearCardView(
-                                item: item, owned: owned.contains(item.id),
-                                equipped: equipped[item.slot] == item.id,
-                                previewing: previewed[item.slot] == item.id,
-                                affordable: balance >= item.price,
-                                onBuy: { onBuy(item) }, onToggleEquip: { onToggleEquip(item) },
-                                onPreview: { onPreview(item) }
-                            )
+                    // Non-lazy Grid on purpose: a dozen LazyVGrids stacked in
+                    // this ScrollView kept re-estimating their heights, which
+                    // made scrolling jump and opened phantom gaps between
+                    // sets. 61 sprite cards render fine eagerly.
+                    Grid(horizontalSpacing: 14, verticalSpacing: 18) {
+                        ForEach(Array(stride(from: 0, to: set.items.count, by: 3)), id: \.self) { start in
+                            GridRow {
+                                ForEach(set.items[start..<min(start + 3, set.items.count)]) { item in
+                                    GearCardView(
+                                        item: item, owned: owned.contains(item.id),
+                                        equipped: equipped[item.slot] == item.id,
+                                        previewing: previewed[item.slot] == item.id,
+                                        affordable: balance >= item.price,
+                                        onBuy: { onBuy(item) }, onToggleEquip: { onToggleEquip(item) },
+                                        onPreview: { onPreview(item) }
+                                    )
+                                }
+                            }
                         }
                     }
                 }
