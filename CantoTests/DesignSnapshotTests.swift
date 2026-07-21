@@ -954,6 +954,22 @@ final class DesignSnapshotTests: XCTestCase {
         }
     }
 
+    // Select mode top to bottom: control row (Done + Presets), rows with the
+    // checkmark ring - full-strength even on a benched (dimmed) row - and the
+    // batch action bar.
+    func test_deckSelectModeRenders() {
+        snapshotOnInn("deck-select-mode") {
+            VStack(spacing: 18) {
+                DeckControlRow(selecting: true, onToggleSelect: {}, onPreset: { _ in })
+                DeckRow(entry: deckEntry(id: 1, traditional: "獅子", jyutping: "si1 zi2", english: "lion", box: 3), selected: true)
+                DeckRow(entry: deckEntry(id: 2, traditional: "哲學", jyutping: "zit3 hok6", english: "philosophy", box: 1), selected: false)
+                DeckRow(entry: deckEntry(id: 3, traditional: "食", jyutping: "sik6", english: "eat", benched: true, box: 0), selected: true)
+                DeckSelectionBar(hasSelection: true, onBench: {}, onUnbench: {}, onDelete: {})
+            }
+            .padding(24)
+        }
+    }
+
     // The three shipped hats, redrawn onto the Rig as helmet layers. They kept
     // their ids so the wallet's gear rows still resolve, which means a future
     // redraw could silently put one back off the head - LOOK at this one.

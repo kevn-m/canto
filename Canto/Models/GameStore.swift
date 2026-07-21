@@ -367,6 +367,47 @@ final class GameStore: ObservableObject {
         }
     }
 
+    func setBenched(cardIds: [Int64], _ benched: Bool) {
+        guard !cardIds.isEmpty else { return }
+        write { db in
+            let marks = Array(repeating: "?", count: cardIds.count).joined(separator: ",")
+            var arguments: [DatabaseValueConvertible] = [benched]
+            arguments.append(contentsOf: cardIds)
+            try db.execute(
+                sql: "UPDATE cards SET benched = ? WHERE id IN (\(marks))",
+                arguments: StatementArguments(arguments)
+            )
+        }
+    }
+
+    // Each preset rewrites EVERY card's bench flag, so applying one always
+    // lands the same layout regardless of what came before - .wholeDeck is
+    // the undo for the other two and for any manual benching.
+    enum BenchPreset {
+        case drillWeaker   // bench Mastered (box 3), unbench the rest
+        case drillMastered // bench everything below Mastered
+        case wholeDeck     // unbench every card
+    }
+
+    func applyBenchPreset(_ preset: BenchPreset) {
+        let masteredSQL = """
+            EXISTS (
+                SELECT 1 FROM card_states cs
+                WHERE cs.card_id = cards.id AND cs.player = 'kid' AND cs.box = 3
+            )
+            """
+        write { db in
+            switch preset {
+            case .drillWeaker:
+                try db.execute(sql: "UPDATE cards SET benched = \(masteredSQL)")
+            case .drillMastered:
+                try db.execute(sql: "UPDATE cards SET benched = NOT \(masteredSQL)")
+            case .wholeDeck:
+                try db.execute(sql: "UPDATE cards SET benched = 0")
+            }
+        }
+    }
+
     func setPhoto(cardId: Int64, filename: String?) {
         write { db in
             try db.execute(sql: "UPDATE cards SET photo_filename = ? WHERE id = ?", arguments: [filename, cardId])

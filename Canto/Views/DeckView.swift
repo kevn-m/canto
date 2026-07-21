@@ -18,9 +18,10 @@ enum DeckSearch {
 }
 
 // The whole deck: photo, english, characters, its box, bench toggle, and
-// photo attach. Also hosts Deck Export (ADR 0010) - a share button sending
-// deck JSON off-device for the card-art-pipeline plan, and as a manual
-// backup.
+// photo attach. Multi-select (Select) batches bench/unbench/delete, and
+// Presets applies a whole-deck bench layout. Also hosts Deck Export
+// (ADR 0010) - a share button sending deck JSON off-device for the
+// card-art-pipeline plan, and as a manual backup.
 struct DeckView: View {
     @ObservedObject private var gameStore = GameStore.shared
     @State private var entries: [DeckEntry] = []
@@ -34,6 +35,9 @@ struct DeckView: View {
     @State private var exportURL: URL?
     @State private var deleteTarget: DeckEntry?
     @State private var searchText = ""
+    @State private var selecting = false
+    @State private var selection = Set<Int64>()
+    @State private var showBatchDelete = false
 
     private let photos = CardPhotos()
 
@@ -47,22 +51,28 @@ struct DeckView: View {
                 TavernSignHeader(title: "Deck")
                     .padding(.bottom, 12)
                 searchField
+                controlRow
                 List(DeckSearch.filter(entries, query: searchText)) { entry in
                     row(entry)
                         .listRowBackground(Color.clear)
                         .listRowSeparatorTint(GameTheme.cream.opacity(0.12))
                         .swipeActions {
-                            Button(entry.benched ? "Unbench" : "Bench") {
-                                gameStore.setBenched(cardId: entry.id, !entry.benched)
-                                reload()
+                            if !selecting {
+                                Button(entry.benched ? "Unbench" : "Bench") {
+                                    gameStore.setBenched(cardId: entry.id, !entry.benched)
+                                    reload()
+                                }
+                                .tint(entry.benched ? GameTheme.green : GameTheme.lavender)
+                                Button("Delete", role: .destructive) { deleteTarget = entry }
                             }
-                            .tint(entry.benched ? GameTheme.green : GameTheme.lavender)
-                            Button("Delete", role: .destructive) { deleteTarget = entry }
                         }
                 }
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
                 .scrollDismissesKeyboard(.immediately)
+                if selecting {
+                    selectionBar
+                }
             }
             if let exportURL {
                 ShareLink(item: exportURL) {
@@ -140,6 +150,19 @@ struct DeckView: View {
         } message: {
             Text("Deletes its history too. The word comes back if you look it up and Keep it.")
         }
+        .confirmationDialog(
+            "Delete \(selection.count) card\(selection.count == 1 ? "" : "s")?",
+            isPresented: $showBatchDelete,
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive) {
+                selection.forEach { gameStore.deleteCard(cardId: $0) }
+                exitSelectMode()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Deletes their history too. The words come back if you look them up and Keep them.")
+        }
         .onChange(of: photosPickerItem) { _, newItem in
             guard let newItem else { return }
             attachFromLibrary(newItem)
@@ -171,10 +194,56 @@ struct DeckView: View {
         .padding(.bottom, 6)
     }
 
+    private var controlRow: some View {
+        DeckControlRow(
+            selecting: selecting,
+            onToggleSelect: {
+                selecting.toggle()
+                selection.removeAll()
+            },
+            onPreset: applyPreset
+        )
+    }
+
+    private var selectionBar: some View {
+        DeckSelectionBar(
+            hasSelection: !selection.isEmpty,
+            onBench: { batchBench(true) },
+            onUnbench: { batchBench(false) },
+            onDelete: { showBatchDelete = true }
+        )
+    }
+
     private func row(_ entry: DeckEntry) -> some View {
-        DeckRow(entry: entry)
+        DeckRow(entry: entry, selected: selecting ? selection.contains(entry.id) : nil)
             .contentShape(Rectangle())
-            .onTapGesture { detailEntry = entry }
+            .onTapGesture {
+                if selecting {
+                    if selection.contains(entry.id) {
+                        selection.remove(entry.id)
+                    } else {
+                        selection.insert(entry.id)
+                    }
+                } else {
+                    detailEntry = entry
+                }
+            }
+    }
+
+    private func applyPreset(_ preset: GameStore.BenchPreset) {
+        gameStore.applyBenchPreset(preset)
+        reload()
+    }
+
+    private func batchBench(_ benched: Bool) {
+        gameStore.setBenched(cardIds: Array(selection), benched)
+        exitSelectMode()
+    }
+
+    private func exitSelectMode() {
+        selecting = false
+        selection.removeAll()
+        reload()
     }
 
     private func reload() {
@@ -227,34 +296,94 @@ struct DeckView: View {
     }
 }
 
+// Select toggles multi-select; Presets is the one-tap bench layouts dialog.
+// Standalone (like DeckRow) so the snapshot tests can render it without the
+// List. A confirmationDialog, not a Menu: Menu is UIKit-backed and draws the
+// "no entry" placeholder under ImageRenderer.
+struct DeckControlRow: View {
+    let selecting: Bool
+    let onToggleSelect: () -> Void
+    let onPreset: (GameStore.BenchPreset) -> Void
+
+    @State private var showPresets = false
+
+    var body: some View {
+        HStack {
+            Button(selecting ? "Done" : "Select", action: onToggleSelect)
+            Spacer()
+            Button("Presets") { showPresets = true }
+        }
+        .buttonStyle(GameButtonStyle(prominent: false, compact: true))
+        .padding(.horizontal)
+        .padding(.bottom, 6)
+        .confirmationDialog("Bench presets", isPresented: $showPresets, titleVisibility: .visible) {
+            Button("Bench Mastered cards") { onPreset(.drillWeaker) }
+            Button("Bench all except Mastered") { onPreset(.drillMastered) }
+            Button("Unbench every card") { onPreset(.wholeDeck) }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Sets the bench for every card in the deck.")
+        }
+    }
+}
+
+// The batch actions for the current selection, shown only in select mode.
+struct DeckSelectionBar: View {
+    let hasSelection: Bool
+    let onBench: () -> Void
+    let onUnbench: () -> Void
+    let onDelete: () -> Void
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Button("Bench", action: onBench)
+            Button("Unbench", action: onUnbench)
+            Button("Delete", action: onDelete)
+        }
+        .buttonStyle(GameButtonStyle(prominent: false, compact: true))
+        .disabled(!hasSelection)
+        .padding(.vertical, 10)
+    }
+}
+
 // One deck row: the card's battle art (photo, else sprite, else characters)
 // beside its words and Box dot. Split from DeckView so the snapshot tests
 // can render rows without the List (ImageRenderer draws List as a placeholder).
 struct DeckRow: View {
     let entry: DeckEntry
+    // nil = not in select mode; true/false draws the selection ring.
+    var selected: Bool? = nil
 
     private let photos = CardPhotos()
 
     var body: some View {
         HStack(spacing: 12) {
-            thumbnail
-            VStack(alignment: .leading, spacing: 2) {
-                Text(entry.english)
-                    .font(GameTheme.title(18))
-                    .foregroundStyle(GameTheme.cream)
-                Text(entry.traditional)
-                    .font(.system(size: 15, weight: .medium, design: .rounded))
-                    .foregroundStyle(GameTheme.cream.opacity(0.6))
+            // Outside the benched dimming so the mark stays legible.
+            if let selected {
+                Image(systemName: selected ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 22))
+                    .foregroundStyle(selected ? GameTheme.gold : GameTheme.cream.opacity(0.4))
             }
-            Spacer()
-            CardTierCrest(box: entry.box, size: 26)
-            if entry.benched {
-                Text("Benched")
-                    .font(.system(size: 11, weight: .semibold, design: .rounded))
-                    .foregroundStyle(GameTheme.cream.opacity(0.5))
+            HStack(spacing: 12) {
+                thumbnail
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(entry.english)
+                        .font(GameTheme.title(18))
+                        .foregroundStyle(GameTheme.cream)
+                    Text(entry.traditional)
+                        .font(.system(size: 15, weight: .medium, design: .rounded))
+                        .foregroundStyle(GameTheme.cream.opacity(0.6))
+                }
+                Spacer()
+                CardTierCrest(box: entry.box, size: 26)
+                if entry.benched {
+                    Text("Benched")
+                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                        .foregroundStyle(GameTheme.cream.opacity(0.5))
+                }
             }
+            .opacity(entry.benched ? 0.4 : 1)
         }
-        .opacity(entry.benched ? 0.4 : 1)
     }
 
     private var thumbnail: some View {

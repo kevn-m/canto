@@ -221,6 +221,74 @@ final class GameStoreTests: XCTestCase {
         XCTAssertTrue(store.nextCards(excluding: [], limit: 3).isEmpty)
     }
 
+    func test_setBenchedBatch_updatesOnlyGivenCards() {
+        let log = LogStore(directory: tempDir)
+        makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
+        makeChosenLookup(log, heard: "drink", traditional: "飲", jyutping: "jam2")
+        makeChosenLookup(log, heard: "lion", traditional: "獅子", jyutping: "si1 zi2")
+        let store = GameStore(directory: tempDir)
+        store.syncDeck(from: log)
+        let ids = store.deck().map(\.id)
+
+        store.setBenched(cardIds: [ids[0], ids[1]], true)
+
+        XCTAssertEqual(store.deck().map(\.benched), [true, true, false])
+    }
+
+    // Presets rewrite EVERY bench flag so each one lands a predictable
+    // layout: "Drill weaker" must also unbench a weak card the kid had
+    // manually benched, or the drill would silently skip it.
+    func test_applyBenchPreset_drillWeaker_benchesMasteredAndUnbenchesTheRest() {
+        let log = LogStore(directory: tempDir)
+        makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
+        makeChosenLookup(log, heard: "drink", traditional: "飲", jyutping: "jam2")
+        let store = GameStore(directory: tempDir)
+        store.syncDeck(from: log)
+        let ids = store.deck().map(\.id)
+        masterCard(store, cardId: ids[0])
+        store.setBenched(cardId: ids[1], true)
+
+        store.applyBenchPreset(.drillWeaker)
+
+        XCTAssertEqual(store.deck().map(\.benched), [true, false])
+    }
+
+    func test_applyBenchPreset_drillMastered_benchesEverythingBelowMastered() {
+        let log = LogStore(directory: tempDir)
+        makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
+        makeChosenLookup(log, heard: "drink", traditional: "飲", jyutping: "jam2")
+        let store = GameStore(directory: tempDir)
+        store.syncDeck(from: log)
+        let ids = store.deck().map(\.id)
+        masterCard(store, cardId: ids[0])
+        store.setBenched(cardId: ids[0], true)
+
+        store.applyBenchPreset(.drillMastered)
+
+        XCTAssertEqual(store.deck().map(\.benched), [false, true])
+    }
+
+    // The undo for the presets and any manual benching.
+    func test_applyBenchPreset_wholeDeck_unbenchesEveryCard() {
+        let log = LogStore(directory: tempDir)
+        makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
+        makeChosenLookup(log, heard: "drink", traditional: "飲", jyutping: "jam2")
+        let store = GameStore(directory: tempDir)
+        store.syncDeck(from: log)
+        store.applyBenchPreset(.drillMastered)
+
+        store.applyBenchPreset(.wholeDeck)
+
+        XCTAssertEqual(store.deck().map(\.benched), [false, false])
+    }
+
+    // Three hits climb New -> Learning -> Solid -> Mastered.
+    private func masterCard(_ store: GameStore, cardId: Int64) {
+        store.recordReview(cardId: cardId, result: .hit, on: "2026-07-01")
+        store.recordReview(cardId: cardId, result: .hit, on: "2026-07-02")
+        store.recordReview(cardId: cardId, result: .hit, on: "2026-07-03")
+    }
+
     func test_dueCards_returnsUnbenchedDueCard() {
         let log = LogStore(directory: tempDir)
         makeChosenLookup(log, heard: "eat", traditional: "食", jyutping: "sik6")
